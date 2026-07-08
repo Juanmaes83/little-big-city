@@ -39,8 +39,12 @@
             };
         })();
         paceOptions = { ajax: true, document: true };
-        window.addEventListener('error', function () { document.documentElement.classList.add('maqueta-runtime-warning'); });
-        window.addEventListener('unhandledrejection', function () { document.documentElement.classList.add('maqueta-runtime-warning'); });
+        window.addEventListener('error', function (event) {
+            window.MAQUETA_LAST_RUNTIME_ERROR = event && event.message ? event.message : 'runtime-error';
+        });
+        window.addEventListener('unhandledrejection', function (event) {
+            window.MAQUETA_LAST_RUNTIME_ERROR = event && event.reason ? String(event.reason) : 'runtime-rejection';
+        });
     </script>
     <script src="lib/pace.min.js"></script>
 </head>

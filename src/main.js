@@ -666,7 +666,30 @@ const app = application.create('#viewport', {
                 return {boundingRect: poly.boundingRect};
             }
 
-            let tiles = mainLayer.getTiles().tileGrids[0].tiles;
+            const tileState = mainLayer.getTiles && mainLayer.getTiles();
+            const tileGrid = tileState && tileState.tileGrids && tileState.tileGrids[0];
+            let tiles = tileGrid && Array.isArray(tileGrid.tiles) ? tileGrid.tiles : [];
+            if (!tiles.length) {
+                this._tileRetryCount = (this._tileRetryCount || 0) + 1;
+                maquetaDebugState.tiles = [];
+                maquetaDebugState.lastFetch = 'waiting-for-maptalks-tiles';
+                logMaqueta('[Maqueta Viva Tiles]', {
+                    event: 'waiting-for-tiles',
+                    zone: MAQUETA_ZONE,
+                    retry: this._tileRetryCount,
+                    center: maquetaDebugState.center
+                });
+                updateMaquetaDebugPanel();
+                if (this._tileRetryCount <= 16) {
+                    window.setTimeout(() => {
+                        if (app && app.methods && app.methods.updateElements) {
+                            app.methods.updateElements(app);
+                        }
+                    }, 160);
+                }
+                return;
+            }
+            this._tileRetryCount = 0;
             const subdomains = ['a', 'b', 'c'];
             if (IS_TILE_STYLE) {
                 const center = map.getCenter();
@@ -750,7 +773,12 @@ const app = application.create('#viewport', {
 
                 return fetch(url, {
                     mode: 'cors'
-                }).then(response => response.arrayBuffer())
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('MVT request failed with status ' + response.status);
+                    }
+                    return response.arrayBuffer();
+                })
                     .then(buffer => {
                         if (fetchId !== this._id) {
                             return;
@@ -840,6 +868,21 @@ const app = application.create('#viewport', {
                             }
                         }
 
+                        app.methods.render();
+                    })
+                    .catch(err => {
+                        loading--;
+                        logMaqueta('[Maqueta Viva Fetch]', {
+                            event: 'tile-fetch-failed',
+                            zone: MAQUETA_ZONE,
+                            tile: {z: tile.z, x: tile.x, y: tile.y},
+                            error: err && err.message ? err.message : String(err)
+                        });
+                        maquetaDebugState.lastFetch = 'tile-fetch-failed: ' + url;
+                        updateMaquetaDebugPanel();
+                        if (IS_TILE_STYLE && loading === 0) {
+                            app.methods.updateEarthGround(allBoundingRect);
+                        }
                         app.methods.render();
                     });
             });

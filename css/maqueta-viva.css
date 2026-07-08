@@ -1049,11 +1049,17 @@
 }
 
 .maqueta-viva-shell #map {
-    display: none;
+    display: block;
+    left: -9999px;
+    right: auto;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .show-technical-controls.maqueta-viva-shell #map {
-    display: block;
+    left: 36px;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 #maqueta-calibration-panel {
