@@ -63,6 +63,19 @@ searchItems.forEach(item => {
 });
 urlOpts.lng = +(urlOpts.lng || DEFAULT_LNG);
 urlOpts.lat = +(urlOpts.lat || DEFAULT_LAT);
+urlOpts.zoom = Math.min(17, Math.max(15, +(urlOpts.zoom || 16)));
+
+const PRESERVED_URL_KEYS = ['debug', 'calibrate', 'view', 'route', 'sector', 'zoom', 'analytics'];
+const preservedUrlOpts = {};
+const initialMaquetaParams = window.MAQUETA_VIVA_INITIAL_PARAMS || {};
+PRESERVED_URL_KEYS.forEach(key => {
+    if (urlOpts[key] !== undefined && urlOpts[key] !== null && urlOpts[key] !== '') {
+        preservedUrlOpts[key] = urlOpts[key];
+    }
+    else if (initialMaquetaParams[key] !== undefined && initialMaquetaParams[key] !== null && initialMaquetaParams[key] !== '') {
+        preservedUrlOpts[key] = initialMaquetaParams[key];
+    }
+});
 
 const MAQUETA_DEBUG = urlOpts.debug === '1';
 const MAQUETA_ZONE = urlOpts.zone || 'original';
@@ -72,6 +85,7 @@ const maquetaDebugState = {
     urlLng: urlOpts.lng,
     urlLat: urlOpts.lat,
     style: urlOpts.style || 'planet',
+    zoom: urlOpts.zoom,
     refresh: MAQUETA_REFRESH,
     engineLng: urlOpts.lng,
     engineLat: urlOpts.lat,
@@ -83,13 +97,23 @@ const maquetaDebugState = {
 };
 
 function makeUrl() {
+    PRESERVED_URL_KEYS.forEach(key => {
+        if (preservedUrlOpts[key] !== undefined && (urlOpts[key] === undefined || urlOpts[key] === null || urlOpts[key] === '')) {
+            urlOpts[key] = preservedUrlOpts[key];
+        }
+    });
     const diffConfig = {};
     for (let key in config) {
         if (config[key] !== DEFAULT_CONFIG[key]) {
             diffConfig[key] = config[key];
         }
     }
-    urlOpts.config = encodeURIComponent(JSON.stringify(diffConfig));
+    if (Object.keys(diffConfig).length) {
+        urlOpts.config = encodeURIComponent(JSON.stringify(diffConfig));
+    }
+    else {
+        delete urlOpts.config;
+    }
 
     const urlItems = [];
     for (let key in urlOpts) {
@@ -188,11 +212,11 @@ const map = new maptalks.Map('map-main', {
     // center: [-0.113049, 51.498568],
     // center: [-73.97332, 40.76462],
     center: [urlOpts.lng, urlOpts.lat],
-    zoom: 16,
+    zoom: urlOpts.zoom,
     baseLayer: mainLayer
 });
-map.setMinZoom(16);
-map.setMaxZoom(16);
+map.setMinZoom(15);
+map.setMaxZoom(17);
 maquetaDebugState.center = map.getCenter().toJSON ? map.getCenter().toJSON() : map.getCenter();
 logMaqueta('[Maqueta Viva Engine]', {
     event: 'init',
@@ -201,6 +225,7 @@ logMaqueta('[Maqueta Viva Engine]', {
     urlLat: urlOpts.lat,
     appliedCenter: maquetaDebugState.center,
     style: urlOpts.style || 'planet',
+    zoom: urlOpts.zoom,
     refresh: MAQUETA_REFRESH,
     pathname: location.pathname
 });
@@ -709,8 +734,12 @@ const app = application.create('#viewport', {
                     });
                     updateMaquetaDebugPanel();
                     for (let key in features) {
+                        const elConfig = vectorElements.find(config => config.type === key);
+                        if (!elConfig || !features[key] || !features[key].length) {
+                            continue;
+                        }
                         createElementMesh(
-                            vectorElements.find(config => config.type === key),
+                            elConfig,
                             features[key],
                             tileRect, idx
                         );
@@ -762,10 +791,11 @@ const app = application.create('#viewport', {
                         });
 
                         if (features.water) {
-                            features.water = [unionComplexPolygons(features.water.filter(feature => {
+                            const waterPolygons = features.water.filter(feature => {
                                 const geoType = feature.geometry && feature.geometry.type;
                                 return geoType === 'Polygon' || geoType === 'MultiPolygon';
-                            }))];
+                            });
+                            features.water = waterPolygons.length ? [unionComplexPolygons(waterPolygons)] : [];
                         }
                         if (features.roads) {
                             features.roads = features.roads.filter(feature => {
@@ -773,6 +803,12 @@ const app = application.create('#viewport', {
                                 return geoType === 'LineString' || geoType === 'MultiLineString';
                             });
                         }
+                        Object.keys(features).forEach(key => {
+                            features[key] = features[key].filter(feature => feature && feature.geometry);
+                            if (!features[key].length) {
+                                delete features[key];
+                            }
+                        });
 
                         mvtCache.set(url, features);
                         const counts = featureCounts(features);
@@ -785,8 +821,12 @@ const app = application.create('#viewport', {
                         });
                         updateMaquetaDebugPanel();
                         for (let key in features) {
+                            const elConfig = vectorElements.find(config => config.type === key);
+                            if (!elConfig || !features[key] || !features[key].length) {
+                                continue;
+                            }
                             const {boundingRect} = createElementMesh(
-                                vectorElements.find(config => config.type === key),
+                                elConfig,
                                 features[key],
                                 tileRect, idx
                             );
@@ -943,6 +983,8 @@ function updateAll() {
 }
 
 function updateUrlState() {
+    maquetaDebugState.zone = urlOpts.zone || MAQUETA_ZONE;
+    maquetaDebugState.mode = urlOpts.zone === 'custom' ? 'manual/custom' : 'preset';
     const nextUrl = makeUrl();
     logMaqueta('[Maqueta Viva Zone]', {
         event: 'history-update',
@@ -950,6 +992,7 @@ function updateUrlState() {
         lng: urlOpts.lng,
         lat: urlOpts.lat,
         style: urlOpts.style || 'planet',
+        zoom: urlOpts.zoom,
         finalUrl: nextUrl
     });
     history.pushState('', '', nextUrl);
@@ -967,6 +1010,8 @@ map.on('moving', function () {
     const center = map.getCenter();
     urlOpts.lng = document.querySelector('#lng').value = center.x;
     urlOpts.lat = document.querySelector('#lat').value = center.y;
+    urlOpts.zoom = Math.min(17, Math.max(15, +map.getZoom()));
+    urlOpts.zone = 'custom';
 });
 map.on('zoomend', function () {
     clearTimeout(timeout);
@@ -985,9 +1030,22 @@ Array.prototype.forEach.call(document.querySelectorAll('#style-list li'), li => 
 document.querySelector('#locate').addEventListener('click', () => {
     urlOpts.lng = +document.querySelector('#lng').value;
     urlOpts.lat = +document.querySelector('#lat').value;
+    urlOpts.zone = 'custom';
+    urlOpts.zoom = Math.min(17, Math.max(15, +(urlOpts.zoom || map.getZoom() || 16)));
+    urlOpts.refresh = Date.now();
     map.setCenter({x: urlOpts.lng, y: urlOpts.lat});
     app.methods.updateElements();
     updateUrlState();
+    window.dispatchEvent(new CustomEvent('maqueta:manual-location', {
+        detail: {
+            zone: 'custom',
+            lng: urlOpts.lng,
+            lat: urlOpts.lat,
+            style: urlOpts.style || 'planet',
+            zoom: urlOpts.zoom,
+            href: location.href
+        }
+    }));
 });
 
 document.querySelector('#reset').addEventListener('click', () => {

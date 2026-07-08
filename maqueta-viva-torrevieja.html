@@ -7,7 +7,7 @@
     <meta name="description" content="Maqueta Viva 3D Torrevieja: experiencia premium de ciudad 3D con datos reales del territorio, zonas, POIs y Ruta Viva compartible.">
     <title>Maqueta Viva 3D - Torrevieja</title>
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/maqueta-viva.css">
+    <link rel="stylesheet" href="./css/maqueta-viva.css?v=0.3-premium-layer">
     <script>
         (function applyMaquetaPresetFallback() {
             // Fallback minimo para arrancar el motor si el JSON no ha cargado todavia.
@@ -24,6 +24,10 @@
             if (changed) {
                 window.history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
             }
+            window.MAQUETA_VIVA_INITIAL_PARAMS = {};
+            params.forEach(function (value, key) {
+                window.MAQUETA_VIVA_INITIAL_PARAMS[key] = value;
+            });
             window.MAQUETA_VIVA_PRESET = {
                 name: 'Torrevieja',
                 zone: params.get('zone'),
@@ -61,6 +65,7 @@
         <span><strong>Sector</strong><em id="status-sector">Turismo</em></span>
         <span><strong>Coordenadas</strong><em id="status-coords">-0.6822 / 37.9787</em></span>
         <span><strong>Vista</strong><em id="status-view">tile</em></span>
+        <span><strong>Zoom / perspectiva</strong><em id="status-zoom">16</em></span>
         <span><strong>Calibracion</strong><em id="status-calibration">Aproximada</em></span>
         <span><strong>Ruta</strong><em id="status-route">0/5</em></span>
     </section>
@@ -98,6 +103,11 @@
             </section>
             <section class="maqueta-panel-block">
                 <div class="maqueta-block-head"><h2>Zonas para levantar</h2><span>Aproximadas v0.2</span></div>
+                <div class="maqueta-zoom-controls" aria-label="Control de zoom por zona">
+                    <button type="button" id="zoom-minus">Zoom -</button>
+                    <button type="button" id="zoom-plus">Zoom +</button>
+                    <button type="button" id="zoom-reset">Reset zoom de zona</button>
+                </div>
                 <div id="zones-list" class="maqueta-scroll-list"></div>
             </section>
         </aside>
@@ -117,14 +127,47 @@
                     <button type="button" id="clear-route">Limpiar ruta</button>
                 </div>
             </div>
+            <div class="maqueta-panel-block premium-block">
+                <div class="maqueta-block-head"><h2>Mapa sonoro</h2><span>Audio preparado</span></div>
+                <p id="soundscape-copy">Selecciona una zona para ver su paisaje sonoro previsto.</p>
+                <button type="button" id="soundscape-enable">Activar mapa sonoro</button>
+            </div>
+            <div class="maqueta-panel-block premium-block">
+                <div class="maqueta-block-head"><h2>Video / Directo</h2><span>Placeholder frontend</span></div>
+                <p id="immersive-media-copy">Preparado para video 360, drone, streaming o camara en directo.</p>
+                <button type="button" id="immersive-media-open">Ver experiencia inmersiva</button>
+            </div>
+            <div class="maqueta-panel-block premium-block">
+                <div class="maqueta-block-head"><h2>Escuchar historia</h2><span>Podcast preparado</span></div>
+                <p id="podcast-copy">Selecciona una zona para ver su relato narrado previsto.</p>
+                <button type="button" id="podcast-open">Reproducir relato</button>
+            </div>
+            <div class="maqueta-panel-block premium-block">
+                <div class="maqueta-block-head"><h2>Espacios destacados</h2><span>Demo sponsors</span></div>
+                <div id="sponsored-list"></div>
+            </div>
+            <div class="maqueta-panel-block premium-block">
+                <div class="maqueta-block-head"><h2>Descargas</h2><span>Frontend</span></div>
+                <div class="maqueta-route-actions">
+                    <button type="button" id="download-zone-story">Descargar ficha de zona</button>
+                    <button type="button" id="download-route-dossier">Descargar Ruta Viva</button>
+                    <button type="button" id="download-brand-story">Descargar briefing de marca</button>
+                </div>
+            </div>
         </section>
+
+        <aside id="maqueta-avatar-panel" aria-label="Guia territorial Marina">
+            <span>Marina</span>
+            <strong id="avatar-mood">Guia territorial</strong>
+            <p id="avatar-copy">Estoy lista para levantar la ciudad contigo.</p>
+        </aside>
 
         <aside id="maqueta-ecosystem-panel" aria-label="Ecosistema de experiencias">
             <h2>Ecosistema de experiencias</h2>
             <p>Explora. Despierta. Levanta.</p>
             <a href="https://juanmaes83.github.io/map-gesture-controls/demo/living-map.html" target="_blank" rel="noopener" data-ecosystem="living-map"><strong>Living Map</strong><span>Explora el territorio en mapa interactivo.</span></a>
             <a href="https://juanmaes83.github.io/map-gesture-controls/demo/batuta-torrevieja.html" target="_blank" rel="noopener" data-ecosystem="batuta"><strong>Batuta</strong><span>Despierta la ciudad con gestos.</span></a>
-            <a href="./maqueta-viva-torrevieja.html" data-ecosystem="maqueta-viva"><strong>Maqueta Viva 3D</strong><span>Levanta la ciudad en 3D.</span></a>
+            <a href="./maqueta-viva-torrevieja" data-ecosystem="maqueta-viva"><strong>Maqueta Viva 3D</strong><span>Levanta la ciudad en 3D.</span></a>
         </aside>
 
         <aside id="maqueta-layers-panel" aria-label="Capas de la maqueta">
@@ -167,6 +210,7 @@
                 <p>Usa LNG/LAT + GO para encontrar el punto correcto. Luego copia el preset JSON y pegalo en la configuracion.</p>
             </div>
             <select id="calibration-zone-select" aria-label="Zona que se esta calibrando"></select>
+            <button type="button" id="calibration-toggle" aria-expanded="false">Abrir</button>
         </div>
         <dl class="maqueta-calibration-readout">
             <div><dt>Zona activa</dt><dd id="calib-active-zone">-</dd></div>
@@ -211,7 +255,7 @@
     </div>
 
     <script src="lib/FileSaver.js"></script>
-    <script src="./dist/bundle.js"></script>
-    <script src="./js/maqueta-viva-product.js"></script>
+    <script src="./dist/bundle.js?v=0.3-premium-layer"></script>
+    <script src="./js/maqueta-viva-product.js?v=0.3-premium-layer"></script>
 </body>
 </html>

@@ -26,7 +26,8 @@
       "style": "tile",
       "sector": "Turismo / Smart City",
       "type": "Centro urbano",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 16
     },
     {
       "id": "puerto",
@@ -37,7 +38,8 @@
       "style": "tile",
       "sector": "Turismo / Eventos",
       "type": "Puerto / Marina",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 16
     },
     {
       "id": "frente-maritimo",
@@ -48,7 +50,8 @@
       "style": "planet",
       "sector": "Hotel / Turismo",
       "type": "Frente maritimo",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 16
     },
     {
       "id": "parque-naciones",
@@ -59,7 +62,8 @@
       "style": "tile",
       "sector": "Eventos / Patrimonio",
       "type": "Verde urbano",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 16
     },
     {
       "id": "salinas",
@@ -70,7 +74,8 @@
       "style": "planet",
       "sector": "Turismo / Patrimonio",
       "type": "Naturaleza / Salinas",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 15
     },
     {
       "id": "zona-comercial",
@@ -81,7 +86,44 @@
       "style": "tile",
       "sector": "Retail / Inmobiliaria",
       "type": "Retail / Servicios",
-      "calibrationStatus": "approximate"
+      "calibrationStatus": "approximate",
+      "zoom": 16
+    },
+    {
+      "id": "torre-del-moro",
+      "name": "Torre del Moro",
+      "description": "Emblema historico de Torrevieja en Cabo Cervera; zona alejada del centro para validar que los presets cambian realmente la maqueta.",
+      "lng": -0.6604,
+      "lat": 37.9897,
+      "style": "tile",
+      "sector": "Patrimonio / Turismo",
+      "type": "Patrimonio historico",
+      "calibrationStatus": "manual-review",
+      "zoom": 17
+    },
+    {
+      "id": "plaza-iglesia",
+      "name": "Plaza de la Iglesia / Plaza de la Constitucion",
+      "description": "Nodo civico y patrimonial del centro de Torrevieja, vinculado a la vida urbana, la iglesia, la plaza y el recorrido historico del casco urbano.",
+      "lng": -0.6823,
+      "lat": 37.9786,
+      "style": "tile",
+      "zoom": 17,
+      "sector": "Turismo / Patrimonio / Smart City",
+      "type": "Centro historico / Patrimonio urbano",
+      "calibrationStatus": "manual-review"
+    },
+    {
+      "id": "centro-la-mata",
+      "name": "Centro de La Mata / Plaza del Embarcadero",
+      "description": "Centro urbano de la pedania de La Mata, proximo a la Torre de La Mata, el embarcadero y el frente costero.",
+      "lng": -0.6549,
+      "lat": 38.0263,
+      "style": "tile",
+      "zoom": 16,
+      "sector": "Turismo / Naturaleza / Patrimonio",
+      "type": "Pedania / Costa / Patrimonio local",
+      "calibrationStatus": "manual-review"
     }
   ],
   "pois": [
@@ -140,6 +182,30 @@
       "zone": "frente-maritimo",
       "description": "La linea de mar como escenario de marca, estancia y recuerdo.",
       "visitorValue": "Da una salida emocional y compartible a la experiencia."
+    },
+    {
+      "id": "torre-del-moro",
+      "title": "Torre del Moro",
+      "category": "Patrimonio",
+      "zone": "torre-del-moro",
+      "description": "Torre vigia historica del entorno de Cabo Cervera, icono patrimonial para rutas culturales y turisticos.",
+      "visitorValue": "Sirve como prueba clara de desplazamiento real fuera del centro y como punto de relato historico."
+    },
+    {
+      "id": "plaza-iglesia",
+      "title": "Plaza de la Iglesia / Plaza de la Constitucion",
+      "category": "Patrimonio urbano",
+      "zone": "plaza-iglesia",
+      "description": "Nodo civico y patrimonial del centro urbano, vinculado a la iglesia, la plaza y el recorrido historico.",
+      "visitorValue": "Ideal para iniciar una ruta patrimonial, urbana y comercial por el centro de Torrevieja."
+    },
+    {
+      "id": "centro-la-mata",
+      "title": "Centro de La Mata / Plaza del Embarcadero",
+      "category": "Costa / Patrimonio local",
+      "zone": "centro-la-mata",
+      "description": "Centro de la pedania costera de La Mata, cercano al embarcadero, playa y vida local.",
+      "visitorValue": "Conecta playa, historia local, paseo maritimo y acceso al entorno natural de La Mata."
     }
   ],
   "sectors": [
@@ -224,5 +290,258 @@
   "ecosystemLinks": {
     "livingMap": "https://juanmaes83.github.io/map-gesture-controls/demo/living-map.html",
     "batuta": "https://juanmaes83.github.io/map-gesture-controls/demo/batuta-torrevieja.html"
+  },
+  "soundscapes": [
+    {
+      "zone": "centro",
+      "label": "Centro urbano mediterraneo",
+      "description": "Pasos, plaza, comercio y vida mediterranea.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: pasos, plaza, comercio y vida mediterranea.",
+      "mood": "urbano-calido"
+    },
+    {
+      "zone": "puerto",
+      "label": "Puerto / Marina",
+      "description": "Mar, gaviotas, amarres y actividad nautica.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: mar, gaviotas, amarres y actividad nautica.",
+      "mood": "maritimo-activo"
+    },
+    {
+      "zone": "frente-maritimo",
+      "label": "Frente maritimo",
+      "description": "Olas, paseo y terrazas suaves.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: olas, paseo y terrazas suaves.",
+      "mood": "costero-suave"
+    },
+    {
+      "zone": "salinas",
+      "label": "Salinas abiertas",
+      "description": "Viento, aves, silencio natural y paisaje abierto.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: viento, aves, silencio natural y paisaje abierto.",
+      "mood": "natural-contemplativo"
+    },
+    {
+      "zone": "torre-del-moro",
+      "label": "Mirador historico",
+      "description": "Viento, mirador, historia costera y memoria defensiva.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: viento, mirador, historia costera y memoria defensiva.",
+      "mood": "historico-costero"
+    },
+    {
+      "zone": "plaza-iglesia",
+      "label": "Campanas de plaza",
+      "description": "Campanas suaves, plaza, pasos y vida civica.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: campanas suaves, plaza, pasos y vida civica.",
+      "mood": "civico-patrimonial"
+    },
+    {
+      "zone": "centro-la-mata",
+      "label": "La Mata costera",
+      "description": "Mar, paseo, embarcadero y ambiente de pedania costera.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: mar, paseo, embarcadero y ambiente de pedania costera.",
+      "mood": "pedania-costera"
+    },
+    {
+      "zone": "zona-comercial",
+      "label": "Flujo comercial",
+      "description": "Actividad urbana, escaparates y flujo comercial suave.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: actividad urbana, escaparates y flujo comercial suave.",
+      "mood": "retail-suave"
+    }
+  ],
+  "immersiveMedia": [
+    {
+      "id": "salinas-live-future",
+      "zone": "salinas",
+      "type": "live-stream",
+      "title": "Salinas en directo",
+      "description": "Preparado para camara en directo futura de naturaleza.",
+      "url": null,
+      "status": "placeholder"
+    },
+    {
+      "id": "mata-video-future",
+      "zone": "centro-la-mata",
+      "type": "video",
+      "title": "La Mata: playa, embarcadero y paseo",
+      "description": "Preparado para video costero, paseo y embarcadero.",
+      "url": null,
+      "status": "placeholder"
+    },
+    {
+      "id": "torre-drone-future",
+      "zone": "torre-del-moro",
+      "type": "drone",
+      "title": "Mirador Torre del Moro",
+      "description": "Preparado para pieza drone o mirador inmersivo.",
+      "url": null,
+      "status": "placeholder"
+    },
+    {
+      "id": "plaza-historica-future",
+      "zone": "plaza-iglesia",
+      "type": "video",
+      "title": "Recorrido historico urbano",
+      "description": "Preparado para pieza historica o recorrido urbano.",
+      "url": null,
+      "status": "placeholder"
+    },
+    {
+      "id": "puerto-nautico-future",
+      "zone": "puerto",
+      "type": "video",
+      "title": "Puerto nautico",
+      "description": "Preparado para video nautico y actividad de marina.",
+      "url": null,
+      "status": "placeholder"
+    },
+    {
+      "id": "retail-campaign-future",
+      "zone": "zona-comercial",
+      "type": "video",
+      "title": "Campana retail local",
+      "description": "Preparado para video retail, escaparates o campana comercial.",
+      "url": null,
+      "status": "placeholder"
+    }
+  ],
+  "podcastStories": [
+    {
+      "id": "plaza-encuentro",
+      "zone": "plaza-iglesia",
+      "title": "La plaza como punto de encuentro del centro urbano.",
+      "duration": "2 min",
+      "description": "Relato breve sobre vida civica, comercio y patrimonio urbano.",
+      "audioUrl": null,
+      "transcript": "La plaza funciona como punto de encuentro del centro urbano: iglesia, comercio, pasos cotidianos y memoria compartida."
+    },
+    {
+      "id": "torre-memoria",
+      "zone": "torre-del-moro",
+      "title": "El mirador, la costa y la memoria defensiva.",
+      "duration": "2 min",
+      "description": "Historia preparada para locucion sobre costa y patrimonio defensivo.",
+      "audioUrl": null,
+      "transcript": "La Torre del Moro mira al Mediterraneo como huella defensiva y mirador de la ciudad contemporanea."
+    },
+    {
+      "id": "mata-pedania",
+      "zone": "centro-la-mata",
+      "title": "La pedania costera, el embarcadero y la vida junto al mar.",
+      "duration": "2 min",
+      "description": "Historia de La Mata como enclave costero y local.",
+      "audioUrl": null,
+      "transcript": "La Mata une playa, embarcadero, paseo y vida local en una escala mas cercana y marinera."
+    },
+    {
+      "id": "salinas-identidad",
+      "zone": "salinas",
+      "title": "El paisaje de sal, aves y color como identidad natural.",
+      "duration": "2 min",
+      "description": "Relato natural preparado para locucion.",
+      "audioUrl": null,
+      "transcript": "Las salinas abren el territorio: viento, aves, color y silencio como identidad natural de Torrevieja."
+    },
+    {
+      "id": "puerto-azul",
+      "zone": "puerto",
+      "title": "La puerta azul de la ciudad.",
+      "duration": "2 min",
+      "description": "Relato nautico y turistico del puerto.",
+      "audioUrl": null,
+      "transcript": "El puerto es una puerta azul: llegada, paseo, amarres, restaurantes y energia mediterranea."
+    }
+  ],
+  "sponsoredPlaces": [
+    {
+      "id": "puerto-nautica-demo",
+      "zone": "puerto",
+      "name": "Actividad nautica demo",
+      "category": "Actividad",
+      "description": "Espacio demo para reservas nauticas, escuela o experiencia marina.",
+      "ctaLabel": "Reservar experiencia",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    },
+    {
+      "id": "plaza-comercio-demo",
+      "zone": "plaza-iglesia",
+      "name": "Comercio local destacado",
+      "category": "Comercio",
+      "description": "Espacio demo para comercio local, cafeteria o visita urbana.",
+      "ctaLabel": "Ver oferta local",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    },
+    {
+      "id": "torre-foto-demo",
+      "zone": "torre-del-moro",
+      "name": "Mirador fotografico",
+      "category": "Actividad",
+      "description": "Espacio demo para experiencia fotografica o alojamiento cercano.",
+      "ctaLabel": "Contactar",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    },
+    {
+      "id": "salinas-eco-demo",
+      "zone": "salinas",
+      "name": "Ruta eco guiada",
+      "category": "Actividad",
+      "description": "Espacio demo para ruta natural, guia o experiencia eco.",
+      "ctaLabel": "Ver ruta guiada",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    },
+    {
+      "id": "mata-restaurante-demo",
+      "zone": "centro-la-mata",
+      "name": "Restaurante / alojamiento La Mata",
+      "category": "Restaurante",
+      "description": "Espacio demo para restaurante, alojamiento o actividad de playa.",
+      "ctaLabel": "Reservar",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    },
+    {
+      "id": "retail-escaparate-demo",
+      "zone": "zona-comercial",
+      "name": "Escaparate comercial demo",
+      "category": "Comercio",
+      "description": "Espacio demo para comercio, inmobiliaria o escaparate local.",
+      "ctaLabel": "Ver oferta",
+      "ctaUrl": null,
+      "sponsorStatus": "demo-placeholder"
+    }
+  ],
+  "recommendations": {
+    "turismo": [
+      "torre-del-moro",
+      "centro-la-mata",
+      "plaza-iglesia",
+      "puerto-marina",
+      "salinas",
+      "frente-costero"
+    ],
+    "patrimonio": [
+      "plaza-iglesia",
+      "torre-del-moro",
+      "centro-la-mata",
+      "salinas"
+    ],
+    "smart-city": [
+      "plaza-iglesia",
+      "centro-urbano",
+      "zona-comercial",
+      "centro-la-mata"
+    ]
   }
 }

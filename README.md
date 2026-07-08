@@ -35,11 +35,11 @@ Diferencia clave:
 
 ```text
 http://127.0.0.1:8137/
-http://127.0.0.1:8137/maqueta-viva-torrevieja.html
-http://127.0.0.1:8137/maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=tile
-http://127.0.0.1:8137/maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=planet
-http://127.0.0.1:8137/maqueta-viva-torrevieja.html?sector=inmobiliaria
-http://127.0.0.1:8137/maqueta-viva-torrevieja.html?sector=eventos&view=clean
+http://127.0.0.1:8137/maqueta-viva-torrevieja
+http://127.0.0.1:8137/maqueta-viva-torrevieja?lng=-0.6822&lat=37.9787&style=tile
+http://127.0.0.1:8137/maqueta-viva-torrevieja?lng=-0.6822&lat=37.9787&style=planet
+http://127.0.0.1:8137/maqueta-viva-torrevieja?sector=inmobiliaria
+http://127.0.0.1:8137/maqueta-viva-torrevieja?sector=eventos&view=clean
 ```
 
 ## Comandos
@@ -56,6 +56,8 @@ En las pruebas, `npm run build` funciono con Node moderno sin necesitar:
 $env:NODE_OPTIONS="--openssl-legacy-provider"
 ```
 
+Nota tecnica: las rutas internas de Maqueta Viva usan la forma extensionless `maqueta-viva-torrevieja`. En `npx serve`, navegar con `.html` puede redirigir y contaminar el flujo de presets.
+
 ## Que anade v0.2
 
 - Modo premium limpio: `dat.GUI` queda oculto por defecto.
@@ -71,6 +73,38 @@ $env:NODE_OPTIONS="--openssl-legacy-provider"
 - Panel de capas diferenciando motor real, capa de producto y capas futuras.
 - Fallback visual mejorado si fallan datos 3D.
 - Eventos simulados con `trackMaquetaEvent()` y prefijo `[Maqueta Viva Analytics]`.
+
+## Que anade v0.3 - Premium Experience Layer
+
+La v0.3 convierte Maqueta Viva 3D en una capa territorial premium preparada para vender experiencias de destino, rutas vivas, patrocinios y storytelling de marca.
+
+- Nuevas zonas y POIs: **Torre del Moro**, **Plaza de la Iglesia / Plaza de la Constitucion** y **Centro de La Mata / Plaza del Embarcadero**.
+- Presets de zona con `zoom` controlado entre 15 y 17.
+- Botones `Zoom -`, `Zoom +` y `Reset zoom de zona`.
+- URLs internas con `zone`, `lng`, `lat`, `style`, `zoom`, `sector` y `refresh`.
+- Barra fija de zonas para validar desplazamiento real entre Centro, Salinas, Zona Comercial, Torre del Moro, Plaza Iglesia y La Mata.
+- Panel `calibrate=1` plegable por defecto para que no bloquee la experiencia.
+- Panel `debug=1` y `analytics=1` de lectura pasiva, sin interceptar clics.
+- Mapas sonoros por zona con estructura preparada y texto honesto: audio pendiente de integracion real.
+- Video/directo/360/drone como placeholder frontend preparado por zona.
+- Podcast/historias narradas con transcript y estado "preparado para locucion".
+- Avatar frontend **Marina**, con reacciones contextuales a zona, POI, ruta, sonido, podcast y video.
+- Cola local de analytics: `window.MAQUETA_ANALYTICS_EVENTS` y persistencia en `localStorage`.
+- Descargas frontend: ficha de zona, Ruta Viva y briefing de marca en JSON.
+- Espacios patrocinados demo por zona, listos para conectar con WhatsApp, reservas, CRM o URL externa.
+
+Lo real en v0.3: presets, POIs, zoom URL, botones, analytics local, descargas JSON, avatar textual, modales, estructura JSON y QA local.
+
+Lo placeholder en v0.3: audios reales, videos reales, streaming, avatar 3D/webcam, patrocinios conectados, backend y generacion visual final.
+
+URLs de QA v0.3:
+
+```text
+http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=torre-del-moro&sector=turismo&debug=1&calibrate=1&analytics=1
+http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=plaza-iglesia&zoom=17&sector=patrimonio
+http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=centro-la-mata&zoom=16&sector=turismo
+http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=salinas&zoom=15&style=planet&sector=turismo
+```
 
 
 ## Nota v0.2.2 - prueba visual de zonas
@@ -91,6 +125,9 @@ Las coordenadas son aproximadas para prototipo. No deben venderse como precision
 - Parque de las Naciones.
 - Salinas / entorno natural.
 - Zona comercial.
+- Torre del Moro.
+- Plaza de la Iglesia / Plaza de la Constitucion.
+- Centro de La Mata / Plaza del Embarcadero.
 
 Cada zona define `lng`, `lat`, estilo recomendado y sector principal en:
 
@@ -109,6 +146,9 @@ Los POIs actuales son capa de producto, no marcadores 3D exactos sobre la maquet
 - Salinas.
 - Zona comercial.
 - Frente costero.
+- Torre del Moro.
+- Plaza de la Iglesia / Plaza de la Constitucion.
+- Centro de La Mata / Plaza del Embarcadero.
 
 Cada POI permite:
 
@@ -347,3 +387,38 @@ Pruebas manuales:
 - Cambiar `LNG/LAT`, pulsar `GO` y confirmar que el panel refleja las coordenadas actuales.
 - Copiar `preset JSON` y verificar que incluye la zona seleccionada y `calibrationStatus: "manual-review"`.
 - Abrir `?debug=1` y confirmar que scroll, Ruta Viva, dat.GUI y panel de debug siguen funcionando.
+
+## Nota v0.2.5 - presets clicables y coordenadas manuales
+
+Diagnostico: despues de la calibracion v0.2.4, el motor respondia cuando el usuario escribia `LNG/LAT` manualmente y pulsaba `GO`, pero algunos botones de zona no aplicaban el preset completo. El sintoma visible era que la experiencia podia quedarse en `Centro urbano` aunque el usuario pulsara `Puerto`, `Salinas` o `Zona comercial`.
+
+Correccion v0.2.5:
+
+- Se crea un flujo unico `applyZonePreset(zoneId, source)` para botones de zona, POIs, pruebas directas de calibracion y accesos heredados.
+- Cada tarjeta de zona declara `data-zone-id`, `data-zone-lng`, `data-zone-lat` y `data-zone-style`.
+- El click de una zona reconstruye una URL absoluta sobre `maqueta-viva-torrevieja.html`, preservando `debug=1`, `calibrate=1`, `route` y `view`.
+- Se elimina `config=%7B%7D` cuando no hay configuracion diferencial real.
+- El modo manual `LNG/LAT + GO` marca la URL como `zone=custom` y el estado visible como `Coordenadas manuales`.
+- El debug de clics aparece con `debug=1` y muestra ultimo boton pulsado, coordenadas aplicadas, metodo de navegacion, URL generada, inputs actuales y zona activa.
+- El JSON sigue siendo la fuente principal de presets; el HTML conserva solo fallback minimo.
+
+Prueba critica:
+
+```text
+maqueta-viva-torrevieja.html?zone=centro&lng=-0.6822&lat=37.9787&style=tile&sector=turismo&calibrate=1&debug=1
+```
+
+Desde esa URL, pulsar `Puerto / Marina`, `Salinas / entorno natural` y `Zona comercial` debe cambiar URL, inputs `LNG/LAT`, estado visible y debug de clics. Si el usuario introduce coordenadas manuales y pulsa `GO`, la URL debe quedar como `zone=custom`.
+
+## Roadmap premium posterior al fix de presets
+
+Esta fase deja estabilizada la navegacion por presets. A partir de aqui, la evolucion premium debe centrarse en valor vendible, no en mas botones:
+
+- Capa real de pins/POIs georreferenciados sobre la maqueta.
+- Ruta 3D visible entre lugares seleccionados.
+- Presets calibrados por cliente o sector.
+- Branding configurable por campana.
+- Poster o recuerdo descargable de la Ruta Viva.
+- QR/link final para compartir una ruta cerrada.
+- Integracion externa con Living Map y La Batuta sin mezclar motores.
+- Fallback elegante cuando Nextzen no devuelve edificios.

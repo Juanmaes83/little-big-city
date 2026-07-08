@@ -4,12 +4,12 @@
     var CONFIG_URL = './data/maqueta-viva/torrevieja.config.json';
     var MAX_ROUTE_ITEMS = 5;
     var SECTOR_RECOMMENDATIONS = {
-        turismo: ['puerto-marina', 'paseo-maritimo', 'salinas', 'frente-costero'],
+        turismo: ['puerto-marina', 'paseo-maritimo', 'salinas', 'torre-del-moro', 'frente-costero'],
         inmobiliaria: ['centro-urbano', 'zona-comercial', 'frente-costero'],
         eventos: ['puerto-marina', 'parque-naciones', 'frente-costero'],
         retail: ['zona-comercial', 'centro-urbano'],
         hotel: ['frente-costero', 'paseo-maritimo', 'puerto-marina'],
-        patrimonio: ['salinas', 'parque-naciones', 'centro-urbano'],
+        patrimonio: ['torre-del-moro', 'salinas', 'parque-naciones', 'centro-urbano'],
         'smart-city': ['centro-urbano', 'zona-comercial', 'parque-naciones']
     };
     var PANEL_EVENT_SELECTORS = [
@@ -34,7 +34,24 @@
         config: null,
         route: [],
         sector: 'turismo',
-        clean: false
+        clean: false,
+        interactionDebug: {
+            lastClickTarget: null,
+            lastZoneButtonClicked: null,
+            clickedLng: null,
+            clickedLat: null,
+            clickedStyle: null,
+            generatedUrl: null,
+            navigationMethod: null,
+            navigationExecuted: false,
+            currentLocationHref: null,
+            currentSearchParams: null,
+            lngInputValue: null,
+            latInputValue: null,
+            activeZoneFromUrl: null,
+            mode: 'preset',
+            timestamp: null
+        }
     };
 
     function $(id) {
@@ -42,7 +59,22 @@
     }
 
     function trackMaquetaEvent(eventName, payload) {
-        console.info('[Maqueta Viva Analytics]', eventName, payload || {});
+        var zone = getActiveZone ? getActiveZone() : null;
+        var event = {
+            eventName: eventName,
+            timestamp: new Date().toISOString(),
+            zone: zone && zone.id,
+            sector: state.sector,
+            routeCount: state.route.length,
+            payload: payload || {}
+        };
+        window.MAQUETA_ANALYTICS_EVENTS = window.MAQUETA_ANALYTICS_EVENTS || [];
+        window.MAQUETA_ANALYTICS_EVENTS.push(event);
+        try {
+            localStorage.setItem('MAQUETA_ANALYTICS_EVENTS', JSON.stringify(window.MAQUETA_ANALYTICS_EVENTS.slice(-120)));
+        } catch (err) {}
+        console.info('[Maqueta Viva Analytics]', eventName, event);
+        updateAnalyticsPanel();
     }
 
     window.trackMaquetaEvent = trackMaquetaEvent;
@@ -51,21 +83,62 @@
         return new URLSearchParams(window.location.search);
     }
 
+    function getInitialParam(key) {
+        return window.MAQUETA_VIVA_INITIAL_PARAMS ? window.MAQUETA_VIVA_INITIAL_PARAMS[key] : null;
+    }
+
+    function getParam(key) {
+        return getParams().get(key) || getInitialParam(key);
+    }
+
     function findSector(id) {
         if (!state.config || !state.config.sectors) return null;
         return state.config.sectors.find(function (sector) { return sector.id === id; }) || state.config.sectors[0];
     }
 
     function findZone(id) {
-        if (!state.config || !state.config.zones) return null;
-        return state.config.zones.find(function (zone) { return zone.id === id; }) || state.config.zones[0];
+        if (!state.config || !state.config.zones || !id) return null;
+        return state.config.zones.find(function (zone) { return zone.id === id; }) || null;
+    }
+
+    function defaultZone() {
+        if (!state.config || !state.config.zones || !state.config.zones.length) return null;
+        return findZone(state.config.defaultView && state.config.defaultView.zone) || state.config.zones[0];
+    }
+
+    function numericClose(a, b) {
+        return Math.abs(Number(a) - Number(b)) < 0.000001;
+    }
+
+    function zoneMatchesRuntime(zone, params) {
+        if (!zone || !params.has('lng') || !params.has('lat')) return true;
+        return numericClose(params.get('lng'), zone.lng) && numericClose(params.get('lat'), zone.lat);
+    }
+
+    function manualZone(params) {
+        return {
+            id: 'custom',
+            name: 'Coordenadas manuales',
+            description: 'Ubicacion calibrada manualmente desde LNG/LAT + GO.',
+            lng: params.get('lng'),
+            lat: params.get('lat'),
+            style: params.get('style') || 'tile',
+            sector: 'Calibracion manual',
+            type: 'Calibracion manual',
+            calibrationStatus: 'manual-review'
+        };
     }
 
     function getActiveZone() {
         var params = getParams();
         var zoneId = params.get('zone') || (state.config && state.config.defaultView && state.config.defaultView.zone) || 'centro';
-        return findZone(zoneId);
+        if (zoneId === 'custom') return manualZone(params);
+        var zone = findZone(zoneId);
+        if (zone && zoneMatchesRuntime(zone, params)) return zone;
+        if (zone && params.has('lng') && params.has('lat')) return manualZone(params);
+        return zone || defaultZone();
     }
+
 
     function getPoiById(id) {
         if (!state.config || !state.config.pois) return null;
@@ -73,6 +146,9 @@
     }
 
     function getRecommendedIds() {
+        if (state.config && state.config.recommendations && state.config.recommendations[state.sector]) {
+            return state.config.recommendations[state.sector];
+        }
         return SECTOR_RECOMMENDATIONS[state.sector] || [];
     }
 
@@ -81,7 +157,7 @@
     }
 
     function isCalibrateMode() {
-        return getParams().get('calibrate') === '1';
+        return getParam('calibrate') === '1';
     }
 
     function getCalibrationLabel(status) {
@@ -94,6 +170,10 @@
         return getParams().get('style') || (zone && zone.style) || 'tile';
     }
 
+    function getRuntimeZoom(zone) {
+        return Number(getParams().get('zoom') || (zone && zone.zoom) || 16);
+    }
+
     function getRuntimeCoords(zone) {
         var params = getParams();
         var lngInput = $('lng');
@@ -101,7 +181,8 @@
         return {
             lng: (lngInput && lngInput.value) || params.get('lng') || (zone && zone.lng),
             lat: (latInput && latInput.value) || params.get('lat') || (zone && zone.lat),
-            style: getRuntimeStyle(zone)
+            style: getRuntimeStyle(zone),
+            zoom: getRuntimeZoom(zone)
         };
     }
 
@@ -128,7 +209,7 @@
         params.set('sector', state.sector || params.get('sector') || 'turismo');
         params.set('calibrate', '1');
         params.set('refresh', String(Date.now()));
-        return new URL('./maqueta-viva-torrevieja.html?' + params.toString(), window.location.href).toString();
+        return new URL('./maqueta-viva-torrevieja?' + params.toString(), window.location.href).toString();
     }
 
     function selectedCalibrationZone() {
@@ -160,6 +241,20 @@
     function renderCalibrationPanel(config) {
         if (!isCalibrateMode()) return;
         document.body.classList.add('maqueta-calibrate-mode');
+        if (!document.body.classList.contains('maqueta-calibration-open')) {
+            document.body.classList.add('maqueta-calibration-collapsed');
+        }
+        var toggle = $('calibration-toggle');
+        if (toggle && !toggle.dataset.bound) {
+            toggle.dataset.bound = '1';
+            toggle.addEventListener('click', function () {
+                var willOpen = document.body.classList.contains('maqueta-calibration-collapsed');
+                document.body.classList.toggle('maqueta-calibration-collapsed', !willOpen);
+                document.body.classList.toggle('maqueta-calibration-open', willOpen);
+                toggle.textContent = willOpen ? 'Cerrar' : 'Abrir';
+                toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            });
+        }
         var select = $('calibration-zone-select');
         if (select && !select.options.length) {
             config.zones.forEach(function (zone) {
@@ -169,7 +264,7 @@
                 select.appendChild(option);
             });
             var activeZone = getActiveZone();
-            select.value = activeZone ? activeZone.id : config.zones[0].id;
+            select.value = activeZone && activeZone.id !== 'custom' ? activeZone.id : config.zones[0].id;
             select.addEventListener('change', updateCalibrationPanel);
         }
         var tests = $('calibration-zone-buttons');
@@ -179,7 +274,7 @@
                 button.type = 'button';
                 button.textContent = 'Probar ' + zone.name;
                 button.addEventListener('click', function () {
-                    navigateToZone(zone, 'calibration-direct-test');
+                    applyZonePreset(zone.id, 'calibration-direct-test', null);
                 });
                 tests.appendChild(button);
             });
@@ -225,25 +320,184 @@
         };
     }
 
+    function cleanIrrelevantConfig(params) {
+        var raw = params.get('config');
+        if (!raw) return;
+        try {
+            var parsed = JSON.parse(decodeURIComponent(raw));
+            if (!parsed || !Object.keys(parsed).length) params.delete('config');
+        } catch (err) {
+            params.delete('config');
+        }
+    }
+
+    function ensureInteractionDebugPanel() {
+        if (getParam('debug') !== '1') return null;
+        var panel = $('maqueta-interaction-debug');
+        if (panel) return panel;
+        panel = document.createElement('section');
+        panel.id = 'maqueta-interaction-debug';
+        panel.setAttribute('aria-label', 'Maqueta Viva Interaction Debug');
+        panel.innerHTML = '<strong>Maqueta Viva Click Debug</strong><pre id="maqueta-interaction-debug-output"></pre>';
+        document.body.appendChild(panel);
+        return panel;
+    }
+
+    function updateInteractionDebugPanel() {
+        var panel = ensureInteractionDebugPanel();
+        if (!panel) return;
+        var output = $('maqueta-interaction-debug-output');
+        if (output) output.textContent = JSON.stringify(state.interactionDebug, null, 2);
+    }
+
+    function recordInteractionDebug(payload) {
+        state.interactionDebug = Object.assign({}, state.interactionDebug, payload || {}, {
+            currentLocationHref: window.location.href,
+            currentSearchParams: window.location.search,
+            lngInputValue: $('lng') ? $('lng').value : null,
+            latInputValue: $('lat') ? $('lat').value : null,
+            activeZoneFromUrl: getParams().get('zone'),
+            timestamp: new Date().toISOString()
+        });
+        updateInteractionDebugPanel();
+    }
+
+    function updateAnalyticsPanel() {
+        if (getParam('analytics') !== '1') return;
+        var panel = $('maqueta-analytics-debug');
+        if (!panel) {
+            panel = document.createElement('section');
+            panel.id = 'maqueta-analytics-debug';
+            panel.innerHTML = '<strong>Maqueta Analytics</strong><pre id="maqueta-analytics-output"></pre>';
+            document.body.appendChild(panel);
+        }
+        var output = $('maqueta-analytics-output');
+        if (output) output.textContent = JSON.stringify((window.MAQUETA_ANALYTICS_EVENTS || []).slice(-25), null, 2);
+    }
+
+    function findByZone(collection, zoneId) {
+        if (!state.config || !state.config[collection]) return null;
+        return state.config[collection].find(function (item) { return item.zone === zoneId; }) || null;
+    }
+
+    function filterByZone(collection, zoneId) {
+        if (!state.config || !state.config[collection]) return [];
+        return state.config[collection].filter(function (item) { return item.zone === zoneId; });
+    }
+
+    function avatarReact(eventName, payload) {
+        var zone = getActiveZone();
+        var mood = $('avatar-mood');
+        var copy = $('avatar-copy');
+        var messages = {
+            zone_changed: 'He cambiado el foco a ' + (zone ? zone.name : 'esta zona') + '. Mira como cambia el territorio.',
+            poi_added: 'Buen punto. Esta Ruta Viva empieza a tener relato.',
+            route_created: 'Tu ruta ya tiene forma. Ahora se puede convertir en recuerdo o propuesta de marca.',
+            sound_enabled: 'Mapa sonoro activado: todavia es una capa preparada para integrar audio real.',
+            podcast_opened: 'Te muestro la historia preparada para locucion.',
+            immersive_video_opened: 'Esta zona queda preparada para video 360, drone, directo o camara.',
+            sponsor_opened: 'Este espacio patrocinado esta listo para conectarse con CRM, WhatsApp o reservas.'
+        };
+        if (mood) mood.textContent = eventName.replace(/_/g, ' ');
+        if (copy) copy.textContent = messages[eventName] || 'Estoy siguiendo la experiencia contigo.';
+        trackMaquetaEvent('avatar_reaction', { eventName: eventName, payload: payload || {} });
+    }
+
+    function downloadTextFile(filename, data) {
+        var blob = new Blob([typeof data === 'string' ? data : JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+        saveAs(blob, filename);
+    }
+
+    function currentZoneBundle() {
+        var zone = getActiveZone();
+        var zoneId = zone && zone.id;
+        return {
+            zone: zone,
+            pois: state.config.pois.filter(function (poi) { return poi.zone === zoneId; }),
+            soundscape: findByZone('soundscapes', zoneId),
+            immersiveMedia: filterByZone('immersiveMedia', zoneId),
+            podcastStories: filterByZone('podcastStories', zoneId),
+            sponsoredPlaces: filterByZone('sponsoredPlaces', zoneId),
+            sector: findSector(state.sector),
+            claim: state.config.claim,
+            brand: state.config.brand
+        };
+    }
+
+    function buildZoneUrl(zone) {
+        var finalUrl = new URL('./maqueta-viva-torrevieja', window.location.href);
+        var current = new URLSearchParams(window.location.search);
+        ['route', 'debug', 'calibrate', 'analytics', 'view'].forEach(function (key) {
+            if (current.has(key)) finalUrl.searchParams.set(key, current.get(key));
+            else if (getInitialParam(key)) finalUrl.searchParams.set(key, getInitialParam(key));
+        });
+        finalUrl.searchParams.set('zone', zone.id);
+        finalUrl.searchParams.set('lng', zone.lng);
+        finalUrl.searchParams.set('lat', zone.lat);
+        finalUrl.searchParams.set('style', zone.style || 'tile');
+        finalUrl.searchParams.set('zoom', zone.zoom || 16);
+        finalUrl.searchParams.set('sector', state.sector || current.get('sector') || 'turismo');
+        finalUrl.searchParams.set('refresh', String(Date.now()));
+        cleanIrrelevantConfig(finalUrl.searchParams);
+        return finalUrl;
+    }
+
+    function applyZonePreset(zoneId, source, ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        var zone = findZone(zoneId);
+        if (!zone) {
+            recordInteractionDebug({
+                lastClickTarget: source || 'unknown',
+                lastZoneButtonClicked: zoneId || null,
+                navigationMethod: 'blocked-zone-not-found',
+                navigationExecuted: false,
+                mode: 'error'
+            });
+            showToast('Zona no encontrada en configuracion.');
+            return;
+        }
+        var finalUrl = buildZoneUrl(zone);
+        console.info('[Maqueta Viva Click]', {
+            source: source || 'zone-list',
+            zone: zone.id,
+            lng: zone.lng,
+            lat: zone.lat,
+            style: zone.style || 'tile',
+            generatedUrl: finalUrl.toString()
+        });
+        recordInteractionDebug({
+            lastClickTarget: source || 'zone-list',
+            lastZoneButtonClicked: zone.id,
+            clickedLng: String(zone.lng),
+            clickedLat: String(zone.lat),
+            clickedStyle: zone.style || 'tile',
+            generatedUrl: finalUrl.toString(),
+            navigationMethod: 'window.location.assign',
+            navigationExecuted: true,
+            mode: 'preset'
+        });
+        showZoneLoading(zone);
+        trackMaquetaEvent('zone_selected', { zone: zone.id, source: source || 'zone-list' });
+        avatarReact('zone_changed', { zone: zone.id, source: source || 'zone-list' });
+        window.location.href = finalUrl.toString();
+    }
+
     function makeExperienceUrl(zone, sector, clean, route) {
-        var params = new URLSearchParams(window.location.search);
-        params.set('lng', zone.lng);
-        params.set('lat', zone.lat);
-        params.set('style', zone.style || 'tile');
-        params.set('zone', zone.id);
-        params.set('sector', sector || state.sector || 'turismo');
+        var finalUrl = buildZoneUrl(Object.assign({}, zone, { style: zone.style || 'tile' }));
+        if (sector) finalUrl.searchParams.set('sector', sector);
         if (route && route.length) {
-            params.set('route', route.join(','));
+            finalUrl.searchParams.set('route', route.join(','));
         } else {
-            params.delete('route');
+            finalUrl.searchParams.delete('route');
         }
         if (clean) {
-            params.set('view', 'clean');
+            finalUrl.searchParams.set('view', 'clean');
         } else {
-            params.delete('view');
+            finalUrl.searchParams.delete('view');
         }
-        params.set('refresh', String(Date.now()));
-        return './maqueta-viva-torrevieja.html?' + params.toString();
+        cleanIrrelevantConfig(finalUrl.searchParams);
+        return './maqueta-viva-torrevieja?' + finalUrl.searchParams.toString();
     }
 
     function makeAbsoluteExperienceUrl() {
@@ -318,6 +572,7 @@
         var sectorLabel = $('status-sector');
         var coordsLabel = $('status-coords');
         var viewLabel = $('status-view');
+        var zoomLabel = $('status-zoom');
         var calibrationLabel = $('status-calibration');
         var routeLabel = $('status-route');
         var markerTitle = $('zone-proof-title');
@@ -325,17 +580,20 @@
         var lng = params.get('lng') || (zone && zone.lng) || '-';
         var lat = params.get('lat') || (zone && zone.lat) || '-';
         var style = params.get('style') || (zone && zone.style) || 'tile';
+        var zoom = params.get('zoom') || (zone && zone.zoom) || 16;
         var calibrationStatus = getCalibrationLabel(zone && zone.calibrationStatus);
         if (zoneLabel) zoneLabel.textContent = zone ? zone.name : 'Sin zona';
         if (typeLabel) typeLabel.textContent = getZoneType(zone);
         if (sectorLabel) sectorLabel.textContent = sector ? sector.label : state.sector;
         if (coordsLabel) coordsLabel.textContent = lng + ' / ' + lat;
         if (viewLabel) viewLabel.textContent = style;
+        if (zoomLabel) zoomLabel.textContent = zoom;
         if (calibrationLabel) calibrationLabel.textContent = calibrationStatus;
         if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
         if (markerTitle) markerTitle.textContent = 'Zona activa: ' + (zone ? zone.name : 'Sin zona');
         if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat;
         syncLocationInputs(zone);
+        renderPremiumLayer();
     }
 
     function setTechnicalControls(open) {
@@ -368,23 +626,79 @@
         showToast('Levantando ' + zone.name + '...');
     }
 
-    function navigateToZone(zone, source) {
+    function navigateToZone(zone, source, ev) {
+        applyZonePreset(zone && zone.id, source || 'legacy-navigate', ev);
+    }
+
+    function navigateZoneNow(zoneId, source, ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        var zone = findZone(zoneId);
         if (!zone) return;
-        var previous = getCurrentUrlState();
-        var finalUrl = makeExperienceUrl(zone, state.sector, state.clean, state.route);
-        console.info('[Maqueta Viva Zone]', {
-            previousZone: previous.zone,
-            nextZone: zone.id,
-            lng: zone.lng,
-            lat: zone.lat,
-            style: zone.style || 'tile',
-            finalUrl: finalUrl
+        window.location.href = buildZoneUrl(zone).toString();
+    }
+
+    function renderZoneJumpBar(config) {
+        var bar = $('maqueta-zone-jump-bar');
+        if (!bar) {
+            bar = document.createElement('nav');
+            bar.id = 'maqueta-zone-jump-bar';
+            bar.setAttribute('aria-label', 'Accesos directos de zona');
+            document.body.appendChild(bar);
+        }
+        bar.innerHTML = '';
+        var select = document.createElement('select');
+        select.id = 'maqueta-zone-direct-select';
+        select.setAttribute('aria-label', 'Seleccionar zona');
+        var go = document.createElement('button');
+        go.id = 'maqueta-zone-direct-go';
+        go.type = 'button';
+        go.textContent = 'Ver zona';
+        var activeZone = getActiveZone();
+        config.zones.forEach(function (zone) {
+            var option = document.createElement('option');
+            option.value = zone.id;
+            option.textContent = zone.name;
+            if (activeZone && activeZone.id === zone.id) option.selected = true;
+            select.appendChild(option);
+            var link = document.createElement('a');
+            link.href = buildZoneUrl(zone).toString();
+            link.dataset.zoneId = zone.id;
+            link.textContent = zone.name;
+            if (activeZone && activeZone.id === zone.id) link.className = 'active';
+            link.addEventListener('pointerdown', function (ev) {
+                navigateZoneNow(zone.id, 'zone-jump-pointerdown', ev);
+            });
+            link.addEventListener('click', function (ev) {
+                applyZonePreset(zone.id, 'zone-jump-bar', ev);
+            });
+            bar.appendChild(link);
         });
-        showZoneLoading(zone);
-        trackMaquetaEvent('zone_selected', { zone: zone.id, source: source || 'zone-list' });
-        window.setTimeout(function () {
-            window.location.href = finalUrl;
-        }, 220);
+        select.addEventListener('change', function () {
+            navigateZoneNow(select.value, 'zone-direct-select-change', null);
+        });
+        go.addEventListener('pointerdown', function (ev) {
+            navigateZoneNow(select.value, 'zone-direct-pointerdown', ev);
+        });
+        go.addEventListener('click', function (ev) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            if (ev && ev.stopPropagation) ev.stopPropagation();
+            var zone = findZone(select.value);
+            if (!zone) return;
+            window.location.href = buildZoneUrl(zone).toString();
+        });
+        bar.insertBefore(go, bar.firstChild);
+        bar.insertBefore(select, go);
+    }
+
+    function bindZoneDelegation() {
+        if (document.body.dataset.maquetaZoneDelegation === '1') return;
+        document.body.dataset.maquetaZoneDelegation = '1';
+        document.addEventListener('click', function (ev) {
+            var target = ev.target && ev.target.closest ? ev.target.closest('.maqueta-zone-card[data-zone-id]') : null;
+            if (!target) return;
+            applyZonePreset(target.dataset.zoneId, 'zone-card-delegated', ev);
+        }, true);
     }
 
     function renderZones(config) {
@@ -393,17 +707,30 @@
         wrap.innerHTML = '';
         var activeZone = getActiveZone();
         config.zones.forEach(function (zone) {
-            var button = document.createElement('button');
-            button.type = 'button';
+            var button = document.createElement('a');
             button.className = 'maqueta-zone-card';
+            button.dataset.zoneId = zone.id;
+            button.dataset.zoneLng = zone.lng;
+            button.dataset.zoneLat = zone.lat;
+            button.dataset.zoneStyle = zone.style || 'tile';
+            button.dataset.zoneUrl = buildZoneUrl(zone).toString();
+            button.href = button.dataset.zoneUrl;
+            button.setAttribute('role', 'button');
             if (activeZone && zone.id === activeZone.id) button.classList.add('active');
             button.setAttribute('aria-pressed', activeZone && zone.id === activeZone.id ? 'true' : 'false');
             button.innerHTML = '<strong>' + zone.name + '</strong>'
                 + '<span>' + zone.description + '</span>'
                 + '<small>' + getZoneType(zone) + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + ' - ' + getCalibrationLabel(zone.calibrationStatus) + '</small>';
-            button.addEventListener('click', function () {
-                navigateToZone(zone, 'zone-list');
+            button.addEventListener('click', function (ev) {
+                applyZonePreset(zone.id, 'zone-list', ev);
             });
+            button.addEventListener('pointerdown', function (ev) {
+                navigateZoneNow(zone.id, 'zone-card-pointerdown', ev);
+            });
+            button.onclick = function (ev) {
+                applyZonePreset(zone.id, 'zone-card-onclick', ev);
+                return false;
+            };
             wrap.appendChild(button);
         });
         updateStatus();
@@ -443,10 +770,14 @@
             card.querySelector('[data-add]').addEventListener('click', function () {
                 addPoiToRoute(poi.id);
             });
-            card.querySelector('[data-zone]').addEventListener('click', function () {
-                var zone = config.zones.find(function (z) { return z.id === poi.zone; });
+            card.querySelector('[data-zone]').addEventListener('click', function (ev) {
+                if (ev && ev.preventDefault) ev.preventDefault();
+                if (ev && ev.stopPropagation) ev.stopPropagation();
                 trackMaquetaEvent('poi_opened', { poi: poi.id, zone: poi.zone });
-                navigateToZone(zone, 'poi-card');
+                applyZonePreset(poi.zone, 'poi-card', null);
+            });
+            card.querySelector('[data-zone]').addEventListener('pointerdown', function (ev) {
+                navigateZoneNow(poi.zone, 'poi-card-pointerdown', ev);
             });
             wrap.appendChild(card);
         });
@@ -463,6 +794,7 @@
         }
         state.route.push(id);
         trackMaquetaEvent('poi_added_to_route', { poi: id, total: state.route.length });
+        avatarReact('poi_added', { poi: id, total: state.route.length });
         renderRoute();
         showToast('Punto anadido a Ruta Viva.');
     }
@@ -520,6 +852,7 @@
         var panel = $('share-panel');
         if (panel) panel.classList.add('visible');
         trackMaquetaEvent('route_created', { total: state.route.length });
+        avatarReact('route_created', { total: state.route.length });
     }
 
     function closeSharePanel() {
@@ -588,6 +921,60 @@
         });
     }
 
+    function renderPremiumLayer() {
+        var zone = getActiveZone();
+        if (!zone) return;
+        var sound = findByZone('soundscapes', zone.id);
+        var media = findByZone('immersiveMedia', zone.id);
+        var story = findByZone('podcastStories', zone.id);
+        var sponsors = filterByZone('sponsoredPlaces', zone.id);
+        var soundCopy = $('soundscape-copy');
+        var mediaCopy = $('immersive-media-copy');
+        var podcastCopy = $('podcast-copy');
+        var sponsoredList = $('sponsored-list');
+        if (soundCopy) soundCopy.textContent = sound ? sound.fallbackText : 'Audio preparado para integracion en esta zona.';
+        if (mediaCopy) mediaCopy.textContent = media ? media.description + ' Estado: ' + media.status + '.' : 'Preparado para video 360, drone, streaming o camara en directo.';
+        if (podcastCopy) podcastCopy.textContent = story ? story.title + ' ' + story.duration + '. Podcast preparado para locucion.' : 'Podcast preparado para locucion.';
+        if (sponsoredList) {
+            sponsoredList.innerHTML = '';
+            sponsors.forEach(function (sponsor) {
+                var card = document.createElement('article');
+                card.className = 'maqueta-sponsored-card';
+                card.innerHTML = '<strong>' + sponsor.name + '</strong><span>' + sponsor.category + '</span><p>' + sponsor.description + '</p><button type="button">' + sponsor.ctaLabel + '</button>';
+                card.querySelector('button').addEventListener('click', function () {
+                    trackMaquetaEvent('sponsor_cta_clicked', { sponsor: sponsor.id, status: sponsor.sponsorStatus });
+                    avatarReact('sponsor_opened', { sponsor: sponsor.id });
+                    showToast('Espacio patrocinado demo: listo para conectar con WhatsApp, reservas o CRM.');
+                });
+                sponsoredList.appendChild(card);
+            });
+        }
+    }
+
+    function openPremiumModal(title, copy, eventName, payload) {
+        var modal = $('maqueta-premium-modal');
+        function closeModal() {
+            if (modal) modal.classList.remove('visible');
+        }
+        if (!modal) {
+            modal = document.createElement('section');
+            modal.id = 'maqueta-premium-modal';
+            modal.innerHTML = '<div><button type="button" id="premium-modal-close">x</button><p class="maqueta-eyebrow">Capa premium frontend</p><h2 id="premium-modal-title"></h2><p id="premium-modal-copy"></p></div>';
+            document.body.appendChild(modal);
+            $('premium-modal-close').addEventListener('click', closeModal);
+            modal.addEventListener('click', function (ev) {
+                if (ev.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function (ev) {
+                if (ev.key === 'Escape') closeModal();
+            });
+        }
+        $('premium-modal-title').textContent = title;
+        $('premium-modal-copy').textContent = copy;
+        modal.classList.add('visible');
+        trackMaquetaEvent(eventName, payload || {});
+    }
+
     function loadRouteFromUrl(config) {
         var params = getParams();
         var raw = params.get('route');
@@ -615,6 +1002,23 @@
 
     function initEvents(config) {
         capturePanelEvents();
+        window.addEventListener('maqueta:manual-location', function (event) {
+            var detail = event.detail || {};
+            recordInteractionDebug({
+                lastClickTarget: 'manual-go',
+                lastZoneButtonClicked: 'custom',
+                clickedLng: detail.lng !== undefined ? String(detail.lng) : null,
+                clickedLat: detail.lat !== undefined ? String(detail.lat) : null,
+                clickedStyle: detail.style || getParams().get('style') || 'tile',
+                generatedUrl: detail.href || window.location.href,
+                navigationMethod: 'history.pushState/manual-go',
+                navigationExecuted: true,
+                mode: 'manual/custom'
+            });
+            trackMaquetaEvent('manual_coordinates_applied', detail);
+            updateStatus();
+            updateCalibrationPanel();
+        });
         var tech = $('toggle-technical-controls');
         if (tech) {
             tech.addEventListener('click', function () {
@@ -635,6 +1039,68 @@
                 trackMaquetaEvent('cta_clicked', { id: 'premium-export-obj' });
             });
         }
+        var zoomMinus = $('zoom-minus');
+        var zoomPlus = $('zoom-plus');
+        var zoomReset = $('zoom-reset');
+        function updateZoom(delta, reset) {
+            var zone = getActiveZone();
+            var current = Number(getParams().get('zoom') || (zone && zone.zoom) || 16);
+            var next = reset ? Number((zone && zone.zoom) || 16) : Math.min(17, Math.max(15, current + delta));
+            var params = getParams();
+            params.set('zoom', String(next));
+            params.set('refresh', String(Date.now()));
+            trackMaquetaEvent('zoom_changed', { zoom: next, reset: !!reset });
+            window.location.href = './maqueta-viva-torrevieja?' + params.toString();
+        }
+        if (zoomMinus) zoomMinus.addEventListener('click', function () { updateZoom(-1, false); });
+        if (zoomPlus) zoomPlus.addEventListener('click', function () { updateZoom(1, false); });
+        if (zoomReset) zoomReset.addEventListener('click', function () { updateZoom(0, true); });
+        var soundBtn = $('soundscape-enable');
+        if (soundBtn) {
+            soundBtn.addEventListener('click', function () {
+                var zone = getActiveZone();
+                var sound = zone && findByZone('soundscapes', zone.id);
+                trackMaquetaEvent('sound_enabled', { zone: zone && zone.id });
+                trackMaquetaEvent('soundscape_selected', { zone: zone && zone.id });
+                avatarReact('sound_enabled', { zone: zone && zone.id });
+                showToast(sound ? sound.fallbackText : 'Audio preparado para integracion.');
+            });
+        }
+        var mediaBtn = $('immersive-media-open');
+        if (mediaBtn) {
+            mediaBtn.addEventListener('click', function () {
+                var zone = getActiveZone();
+                var media = zone && findByZone('immersiveMedia', zone.id);
+                var copy = media && media.url ? media.description : 'Preparado para video 360, drone, streaming o camara en directo.';
+                openPremiumModal(media ? media.title : 'Video / Directo', copy, media && media.type === 'live-stream' ? 'livestream_requested' : 'immersive_video_opened', { zone: zone && zone.id });
+                avatarReact('immersive_video_opened', { zone: zone && zone.id });
+            });
+        }
+        var podcastBtn = $('podcast-open');
+        if (podcastBtn) {
+            podcastBtn.addEventListener('click', function () {
+                var zone = getActiveZone();
+                var story = zone && findByZone('podcastStories', zone.id);
+                openPremiumModal(story ? story.title : 'Escuchar historia', story ? story.transcript + ' Podcast preparado para locucion.' : 'Podcast preparado para locucion.', 'podcast_opened', { zone: zone && zone.id });
+                trackMaquetaEvent('story_transcript_opened', { zone: zone && zone.id });
+                avatarReact('podcast_opened', { zone: zone && zone.id });
+            });
+        }
+        var downloadZone = $('download-zone-story');
+        if (downloadZone) downloadZone.addEventListener('click', function () {
+            downloadTextFile('maqueta-viva-ficha-zona.json', currentZoneBundle());
+            trackMaquetaEvent('download_zone_story', { zone: getActiveZone() && getActiveZone().id });
+        });
+        var downloadRoute = $('download-route-dossier');
+        if (downloadRoute) downloadRoute.addEventListener('click', function () {
+            downloadTextFile('maqueta-viva-ruta-viva.json', { city: state.config.city, sector: state.sector, route: state.route.map(getPoiById), claim: state.config.claim, story: routeText(), nextSteps: ['Validar POIs', 'Conectar QR', 'Publicar landing final'] });
+            trackMaquetaEvent('download_route_dossier', { total: state.route.length });
+        });
+        var downloadBrand = $('download-brand-story');
+        if (downloadBrand) downloadBrand.addEventListener('click', function () {
+            downloadTextFile('maqueta-viva-briefing-marca.json', { brandName: 'Demo brand', claim: state.config.claim, palette: state.config.brand, narrativeTone: 'territorial premium', activeZones: state.config.zones.map(function (z) { return z.id; }), sponsorshipOpportunities: state.config.sponsoredPlaces, immersiveMedia: state.config.immersiveMedia });
+            trackMaquetaEvent('download_brand_story', {});
+        });
         var clear = $('clear-route');
         if (clear) clear.addEventListener('click', clearRoute);
         var create = $('create-route');
@@ -670,7 +1136,7 @@
             el.addEventListener('click', function () {
                 var action = el.getAttribute('data-warning-action');
                 if (action === 'center' && config.zones[0]) {
-                    navigateToZone(config.zones[0], 'warning');
+                    applyZonePreset(config.zones[0].id, 'warning', null);
                 } else if (action === 'original') {
                     window.location.href = './index.html';
                 } else if (action === 'hide') {
@@ -683,7 +1149,8 @@
     function ensureZoneUrlFromConfig(config) {
         var params = getParams();
         var zoneId = params.get('zone') || (config.defaultView && config.defaultView.zone) || 'centro';
-        var zone = config.zones.find(function (item) { return item.id === zoneId; }) || config.zones[0];
+        if (zoneId === 'custom') return false;
+        var zone = findZone(zoneId) || config.zones[0];
         var needsOfficialPreset = !params.has('lng') || !params.has('lat') || !params.has('style');
         if (!zone || !needsOfficialPreset) return false;
         params.set('zone', zone.id);
@@ -692,7 +1159,7 @@
         params.set('style', zone.style || 'tile');
         if (!params.has('sector')) params.set('sector', config.defaultView.sector || 'turismo');
         params.set('refresh', String(Date.now()));
-        window.location.replace('./maqueta-viva-torrevieja.html?' + params.toString());
+        window.location.replace('./maqueta-viva-torrevieja?' + params.toString());
         return true;
     }
 
@@ -702,6 +1169,7 @@
         if (!findSector(state.sector)) state.sector = config.defaultView.sector || 'turismo';
         loadRouteFromUrl(config);
         setCleanMode(params.get('view') === 'clean');
+        recordInteractionDebug({ mode: params.get('zone') === 'custom' ? 'manual/custom' : 'preset' });
     }
 
     function init(config) {
@@ -714,8 +1182,11 @@
         renderLayers(config);
         renderRoute();
         renderCalibrationPanel(config);
+        renderZoneJumpBar(config);
+        bindZoneDelegation();
         initEvents(config);
         updateStatus();
+        updateAnalyticsPanel();
         window.setTimeout(hideLoading, 3200);
         window.setTimeout(function () {
             if (!document.body.classList.contains('show-technical-controls')) {

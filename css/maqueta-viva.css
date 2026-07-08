@@ -36,6 +36,67 @@
     pointer-events: none;
 }
 
+#maqueta-zone-jump-bar {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    z-index: 2605;
+    display: flex;
+    max-width: min(1040px, calc(100vw - 40px));
+    gap: 6px;
+    padding: 7px;
+    overflow-x: auto;
+    border: 1px solid rgba(248, 239, 225, 0.16);
+    border-radius: 16px;
+    background: rgba(7, 19, 29, 0.76);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
+    transform: translateX(-50%);
+}
+
+#maqueta-zone-jump-bar a {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    border: 1px solid rgba(248, 239, 225, 0.14);
+    border-radius: 11px;
+    background: rgba(248, 239, 225, 0.08);
+    color: #fff7ea;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#maqueta-zone-jump-bar select,
+#maqueta-zone-jump-bar button {
+    flex: 0 0 auto;
+    min-height: 30px;
+    border: 1px solid rgba(243, 213, 161, 0.42);
+    border-radius: 11px;
+    background: rgba(255, 247, 234, 0.96);
+    color: #07131d;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+#maqueta-zone-jump-bar select {
+    max-width: 170px;
+    padding: 0 8px;
+}
+
+#maqueta-zone-jump-bar button {
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+#maqueta-zone-jump-bar a.active,
+#maqueta-zone-jump-bar a:hover {
+    border-color: rgba(243, 213, 161, 0.75);
+    background: rgba(243, 213, 161, 0.18);
+    color: #f3d5a1;
+}
+
 #maqueta-product-layer button,
 #maqueta-product-layer a,
 #share-panel button,
@@ -80,6 +141,7 @@
 
 .maqueta-loaded #maqueta-loading {
     opacity: 0;
+    pointer-events: none;
     visibility: hidden;
 }
 
@@ -297,6 +359,7 @@
     background: rgba(248, 239, 225, 0.055);
     color: #fff7ea;
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -324,6 +387,116 @@
     color: #f3b6a3;
     font-size: 11px;
     font-weight: 800;
+}
+
+.maqueta-zoom-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 8px 0 10px;
+}
+
+.maqueta-zoom-controls button,
+.premium-block button,
+.maqueta-sponsored-card button {
+    border: 1px solid rgba(243, 213, 161, 0.34);
+    border-radius: 10px;
+    background: rgba(243, 213, 161, 0.12);
+    color: #fff7ea;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.premium-block {
+    min-width: 220px;
+}
+
+.premium-block p {
+    margin: 0 0 8px;
+    color: rgba(248, 239, 225, 0.74);
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.maqueta-sponsored-card {
+    margin-top: 8px;
+    padding: 9px;
+    border: 1px solid rgba(248, 239, 225, 0.12);
+    border-radius: 12px;
+    background: rgba(248, 239, 225, 0.06);
+}
+
+.maqueta-sponsored-card strong,
+.maqueta-sponsored-card span {
+    display: block;
+}
+
+.maqueta-sponsored-card span {
+    color: #f3b6a3;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+#maqueta-avatar-panel {
+    position: absolute;
+    right: 24px;
+    bottom: 240px;
+    z-index: 1320;
+    width: min(260px, calc(100vw - 48px));
+    padding: 14px;
+    border: 1px solid rgba(243, 213, 161, 0.2);
+    border-radius: 16px;
+    background: rgba(7, 19, 29, 0.72);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.26);
+    pointer-events: none;
+}
+
+#maqueta-avatar-panel span {
+    color: #f3b6a3;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+#maqueta-avatar-panel strong,
+#maqueta-avatar-panel p {
+    display: block;
+    margin: 6px 0 0;
+}
+
+#maqueta-premium-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2700;
+    display: none;
+    place-items: center;
+    background: rgba(3, 10, 18, 0.62);
+    pointer-events: auto;
+}
+
+#maqueta-premium-modal.visible {
+    display: grid;
+}
+
+#maqueta-premium-modal > div {
+    width: min(520px, calc(100vw - 32px));
+    padding: 22px;
+    border: 1px solid rgba(243, 213, 161, 0.28);
+    border-radius: 18px;
+    background: #07131d;
+    color: #fff7ea;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+}
+
+#premium-modal-close {
+    float: right;
+    border: 0;
+    background: transparent;
+    color: #fff7ea;
+    font-size: 20px;
+    cursor: pointer;
 }
 
 #maqueta-bottom-panel {
@@ -743,6 +916,7 @@
     flex-wrap: wrap;
     gap: 8px;
     max-width: min(720px, calc(100vw - 420px));
+    pointer-events: none;
 }
 
 #maqueta-status-panel span {
@@ -933,7 +1107,7 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(12px);
     font-family: Consolas, 'Courier New', monospace;
-    pointer-events: auto;
+    pointer-events: none;
     overscroll-behavior: contain;
 }
 
@@ -958,11 +1132,11 @@
 #maqueta-calibration-panel {
     position: absolute;
     left: 24px;
-    bottom: 24px;
+    top: 94px;
     z-index: 1850;
     display: none;
     width: min(760px, calc(100vw - 48px));
-    max-height: min(54vh, 540px);
+    max-height: min(46vh, 500px);
     overflow: auto;
     padding: 16px;
     border: 1px solid rgba(243, 213, 161, 0.34);
@@ -1009,6 +1183,37 @@
     color: #fff7ea;
     padding: 0 10px;
     font-weight: 800;
+}
+
+#calibration-toggle {
+    min-height: 38px;
+    border: 1px solid rgba(243, 213, 161, 0.36);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f3b6a3, #f3d5a1);
+    color: #142233;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.maqueta-calibration-collapsed #maqueta-calibration-panel {
+    width: min(300px, calc(100vw - 48px));
+    max-height: none;
+    padding: 12px;
+}
+
+.maqueta-calibration-collapsed .maqueta-calibration-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.maqueta-calibration-collapsed .maqueta-calibration-head p:not(.maqueta-eyebrow),
+.maqueta-calibration-collapsed #calibration-zone-select,
+.maqueta-calibration-collapsed .maqueta-calibration-readout,
+.maqueta-calibration-collapsed .maqueta-calibration-tests,
+.maqueta-calibration-collapsed .maqueta-calibration-actions,
+.maqueta-calibration-collapsed #calibration-output {
+    display: none;
 }
 
 .maqueta-calibration-readout {
@@ -1093,9 +1298,9 @@
     #maqueta-calibration-panel {
         left: 12px;
         right: 12px;
-        bottom: 12px;
+        top: 86px;
         width: auto;
-        max-height: 62vh;
+        max-height: 52vh;
         padding: 12px;
     }
 
@@ -1103,4 +1308,81 @@
     .maqueta-calibration-readout {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* v0.2.5 Interaction debug for preset/manual location flow */
+#maqueta-interaction-debug {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2601;
+    width: min(420px, calc(100vw - 32px));
+    max-height: 38vh;
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid rgba(243, 213, 161, 0.42);
+    border-radius: 14px;
+    background: rgba(3, 10, 18, 0.88);
+    color: #fff7ea;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(12px);
+    font-family: Consolas, 'Courier New', monospace;
+    pointer-events: none;
+    overscroll-behavior: contain;
+}
+
+#maqueta-analytics-debug {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 2601;
+    width: min(420px, calc(100vw - 32px));
+    max-height: 38vh;
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid rgba(243, 182, 163, 0.42);
+    border-radius: 14px;
+    background: rgba(3, 10, 18, 0.88);
+    color: #fff7ea;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(12px);
+    font-family: Consolas, 'Courier New', monospace;
+    pointer-events: none;
+}
+
+#maqueta-analytics-debug strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #f3b6a3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#maqueta-analytics-debug pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 11px;
+    line-height: 1.36;
+}
+
+#maqueta-interaction-debug strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #f3d5a1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#maqueta-interaction-debug pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 11px;
+    line-height: 1.36;
 }
