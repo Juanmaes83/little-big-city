@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Maqueta Viva 3D Torrevieja: prototipo premium de ciudad 3D con datos reales de territorio, edificios, agua y carreteras.">
+    <title>Maqueta Viva 3D - Torrevieja</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/maqueta-viva.css">
+    <script>
+        (function applyTorreviejaPreset() {
+            var params = new URLSearchParams(window.location.search);
+            var changed = false;
+            if (!params.has('lng')) { params.set('lng', '-0.6822'); changed = true; }
+            if (!params.has('lat')) { params.set('lat', '37.9787'); changed = true; }
+            if (!params.has('style')) { params.set('style', 'tile'); changed = true; }
+            if (changed) {
+                window.history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
+            }
+            window.MAQUETA_VIVA_PRESET = {
+                name: 'Torrevieja',
+                lng: params.get('lng'),
+                lat: params.get('lat'),
+                style: params.get('style')
+            };
+        })();
+        paceOptions = {
+            ajax: true,
+            document: true
+        };
+        window.addEventListener('error', function () {
+            document.documentElement.classList.add('maqueta-runtime-warning');
+        });
+        window.addEventListener('unhandledrejection', function () {
+            document.documentElement.classList.add('maqueta-runtime-warning');
+        });
+    </script>
+    <script src="lib/pace.min.js"></script>
+</head>
+<body class="maqueta-viva-shell">
+    <div id="viewport"></div>
+
+    <section id="maqueta-brand-panel" aria-label="Presentacion Maqueta Viva 3D">
+        <p class="maqueta-eyebrow">Modulo externo premium</p>
+        <h1>Maqueta Viva 3D - Torrevieja</h1>
+        <p class="maqueta-claim">La ciudad se levanta ante ti.</p>
+        <p class="maqueta-subclaim">Explora el destino como una maqueta viva generada desde datos reales del territorio.</p>
+        <div class="maqueta-actions" aria-label="Modos de visualizacion">
+            <a href="./maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=tile">Modo tile</a>
+            <a href="./maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=planet">Modo planet</a>
+            <a href="./index.html">Demo tecnica original</a>
+        </div>
+        <div class="maqueta-instructions">
+            <span>Arrastra para girar</span>
+            <span>Usa zoom para acercarte</span>
+            <span>Cambia LNG/LAT para otra zona</span>
+            <span>Exporta OBJ desde el panel derecho</span>
+        </div>
+    </section>
+
+    <aside id="maqueta-commerce-panel" aria-label="Valor comercial">
+        <strong>Producto adaptable</strong>
+        <p>Este modulo puede convertirse en maqueta viva para turismo, inmobiliaria, eventos, hoteles y smart cities.</p>
+        <small>Base: Little Big City + ClayGL + datos vectoriales Nextzen.</small>
+    </aside>
+
+    <div id="maqueta-data-warning" role="status">
+        No se pudieron cargar datos 3D de esta zona. Prueba otra ubicacion o revisa conexion.
+    </div>
+
+    <div id="map">
+        <h3>Selecciona una zona para levantar la maqueta</h3>
+        <div id="location">
+            <label>LNG</label>
+            <input id="lng" type="text" value="-0.6822">
+            <label>LAT</label>
+            <input id="lat" type="text" value="37.9787">
+            <button id="reset">RESET</button>
+            <button id="locate">GO</button>
+        </div>
+        <div id="map-main"></div>
+    </div>
+
+    <nav id="style-list" aria-label="Estilos de maqueta">
+        <ul>
+            <li class="planet" title="Modo planet">
+                <img src="asset/planet.jpg" alt="Modo planet">
+            </li>
+            <li class="tile" title="Modo tile">
+                <img src="asset/isometric.jpg" alt="Modo tile">
+            </li>
+        </ul>
+    </nav>
+
+    <div id="credits">
+        <a href="https://github.com/pissang/little-big-city" target="_blank" rel="noopener" class="source">Source Code</a>
+        Built on top of
+            <a href="https://github.com/pissang/claygl" target="_blank" rel="noopener">ClayGL</a> by
+            <a href="https://twitter.com/pissang1" target="_blank" rel="noopener">@pissang</a>
+        <div class="data-source">
+            Vector tile data is from <a target="_blank" rel="noopener" href="https://developers.nextzen.org/about.html">nextzen</a>.
+        </div>
+    </div>
+
+    <script src="lib/FileSaver.js"></script>
+    <script src="./dist/bundle.js"></script>
+</body>
+</html>
