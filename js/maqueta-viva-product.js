@@ -3,6 +3,30 @@
 
     var CONFIG_URL = './data/maqueta-viva/torrevieja.config.json';
     var MAX_ROUTE_ITEMS = 5;
+    var SECTOR_RECOMMENDATIONS = {
+        turismo: ['puerto-marina', 'paseo-maritimo', 'salinas', 'frente-costero'],
+        inmobiliaria: ['centro-urbano', 'zona-comercial', 'frente-costero'],
+        eventos: ['puerto-marina', 'parque-naciones', 'frente-costero'],
+        retail: ['zona-comercial', 'centro-urbano'],
+        hotel: ['frente-costero', 'paseo-maritimo', 'puerto-marina'],
+        patrimonio: ['salinas', 'parque-naciones', 'centro-urbano'],
+        'smart-city': ['centro-urbano', 'zona-comercial', 'parque-naciones']
+    };
+    var PANEL_EVENT_SELECTORS = [
+        '#maqueta-brand-panel',
+        '#maqueta-command-panel',
+        '#maqueta-bottom-panel',
+        '#maqueta-ecosystem-panel',
+        '#maqueta-layers-panel',
+        '#maqueta-data-warning',
+        '#share-panel',
+        '.share-card',
+        '.maqueta-scroll-list',
+        '.maqueta-poi-list',
+        '#route-list',
+        '#share-route-list',
+        '#maqueta-status-panel'
+    ];
     var state = {
         config: null,
         route: [],
@@ -24,19 +48,56 @@
         return new URLSearchParams(window.location.search);
     }
 
-    function makeExperienceUrl(zone, sector, clean) {
+    function findSector(id) {
+        if (!state.config || !state.config.sectors) return null;
+        return state.config.sectors.find(function (sector) { return sector.id === id; }) || state.config.sectors[0];
+    }
+
+    function findZone(id) {
+        if (!state.config || !state.config.zones) return null;
+        return state.config.zones.find(function (zone) { return zone.id === id; }) || state.config.zones[0];
+    }
+
+    function getActiveZone() {
+        var params = getParams();
+        var zoneId = params.get('zone') || (state.config && state.config.defaultView && state.config.defaultView.zone) || 'centro';
+        return findZone(zoneId);
+    }
+
+    function getPoiById(id) {
+        if (!state.config || !state.config.pois) return null;
+        return state.config.pois.find(function (poi) { return poi.id === id; }) || null;
+    }
+
+    function getRecommendedIds() {
+        return SECTOR_RECOMMENDATIONS[state.sector] || [];
+    }
+
+    function makeExperienceUrl(zone, sector, clean, route) {
         var params = new URLSearchParams(window.location.search);
         params.set('lng', zone.lng);
         params.set('lat', zone.lat);
         params.set('style', zone.style || 'tile');
         params.set('zone', zone.id);
         params.set('sector', sector || state.sector || 'turismo');
+        if (route && route.length) {
+            params.set('route', route.join(','));
+        } else {
+            params.delete('route');
+        }
         if (clean) {
             params.set('view', 'clean');
         } else {
             params.delete('view');
         }
         return './maqueta-viva-torrevieja.html?' + params.toString();
+    }
+
+    function makeAbsoluteExperienceUrl() {
+        var zone = getActiveZone();
+        if (!zone) return window.location.href;
+        var relative = makeExperienceUrl(zone, state.sector, state.clean, state.route);
+        return new URL(relative, window.location.href).toString();
     }
 
     function safeCopy(text, okMessage) {
@@ -85,6 +146,30 @@
         });
     }
 
+    function syncLocationInputs(zone) {
+        var lng = $('lng');
+        var lat = $('lat');
+        if (lng && zone) lng.value = zone.lng;
+        if (lat && zone) lat.value = zone.lat;
+    }
+
+    function updateStatus() {
+        var zone = getActiveZone();
+        var sector = findSector(state.sector);
+        var params = getParams();
+        var zoneLabel = $('status-zone');
+        var sectorLabel = $('status-sector');
+        var coordsLabel = $('status-coords');
+        var viewLabel = $('status-view');
+        var routeLabel = $('status-route');
+        if (zoneLabel) zoneLabel.textContent = zone ? zone.name : 'Sin zona';
+        if (sectorLabel) sectorLabel.textContent = sector ? sector.label : state.sector;
+        if (coordsLabel) coordsLabel.textContent = (params.get('lng') || (zone && zone.lng) || '-') + ' / ' + (params.get('lat') || (zone && zone.lat) || '-');
+        if (viewLabel) viewLabel.textContent = params.get('style') || (zone && zone.style) || 'tile';
+        if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
+        syncLocationInputs(zone);
+    }
+
     function setTechnicalControls(open) {
         document.body.classList.toggle('show-technical-controls', open);
         var btn = $('toggle-technical-controls');
@@ -92,6 +177,7 @@
             btn.textContent = open ? 'Ocultar controles tecnicos' : 'Controles tecnicos';
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
+        if (open) showToast('Modo tecnico activo: dat.GUI y downloadOBJ visibles.');
         trackMaquetaEvent('technical_controls_opened', { open: open });
     }
 
@@ -102,42 +188,61 @@
         if (btn) {
             btn.textContent = clean ? 'Salir de presentacion' : 'Modo presentacion';
         }
+        updateStatus();
+    }
+
+    function navigateToZone(zone, source) {
+        if (!zone) return;
+        showToast('Cargando ' + zone.name + '...');
+        trackMaquetaEvent('zone_selected', { zone: zone.id, source: source || 'zone-list' });
+        window.setTimeout(function () {
+            window.location.href = makeExperienceUrl(zone, state.sector, state.clean, state.route);
+        }, 160);
     }
 
     function renderZones(config) {
         var wrap = $('zones-list');
         if (!wrap) return;
         wrap.innerHTML = '';
-        var params = getParams();
-        var activeZone = params.get('zone') || config.defaultView.zone;
+        var activeZone = getActiveZone();
         config.zones.forEach(function (zone) {
             var button = document.createElement('button');
             button.type = 'button';
             button.className = 'maqueta-zone-card';
-            if (zone.id === activeZone) button.classList.add('active');
+            if (activeZone && zone.id === activeZone.id) button.classList.add('active');
+            button.setAttribute('aria-pressed', activeZone && zone.id === activeZone.id ? 'true' : 'false');
             button.innerHTML = '<strong>' + zone.name + '</strong>'
                 + '<span>' + zone.description + '</span>'
-                + '<small>' + zone.sector + ' · ' + zone.style + '</small>';
+                + '<small>' + zone.sector + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + '</small>';
             button.addEventListener('click', function () {
-                trackMaquetaEvent('zone_selected', { zone: zone.id });
-                window.location.href = makeExperienceUrl(zone, state.sector, state.clean);
+                navigateToZone(zone, 'zone-list');
             });
             wrap.appendChild(button);
         });
-    }
-
-    function getPoiById(id) {
-        return state.config.pois.find(function (poi) { return poi.id === id; });
+        updateStatus();
     }
 
     function renderPois(config) {
         var wrap = $('poi-list');
         if (!wrap) return;
+        var recommendedIds = getRecommendedIds();
+        var sector = findSector(state.sector);
+        var sectorLabel = sector ? sector.label : state.sector;
+        var pois = config.pois.slice().sort(function (a, b) {
+            var aIndex = recommendedIds.indexOf(a.id);
+            var bIndex = recommendedIds.indexOf(b.id);
+            if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+            if (aIndex !== -1) return -1;
+            if (bIndex !== -1) return 1;
+            return a.title.localeCompare(b.title);
+        });
         wrap.innerHTML = '';
-        config.pois.forEach(function (poi) {
+        pois.forEach(function (poi) {
+            var isRecommended = recommendedIds.indexOf(poi.id) !== -1;
             var card = document.createElement('article');
-            card.className = 'maqueta-poi-card';
+            card.className = 'maqueta-poi-card' + (isRecommended ? ' recommended' : '');
             card.innerHTML = '<div><strong>' + poi.title + '</strong><em>' + poi.category + '</em></div>'
+                + (isRecommended ? '<span class="maqueta-recommendation-badge">Recomendado para ' + sectorLabel + '</span>' : '')
                 + '<p>' + poi.description + '</p>'
                 + '<small>' + poi.visitorValue + '</small>'
                 + '<div class="maqueta-card-actions">'
@@ -150,7 +255,7 @@
             card.querySelector('[data-zone]').addEventListener('click', function () {
                 var zone = config.zones.find(function (z) { return z.id === poi.zone; });
                 trackMaquetaEvent('poi_opened', { poi: poi.id, zone: poi.zone });
-                if (zone) window.location.href = makeExperienceUrl(zone, state.sector, state.clean);
+                navigateToZone(zone, 'poi-card');
             });
             wrap.appendChild(card);
         });
@@ -185,7 +290,7 @@
         return 'Mi Ruta Viva de Torrevieja: he levantado la ciudad en 3D y creado una ruta con '
             + state.route.length + ' lugares'
             + (names.length ? ' (' + names.join(', ') + ')' : '')
-            + '. Descubrela en Maqueta Viva 3D.';
+            + '. Descubrela en Maqueta Viva 3D: ' + makeAbsoluteExperienceUrl();
     }
 
     function renderRoute() {
@@ -204,19 +309,22 @@
             var item = document.createElement('li');
             item.innerHTML = '<span>' + (idx + 1) + '</span><strong>' + poi.title + '</strong><small>' + poi.category + '</small>';
             if (list) list.appendChild(item);
-            if (modalList) {
-                var modalItem = item.cloneNode(true);
-                modalList.appendChild(modalItem);
-            }
+            if (modalList) modalList.appendChild(item.cloneNode(true));
         });
         if (ready) {
             ready.textContent = state.route.length
                 ? 'Tu Ruta Viva de Torrevieja esta lista.'
                 : 'Anade lugares para crear una salida compartible.';
         }
+        updateStatus();
     }
 
     function openSharePanel() {
+        if (!state.route.length) {
+            showToast('Anade al menos un lugar a tu Ruta Viva.');
+            trackMaquetaEvent('route_empty_blocked', {});
+            return;
+        }
         renderRoute();
         var panel = $('share-panel');
         if (panel) panel.classList.add('visible');
@@ -242,13 +350,15 @@
         select.addEventListener('change', function () {
             state.sector = select.value;
             updateSector(config);
+            renderPois(config);
+            updateStatus();
             trackMaquetaEvent('sector_changed', { sector: state.sector });
         });
         updateSector(config);
     }
 
     function updateSector(config) {
-        var sector = config.sectors.find(function (s) { return s.id === state.sector; }) || config.sectors[0];
+        var sector = findSector(state.sector) || config.sectors[0];
         var microcopy = $('sector-microcopy');
         var cta = $('sector-cta');
         var benefits = $('sector-benefits');
@@ -262,6 +372,7 @@
                 benefits.appendChild(li);
             });
         }
+        updateStatus();
     }
 
     function renderLayers() {
@@ -285,7 +396,33 @@
         });
     }
 
+    function loadRouteFromUrl(config) {
+        var params = getParams();
+        var raw = params.get('route');
+        if (!raw) return;
+        var seen = {};
+        state.route = raw.split(',').map(function (id) { return id.trim(); }).filter(function (id) {
+            if (!id || seen[id] || !config.pois.some(function (poi) { return poi.id === id; })) return false;
+            seen[id] = true;
+            return true;
+        }).slice(0, MAX_ROUTE_ITEMS);
+    }
+
+    function capturePanelEvents() {
+        var events = ['wheel', 'touchmove', 'pointerdown'];
+        PANEL_EVENT_SELECTORS.forEach(function (selector) {
+            Array.prototype.forEach.call(document.querySelectorAll(selector), function (el) {
+                events.forEach(function (eventName) {
+                    el.addEventListener(eventName, function (ev) {
+                        ev.stopPropagation();
+                    }, { passive: true });
+                });
+            });
+        });
+    }
+
     function initEvents(config) {
+        capturePanelEvents();
         var tech = $('toggle-technical-controls');
         if (tech) {
             tech.addEventListener('click', function () {
@@ -302,7 +439,7 @@
         if (exportBtn) {
             exportBtn.addEventListener('click', function () {
                 setTechnicalControls(true);
-                showToast('Abre Controles tecnicos y usa downloadOBJ.');
+                showToast('Modo tecnico activo: usa downloadOBJ en dat.GUI.');
                 trackMaquetaEvent('cta_clicked', { id: 'premium-export-obj' });
             });
         }
@@ -322,8 +459,8 @@
         var copyLink = $('copy-link');
         if (copyLink) {
             copyLink.addEventListener('click', function () {
-                safeCopy(window.location.href, 'Enlace copiado.');
-                trackMaquetaEvent('share_copy_clicked', { type: 'link' });
+                safeCopy(makeAbsoluteExperienceUrl(), 'Enlace copiado con Ruta Viva.');
+                trackMaquetaEvent('share_copy_clicked', { type: 'link', total: state.route.length });
             });
         }
         Array.prototype.forEach.call(document.querySelectorAll('[data-maqueta-cta]'), function (el) {
@@ -341,7 +478,7 @@
             el.addEventListener('click', function () {
                 var action = el.getAttribute('data-warning-action');
                 if (action === 'center' && config.zones[0]) {
-                    window.location.href = makeExperienceUrl(config.zones[0], state.sector, state.clean);
+                    navigateToZone(config.zones[0], 'warning');
                 } else if (action === 'original') {
                     window.location.href = './index.html';
                 } else if (action === 'hide') {
@@ -354,6 +491,8 @@
     function applyInitialUrlState(config) {
         var params = getParams();
         state.sector = params.get('sector') || config.defaultView.sector || 'turismo';
+        if (!findSector(state.sector)) state.sector = config.defaultView.sector || 'turismo';
+        loadRouteFromUrl(config);
         setCleanMode(params.get('view') === 'clean');
     }
 
@@ -361,11 +500,12 @@
         state.config = config;
         applyInitialUrlState(config);
         renderZones(config);
-        renderPois(config);
         renderSectors(config);
+        renderPois(config);
         renderLayers(config);
         renderRoute();
         initEvents(config);
+        updateStatus();
         window.setTimeout(hideLoading, 3200);
         window.setTimeout(function () {
             if (!document.body.classList.contains('show-technical-controls')) {
