@@ -25,7 +25,10 @@
         '.maqueta-poi-list',
         '#route-list',
         '#share-route-list',
-        '#maqueta-status-panel'
+        '#maqueta-status-panel',
+        '#maqueta-calibration-panel',
+        '.maqueta-calibration-tests',
+        '.maqueta-calibration-actions'
     ];
     var state = {
         config: null,
@@ -75,6 +78,141 @@
 
     function getZoneType(zone) {
         return (zone && (zone.type || zone.sector)) || 'Zona narrativa';
+    }
+
+    function isCalibrateMode() {
+        return getParams().get('calibrate') === '1';
+    }
+
+    function getCalibrationLabel(status) {
+        if (status === 'manual-verified' || status === 'verified') return 'Verificada manualmente';
+        if (status === 'manual-review') return 'Revision manual';
+        return 'Aproximada';
+    }
+
+    function getRuntimeStyle(zone) {
+        return getParams().get('style') || (zone && zone.style) || 'tile';
+    }
+
+    function getRuntimeCoords(zone) {
+        var params = getParams();
+        var lngInput = $('lng');
+        var latInput = $('lat');
+        return {
+            lng: (lngInput && lngInput.value) || params.get('lng') || (zone && zone.lng),
+            lat: (latInput && latInput.value) || params.get('lat') || (zone && zone.lat),
+            style: getRuntimeStyle(zone)
+        };
+    }
+
+    function buildCalibrationPreset(zone, coords) {
+        return {
+            id: zone.id,
+            name: zone.name,
+            description: zone.description,
+            lng: Number(coords.lng),
+            lat: Number(coords.lat),
+            style: coords.style || zone.style || 'tile',
+            sector: zone.sector,
+            type: zone.type,
+            calibrationStatus: 'manual-review'
+        };
+    }
+
+    function calibrationTestUrl(zone, coords) {
+        var params = new URLSearchParams(window.location.search);
+        params.set('zone', zone.id);
+        params.set('lng', coords.lng);
+        params.set('lat', coords.lat);
+        params.set('style', coords.style || zone.style || 'tile');
+        params.set('sector', state.sector || params.get('sector') || 'turismo');
+        params.set('calibrate', '1');
+        params.set('refresh', String(Date.now()));
+        return new URL('./maqueta-viva-torrevieja.html?' + params.toString(), window.location.href).toString();
+    }
+
+    function selectedCalibrationZone() {
+        var select = $('calibration-zone-select');
+        return (select && select.value && findZone(select.value)) || getActiveZone() || (state.config && state.config.zones && state.config.zones[0]);
+    }
+
+    function updateCalibrationPanel() {
+        if (!isCalibrateMode() || !state.config) return;
+        var zone = selectedCalibrationZone();
+        if (!zone) return;
+        var coords = getRuntimeCoords(zone);
+        var status = getCalibrationLabel(zone.calibrationStatus);
+        var preset = buildCalibrationPreset(zone, coords);
+        var active = $('calib-active-zone');
+        var lng = $('calib-current-lng');
+        var lat = $('calib-current-lat');
+        var style = $('calib-current-style');
+        var statusEl = $('calib-current-status');
+        var output = $('calibration-output');
+        if (active) active.textContent = zone.name + ' (' + zone.id + ')';
+        if (lng) lng.textContent = coords.lng;
+        if (lat) lat.textContent = coords.lat;
+        if (style) style.textContent = coords.style;
+        if (statusEl) statusEl.textContent = status;
+        if (output) output.value = JSON.stringify(preset, null, 2);
+    }
+
+    function renderCalibrationPanel(config) {
+        if (!isCalibrateMode()) return;
+        document.body.classList.add('maqueta-calibrate-mode');
+        var select = $('calibration-zone-select');
+        if (select && !select.options.length) {
+            config.zones.forEach(function (zone) {
+                var option = document.createElement('option');
+                option.value = zone.id;
+                option.textContent = zone.name;
+                select.appendChild(option);
+            });
+            var activeZone = getActiveZone();
+            select.value = activeZone ? activeZone.id : config.zones[0].id;
+            select.addEventListener('change', updateCalibrationPanel);
+        }
+        var tests = $('calibration-zone-buttons');
+        if (tests && !tests.children.length) {
+            config.zones.forEach(function (zone) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = 'Probar ' + zone.name;
+                button.addEventListener('click', function () {
+                    navigateToZone(zone, 'calibration-direct-test');
+                });
+                tests.appendChild(button);
+            });
+        }
+        var copyCoords = $('copy-current-coords');
+        if (copyCoords && !copyCoords.dataset.bound) {
+            copyCoords.dataset.bound = '1';
+            copyCoords.addEventListener('click', function () {
+                var zone = selectedCalibrationZone();
+                var coords = getRuntimeCoords(zone);
+                safeCopy(JSON.stringify(coords, null, 2), 'Coordenadas actuales copiadas.');
+            });
+        }
+        var copyPreset = $('copy-preset-json');
+        if (copyPreset && !copyPreset.dataset.bound) {
+            copyPreset.dataset.bound = '1';
+            copyPreset.addEventListener('click', function () {
+                var zone = selectedCalibrationZone();
+                var preset = buildCalibrationPreset(zone, getRuntimeCoords(zone));
+                safeCopy(JSON.stringify(preset, null, 2), 'Preset JSON copiado.');
+            });
+        }
+        var copyUrl = $('copy-test-url');
+        if (copyUrl && !copyUrl.dataset.bound) {
+            copyUrl.dataset.bound = '1';
+            copyUrl.addEventListener('click', function () {
+                var zone = selectedCalibrationZone();
+                safeCopy(calibrationTestUrl(zone, getRuntimeCoords(zone)), 'URL de prueba copiada.');
+            });
+        }
+        updateCalibrationPanel();
+        window.clearInterval(renderCalibrationPanel._timer);
+        renderCalibrationPanel._timer = window.setInterval(updateCalibrationPanel, 900);
     }
 
     function getCurrentUrlState() {
@@ -180,20 +318,23 @@
         var sectorLabel = $('status-sector');
         var coordsLabel = $('status-coords');
         var viewLabel = $('status-view');
+        var calibrationLabel = $('status-calibration');
         var routeLabel = $('status-route');
         var markerTitle = $('zone-proof-title');
         var markerCopy = $('zone-proof-copy');
         var lng = params.get('lng') || (zone && zone.lng) || '-';
         var lat = params.get('lat') || (zone && zone.lat) || '-';
         var style = params.get('style') || (zone && zone.style) || 'tile';
+        var calibrationStatus = getCalibrationLabel(zone && zone.calibrationStatus);
         if (zoneLabel) zoneLabel.textContent = zone ? zone.name : 'Sin zona';
         if (typeLabel) typeLabel.textContent = getZoneType(zone);
         if (sectorLabel) sectorLabel.textContent = sector ? sector.label : state.sector;
         if (coordsLabel) coordsLabel.textContent = lng + ' / ' + lat;
         if (viewLabel) viewLabel.textContent = style;
+        if (calibrationLabel) calibrationLabel.textContent = calibrationStatus;
         if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
         if (markerTitle) markerTitle.textContent = 'Zona activa: ' + (zone ? zone.name : 'Sin zona');
-        if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + lng + ' / ' + lat;
+        if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat;
         syncLocationInputs(zone);
     }
 
@@ -259,7 +400,7 @@
             button.setAttribute('aria-pressed', activeZone && zone.id === activeZone.id ? 'true' : 'false');
             button.innerHTML = '<strong>' + zone.name + '</strong>'
                 + '<span>' + zone.description + '</span>'
-                + '<small>' + getZoneType(zone) + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + '</small>';
+                + '<small>' + getZoneType(zone) + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + ' - ' + getCalibrationLabel(zone.calibrationStatus) + '</small>';
             button.addEventListener('click', function () {
                 navigateToZone(zone, 'zone-list');
             });
@@ -402,6 +543,7 @@
             updateSector(config);
             renderPois(config);
             updateStatus();
+            updateCalibrationPanel();
             trackMaquetaEvent('sector_changed', { sector: state.sector });
         });
         updateSector(config);
@@ -538,6 +680,22 @@
         });
     }
 
+    function ensureZoneUrlFromConfig(config) {
+        var params = getParams();
+        var zoneId = params.get('zone') || (config.defaultView && config.defaultView.zone) || 'centro';
+        var zone = config.zones.find(function (item) { return item.id === zoneId; }) || config.zones[0];
+        var needsOfficialPreset = !params.has('lng') || !params.has('lat') || !params.has('style');
+        if (!zone || !needsOfficialPreset) return false;
+        params.set('zone', zone.id);
+        params.set('lng', zone.lng);
+        params.set('lat', zone.lat);
+        params.set('style', zone.style || 'tile');
+        if (!params.has('sector')) params.set('sector', config.defaultView.sector || 'turismo');
+        params.set('refresh', String(Date.now()));
+        window.location.replace('./maqueta-viva-torrevieja.html?' + params.toString());
+        return true;
+    }
+
     function applyInitialUrlState(config) {
         var params = getParams();
         state.sector = params.get('sector') || config.defaultView.sector || 'turismo';
@@ -548,12 +706,14 @@
 
     function init(config) {
         state.config = config;
+        if (ensureZoneUrlFromConfig(config)) return;
         applyInitialUrlState(config);
         renderZones(config);
         renderSectors(config);
         renderPois(config);
         renderLayers(config);
         renderRoute();
+        renderCalibrationPanel(config);
         initEvents(config);
         updateStatus();
         window.setTimeout(hideLoading, 3200);

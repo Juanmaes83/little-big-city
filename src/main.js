@@ -731,13 +731,12 @@ const app = application.create('#viewport', {
                         const vTile = new VectorTile(pbf);
                         if (!vTile.layers.buildings) {
                             logMaqueta('[Maqueta Viva Geometry]', {
-                                event: 'no-buildings-layer',
+                                event: 'no-buildings-layer-continue-with-available-layers',
                                 zone: MAQUETA_ZONE,
                                 tile: {z: tile.z, x: tile.x, y: tile.y},
                                 layers: Object.keys(vTile.layers || {})
                             });
                             updateMaquetaDebugPanel();
-                            return;
                         }
 
                         const features = {};

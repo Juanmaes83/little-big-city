@@ -25,7 +25,8 @@
       "lat": 37.9787,
       "style": "tile",
       "sector": "Turismo / Smart City",
-      "type": "Centro urbano"
+      "type": "Centro urbano",
+      "calibrationStatus": "approximate"
     },
     {
       "id": "puerto",
@@ -35,7 +36,8 @@
       "lat": 37.9691,
       "style": "tile",
       "sector": "Turismo / Eventos",
-      "type": "Puerto / Marina"
+      "type": "Puerto / Marina",
+      "calibrationStatus": "approximate"
     },
     {
       "id": "frente-maritimo",
@@ -45,7 +47,8 @@
       "lat": 37.9731,
       "style": "planet",
       "sector": "Hotel / Turismo",
-      "type": "Frente maritimo"
+      "type": "Frente maritimo",
+      "calibrationStatus": "approximate"
     },
     {
       "id": "parque-naciones",
@@ -55,7 +58,8 @@
       "lat": 37.9823,
       "style": "tile",
       "sector": "Eventos / Patrimonio",
-      "type": "Verde urbano"
+      "type": "Verde urbano",
+      "calibrationStatus": "approximate"
     },
     {
       "id": "salinas",
@@ -65,17 +69,19 @@
       "lat": 38.0124,
       "style": "planet",
       "sector": "Turismo / Patrimonio",
-      "type": "Naturaleza / Salinas"
+      "type": "Naturaleza / Salinas",
+      "calibrationStatus": "approximate"
     },
     {
       "id": "zona-comercial",
       "name": "Zona comercial",
-      "description": "Area util para visualizar flujos, escaparates, servicios y oportunidades retail.",
+      "description": "Preset inicial aproximado para visualizar flujos, escaparates, servicios y oportunidades retail; calibrar manualmente con calibrate=1 si debe representar un centro comercial real.",
       "lng": -0.6994,
       "lat": 37.9861,
       "style": "tile",
       "sector": "Retail / Inmobiliaria",
-      "type": "Retail / Servicios"
+      "type": "Retail / Servicios",
+      "calibrationStatus": "approximate"
     }
   ],
   "pois": [

@@ -290,3 +290,60 @@ Conclusion tecnica: los tiles/fetches cambian entre zonas. Cuando una zona natur
 - Conexion directa desde Batuta/Living Map.
 - Analitica real.
 - Reemplazo/modernizacion progresiva del stack.
+
+## Nota v0.2.4 - calibracion de presets por zona
+
+Diagnostico: el motor si cambia la maqueta cuando se introducen manualmente `LNG`, `LAT` y se pulsa `GO`. El fallo estaba en producto/calibracion: los presets de zona podian vivir duplicados entre `maqueta-viva-torrevieja.html` y `data/maqueta-viva/torrevieja.config.json`, lo que hacia dificil saber que coordenadas estaba usando cada flujo.
+
+Correccion v0.2.4:
+
+- La fuente principal de zonas es ahora `data/maqueta-viva/torrevieja.config.json`.
+- El HTML conserva solo un fallback minimo de arranque para el centro si el JSON todavia no ha cargado.
+- Si la URL llega con `zone` pero sin `lng`, `lat` o `style`, la capa de producto carga el JSON y reemplaza la URL con el preset oficial de esa zona.
+- Cada zona incluye `calibrationStatus`.
+- La UI muestra si una zona esta `Aproximada`, en `Revision manual` o `Verificada manualmente`.
+- El motor ya no abandona un tile completo si Nextzen no devuelve `buildings`; sigue procesando `roads` y `water` cuando existan.
+
+Precedencia real de coordenadas:
+
+1. URL con `lng`, `lat` y `style`: manda sobre el preset, porque representa una prueba manual o enlace calibrado.
+2. URL con `zone` pero sin coordenadas completas: se completa desde el JSON oficial.
+3. Click en una zona del panel: usa la zona del JSON y reconstruye la URL con `lng`, `lat`, `style`, `zone`, `sector` y `refresh`.
+4. Cambio manual en `LNG/LAT` + `GO`: manda temporalmente en el motor y en la URL actual; es el flujo de calibracion manual.
+5. Copiar enlace normal de Ruta Viva: usa el preset oficial de la zona activa.
+6. Copiar URL de prueba en modo calibracion: usa las coordenadas manuales actuales.
+
+Modo calibracion:
+
+```text
+maqueta-viva-torrevieja.html?zone=zona-comercial&sector=retail&calibrate=1&debug=1
+```
+
+El panel `Calibracion de zona` permite:
+
+- ver zona activa, `lng`, `lat`, `style` y estado de calibracion;
+- probar directamente las 6 zonas con los presets del JSON;
+- copiar coordenadas actuales;
+- copiar un bloque JSON listo para pegar con `calibrationStatus: "manual-review"`;
+- copiar una URL de prueba con `calibrate=1`.
+
+Nota honesta sobre `Zona comercial`: el preset actual es aproximado. Si debe representar un centro comercial, area retail concreta o activo inmobiliario real, hay que abrir `?calibrate=1`, ajustar `LNG/LAT` con `GO`, confirmar visualmente la maqueta y pegar el preset resultante en `torrevieja.config.json`.
+
+QA recomendado para esta fase:
+
+```bash
+npm run build
+node --check src/main.js
+node --check js/maqueta-viva-product.js
+python -m json.tool data/maqueta-viva/torrevieja.config.json > NUL
+git diff --check
+npx serve -l 8137 .
+```
+
+Pruebas manuales:
+
+- Abrir `http://127.0.0.1:8137/maqueta-viva-torrevieja.html?zone=centro&calibrate=1&debug=1`.
+- Pulsar cada boton `Probar ...` y confirmar que la URL cambia a la zona correspondiente.
+- Cambiar `LNG/LAT`, pulsar `GO` y confirmar que el panel refleja las coordenadas actuales.
+- Copiar `preset JSON` y verificar que incluye la zona seleccionada y `calibrationStatus: "manual-review"`.
+- Abrir `?debug=1` y confirmar que scroll, Ruta Viva, dat.GUI y panel de debug siguen funcionando.

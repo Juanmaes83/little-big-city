@@ -9,24 +9,18 @@
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/maqueta-viva.css">
     <script>
-        (function applyMaquetaPreset() {
-            var zones = {
-                centro: { lng: '-0.6822', lat: '37.9787', style: 'tile' },
-                puerto: { lng: '-0.6868', lat: '37.9691', style: 'tile' },
-                'frente-maritimo': { lng: '-0.6747', lat: '37.9731', style: 'planet' },
-                'parque-naciones': { lng: '-0.6902', lat: '37.9823', style: 'tile' },
-                salinas: { lng: '-0.7208', lat: '38.0124', style: 'planet' },
-                'zona-comercial': { lng: '-0.6994', lat: '37.9861', style: 'tile' }
-            };
+        (function applyMaquetaPresetFallback() {
+            // Fallback minimo para arrancar el motor si el JSON no ha cargado todavia.
+            // La fuente oficial de zonas es data/maqueta-viva/torrevieja.config.json.
+            var fallbackCenter = { zone: 'centro', lng: '-0.6822', lat: '37.9787', style: 'tile', sector: 'turismo' };
             var params = new URLSearchParams(window.location.search);
-            var zoneId = params.get('zone') || 'centro';
-            var zone = zones[zoneId] || zones.centro;
             var changed = false;
-            if (!params.has('lng')) { params.set('lng', zone.lng); changed = true; }
-            if (!params.has('lat')) { params.set('lat', zone.lat); changed = true; }
-            if (!params.has('style')) { params.set('style', zone.style); changed = true; }
-            if (!params.has('zone')) { params.set('zone', zoneId); changed = true; }
-            if (!params.has('sector')) { params.set('sector', 'turismo'); changed = true; }
+            var hadExplicitZone = params.has('zone');
+            if (!hadExplicitZone) { params.set('zone', fallbackCenter.zone); changed = true; }
+            if (!hadExplicitZone && !params.has('lng')) { params.set('lng', fallbackCenter.lng); changed = true; }
+            if (!hadExplicitZone && !params.has('lat')) { params.set('lat', fallbackCenter.lat); changed = true; }
+            if (!hadExplicitZone && !params.has('style')) { params.set('style', fallbackCenter.style); changed = true; }
+            if (!params.has('sector')) { params.set('sector', fallbackCenter.sector); changed = true; }
             if (changed) {
                 window.history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
             }
@@ -36,7 +30,8 @@
                 lng: params.get('lng'),
                 lat: params.get('lat'),
                 style: params.get('style'),
-                sector: params.get('sector')
+                sector: params.get('sector'),
+                source: 'html-fallback-json-authoritative'
             };
         })();
         paceOptions = { ajax: true, document: true };
@@ -66,6 +61,7 @@
         <span><strong>Sector</strong><em id="status-sector">Turismo</em></span>
         <span><strong>Coordenadas</strong><em id="status-coords">-0.6822 / 37.9787</em></span>
         <span><strong>Vista</strong><em id="status-view">tile</em></span>
+        <span><strong>Calibracion</strong><em id="status-calibration">Aproximada</em></span>
         <span><strong>Ruta</strong><em id="status-route">0/5</em></span>
     </section>
     <main id="maqueta-product-layer" aria-label="Maqueta Viva 3D premium layer">
@@ -163,6 +159,30 @@
     </div>
 
     <div id="maqueta-toast" role="status"></div>
+    <section id="maqueta-calibration-panel" aria-label="Calibracion de zona">
+        <div class="maqueta-calibration-head">
+            <div>
+                <p class="maqueta-eyebrow">Modo calibracion</p>
+                <h2>Calibracion de zona</h2>
+                <p>Usa LNG/LAT + GO para encontrar el punto correcto. Luego copia el preset JSON y pegalo en la configuracion.</p>
+            </div>
+            <select id="calibration-zone-select" aria-label="Zona que se esta calibrando"></select>
+        </div>
+        <dl class="maqueta-calibration-readout">
+            <div><dt>Zona activa</dt><dd id="calib-active-zone">-</dd></div>
+            <div><dt>LNG</dt><dd id="calib-current-lng">-</dd></div>
+            <div><dt>LAT</dt><dd id="calib-current-lat">-</dd></div>
+            <div><dt>Style</dt><dd id="calib-current-style">-</dd></div>
+            <div><dt>Estado</dt><dd id="calib-current-status">-</dd></div>
+        </dl>
+        <div id="calibration-zone-buttons" class="maqueta-calibration-tests" aria-label="Pruebas directas por zona"></div>
+        <div class="maqueta-calibration-actions">
+            <button type="button" id="copy-current-coords">Copiar coords actuales</button>
+            <button type="button" id="copy-preset-json">Copiar preset JSON</button>
+            <button type="button" id="copy-test-url">Copiar URL de prueba</button>
+        </div>
+        <textarea id="calibration-output" readonly aria-label="Preset JSON listo para pegar"></textarea>
+    </section>
 
     <div id="map">
         <h3>Selecciona una zona para levantar la maqueta</h3>
