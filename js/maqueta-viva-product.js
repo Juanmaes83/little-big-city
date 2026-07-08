@@ -28,7 +28,9 @@
         '#maqueta-status-panel',
         '#maqueta-calibration-panel',
         '.maqueta-calibration-tests',
-        '.maqueta-calibration-actions'
+        '.maqueta-calibration-actions',
+        '#maqueta-toolbox',
+        '#maqueta-guided-hint'
     ];
     var state = {
         config: null,
@@ -597,6 +599,10 @@
         var zoomLabel = $('status-zoom');
         var calibrationLabel = $('status-calibration');
         var routeLabel = $('status-route');
+        var contextZoneName = $('context-zone-name');
+        var contextZoneCalibration = $('context-zone-calibration');
+        var routeCounterSide = $('route-counter-side');
+        var zoneSwitcherLabel = $('maqueta-zone-switcher-label');
         var markerTitle = $('zone-proof-title');
         var markerCopy = $('zone-proof-copy');
         var lng = params.get('lng') || (zone && zone.lng) || '-';
@@ -612,6 +618,10 @@
         if (zoomLabel) zoomLabel.textContent = zoom;
         if (calibrationLabel) calibrationLabel.textContent = calibrationStatus;
         if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
+        if (contextZoneName) contextZoneName.textContent = zone ? zone.name : 'Sin zona';
+        if (contextZoneCalibration) contextZoneCalibration.textContent = calibrationStatus + (calibrationStatus === 'Aproximada' ? ' v0.2' : '');
+        if (routeCounterSide) routeCounterSide.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS + ' lugares';
+        if (zoneSwitcherLabel) zoneSwitcherLabel.textContent = zone ? zone.name : 'Selecciona zona';
         if (markerTitle) markerTitle.textContent = 'Zona activa: ' + (zone ? zone.name : 'Sin zona');
         if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat;
         syncLocationInputs(zone);
@@ -663,54 +673,42 @@
     function renderZoneJumpBar(config) {
         var bar = $('maqueta-zone-jump-bar');
         if (!bar) {
-            bar = document.createElement('nav');
+            bar = document.createElement('header');
             bar.id = 'maqueta-zone-jump-bar';
-            bar.setAttribute('aria-label', 'Accesos directos de zona');
+            bar.setAttribute('aria-label', 'Barra superior Maqueta Viva');
             document.body.appendChild(bar);
         }
         bar.innerHTML = '';
-        var select = document.createElement('select');
-        select.id = 'maqueta-zone-direct-select';
-        select.setAttribute('aria-label', 'Seleccionar zona');
-        var go = document.createElement('button');
-        go.id = 'maqueta-zone-direct-go';
-        go.type = 'button';
-        go.textContent = 'Ver zona';
         var activeZone = getActiveZone();
+        var brand = document.createElement('div');
+        brand.className = 'maqueta-topbar-brand';
+        brand.innerHTML = '<span class="maqueta-logo-mark" aria-hidden="true"></span><strong>Maqueta Viva 3D</strong><em>Torrevieja</em>';
+        var switcher = document.createElement('div');
+        switcher.className = 'maqueta-zone-switcher-wrap';
+        switcher.innerHTML = '<button type="button" id="maqueta-zone-switcher" class="maqueta-zone-switcher" aria-expanded="false"><span aria-hidden="true">⌖</span><strong id="maqueta-zone-switcher-label">'
+            + (activeZone ? activeZone.name : 'Selecciona zona')
+            + '</strong><span aria-hidden="true">⌄</span></button><div id="maqueta-zone-dropdown" class="maqueta-zone-dropdown" hidden></div>';
+        var dropdown = switcher.querySelector('#maqueta-zone-dropdown');
         config.zones.forEach(function (zone) {
-            var option = document.createElement('option');
-            option.value = zone.id;
-            option.textContent = zone.name;
-            if (activeZone && activeZone.id === zone.id) option.selected = true;
-            select.appendChild(option);
-            var link = document.createElement('a');
-            link.href = buildZoneUrl(zone).toString();
-            link.dataset.zoneId = zone.id;
-            link.textContent = zone.name;
-            if (activeZone && activeZone.id === zone.id) link.className = 'active';
-            link.addEventListener('pointerdown', function (ev) {
-                navigateZoneNow(zone.id, 'zone-jump-pointerdown', ev);
+            var item = document.createElement('button');
+            item.type = 'button';
+            item.dataset.zoneId = zone.id;
+            item.className = activeZone && activeZone.id === zone.id ? 'active' : '';
+            item.innerHTML = '<strong>' + zone.name + '</strong><span>' + getZoneType(zone) + '</span>';
+            item.addEventListener('pointerdown', function (ev) {
+                navigateZoneNow(zone.id, 'zone-dropdown-pointerdown', ev);
             });
-            link.addEventListener('click', function (ev) {
-                applyZonePreset(zone.id, 'zone-jump-bar', ev);
+            item.addEventListener('click', function (ev) {
+                applyZonePreset(zone.id, 'zone-dropdown', ev);
             });
-            bar.appendChild(link);
+            dropdown.appendChild(item);
         });
-        select.addEventListener('change', function () {
-            navigateZoneNow(select.value, 'zone-direct-select-change', null);
-        });
-        go.addEventListener('pointerdown', function (ev) {
-            navigateZoneNow(select.value, 'zone-direct-pointerdown', ev);
-        });
-        go.addEventListener('click', function (ev) {
-            if (ev && ev.preventDefault) ev.preventDefault();
-            if (ev && ev.stopPropagation) ev.stopPropagation();
-            var zone = findZone(select.value);
-            if (!zone) return;
-            window.location.href = buildZoneUrl(zone).toString();
-        });
-        bar.insertBefore(go, bar.firstChild);
-        bar.insertBefore(select, go);
+        var actions = document.createElement('div');
+        actions.className = 'maqueta-topbar-actions';
+        actions.innerHTML = '<button type="button" data-maqueta-cta="help">?</button><button type="button" id="maqueta-topbar-tools">⚙</button><button type="button" data-maqueta-cta="visual-mode">◐</button>';
+        bar.appendChild(brand);
+        bar.appendChild(switcher);
+        bar.appendChild(actions);
     }
 
     function bindZoneDelegation() {
@@ -840,11 +838,13 @@
 
     function renderRoute() {
         var counter = $('route-counter');
+        var counterSide = $('route-counter-side');
         var list = $('route-list');
         var empty = $('route-empty');
         var modalList = $('share-route-list');
         var ready = $('route-ready-message');
         if (counter) counter.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
+        if (counterSide) counterSide.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS + ' lugares';
         if (list) list.innerHTML = '';
         if (modalList) modalList.innerHTML = '';
         if (empty) empty.style.display = state.route.length ? 'none' : 'block';
@@ -943,10 +943,77 @@
         });
     }
 
+    function setActiveDockTab(tabId) {
+        var selected = tabId || 'pois';
+        Array.prototype.forEach.call(document.querySelectorAll('[data-dock-tab]'), function (button) {
+            var active = button.getAttribute('data-dock-tab') === selected;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-dock-panel]'), function (panel) {
+            var activePanel = panel.getAttribute('data-dock-panel') === selected;
+            panel.hidden = !activePanel;
+            panel.classList.toggle('is-active', activePanel);
+        });
+        trackMaquetaEvent('ui_tab_opened', { tabId: selected });
+    }
+
+    function renderActiveDockContent(tabId) {
+        setActiveDockTab(tabId);
+    }
+
+    function toggleDock(open) {
+        var dock = $('maqueta-bottom-panel');
+        var button = $('maqueta-dock-toggle');
+        var isOpen = typeof open === 'boolean' ? open : !!(dock && dock.classList.contains('is-minimized'));
+        if (dock) dock.classList.toggle('is-minimized', !isOpen);
+        if (button) {
+            button.textContent = isOpen ? 'Minimizar' : 'Abrir';
+            button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+        trackMaquetaEvent('dock_toggled', { open: isOpen });
+    }
+
+    function toggleAccordion(block, forceOpen) {
+        if (!block) return;
+        var button = block.querySelector('.maqueta-block-toggle');
+        var open = typeof forceOpen === 'boolean' ? forceOpen : block.classList.contains('is-collapsed');
+        block.classList.toggle('is-collapsed', !open);
+        if (button) {
+            button.textContent = open ? 'Cerrar' : 'Abrir';
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        trackMaquetaEvent('accordion_toggled', { open: open, title: block.querySelector('h2') ? block.querySelector('h2').textContent : null });
+    }
+
+    function toggleToolbox(open) {
+        var toolbox = $('maqueta-toolbox');
+        var button = $('maqueta-toolbox-toggle');
+        var isOpen = typeof open === 'boolean' ? open : !(toolbox && toolbox.classList.contains('is-open'));
+        if (toolbox) toolbox.classList.toggle('is-open', isOpen);
+        document.body.classList.toggle('maqueta-toolbox-open', isOpen);
+        if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        trackMaquetaEvent('toolbox_opened', { open: isOpen });
+    }
+
+    function toggleZoneDropdown(open) {
+        var dropdown = $('maqueta-zone-dropdown');
+        var button = $('maqueta-zone-switcher');
+        var isOpen = typeof open === 'boolean' ? open : !!(dropdown && dropdown.hidden);
+        if (dropdown) dropdown.hidden = !isOpen;
+        if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        trackMaquetaEvent('zone_dropdown_opened', { open: isOpen });
+    }
+
+    function closeGuidedHint() {
+        var hint = $('maqueta-guided-hint');
+        if (hint) hint.hidden = true;
+        trackMaquetaEvent('guided_hint_closed', {});
+    }
+
     function installPanelAccordions() {
         [
-            { selector: '#maqueta-command-panel .maqueta-panel-block', openUntil: 1 },
-            { selector: '#maqueta-bottom-panel .maqueta-panel-block', openUntil: 2 }
+            { selector: '#maqueta-command-panel .maqueta-panel-block', openUntil: 2 }
         ].forEach(function (group) {
             Array.prototype.slice.call(document.querySelectorAll(group.selector)).forEach(function (block, index) {
                 var head = block.querySelector('.maqueta-block-head');
@@ -965,10 +1032,7 @@
                 button.addEventListener('click', function (ev) {
                     ev.preventDefault();
                     ev.stopPropagation();
-                    var nextCollapsed = !block.classList.contains('is-collapsed');
-                    block.classList.toggle('is-collapsed', nextCollapsed);
-                    button.textContent = nextCollapsed ? 'Abrir' : 'Cerrar';
-                    button.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+                    toggleAccordion(block);
                 });
             });
         });
@@ -1088,10 +1152,48 @@
         if (exportBtn) {
             exportBtn.addEventListener('click', function () {
                 setTechnicalControls(true);
+                toggleToolbox(true);
                 showToast('Modo tecnico activo: usa downloadOBJ en dat.GUI.');
                 trackMaquetaEvent('cta_clicked', { id: 'premium-export-obj' });
             });
         }
+        var topbarTools = $('maqueta-topbar-tools');
+        if (topbarTools) topbarTools.addEventListener('click', function () { toggleToolbox(); });
+        var toolbox = $('maqueta-toolbox-toggle');
+        if (toolbox) toolbox.addEventListener('click', function () { toggleToolbox(); });
+        var zoneSwitcher = $('maqueta-zone-switcher');
+        if (zoneSwitcher) zoneSwitcher.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            toggleZoneDropdown();
+        });
+        var showZones = $('show-zones-drawer');
+        if (showZones) showZones.addEventListener('click', function () {
+            var firstBlock = document.querySelector('#maqueta-command-panel .maqueta-panel-block');
+            toggleAccordion(firstBlock, true);
+            var panel = $('maqueta-command-panel');
+            if (panel) panel.classList.toggle('show-zones-list');
+            toggleZoneDropdown(true);
+        });
+        document.addEventListener('click', function (ev) {
+            var inSwitcher = ev.target && ev.target.closest ? ev.target.closest('#maqueta-zone-jump-bar') : null;
+            if (!inSwitcher) toggleZoneDropdown(false);
+        });
+        var hintClose = $('maqueta-guided-hint-close');
+        if (hintClose) hintClose.addEventListener('click', closeGuidedHint);
+        Array.prototype.forEach.call(document.querySelectorAll('[data-dock-tab]'), function (button) {
+            button.addEventListener('click', function () {
+                var tab = button.getAttribute('data-dock-tab');
+                toggleDock(true);
+                renderActiveDockContent(tab);
+            });
+        });
+        var dockToggle = $('maqueta-dock-toggle');
+        if (dockToggle) dockToggle.addEventListener('click', function () { toggleDock(); });
+        var heroCreate = $('hero-create-route');
+        if (heroCreate) heroCreate.addEventListener('click', openSharePanel);
+        var createSide = $('create-route-side');
+        if (createSide) createSide.addEventListener('click', openSharePanel);
         var zoomMinus = $('zoom-minus');
         var zoomPlus = $('zoom-plus');
         var zoomReset = $('zoom-reset');
@@ -1240,6 +1342,7 @@
         bindDebugChipDelegation();
         installPanelAccordions();
         initEvents(config);
+        setActiveDockTab('pois');
         updateStatus();
         updateAnalyticsPanel();
         window.setTimeout(hideLoading, 3200);

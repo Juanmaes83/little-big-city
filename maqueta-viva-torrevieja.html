@@ -7,7 +7,7 @@
     <meta name="description" content="Maqueta Viva 3D Torrevieja: experiencia premium de ciudad 3D con datos reales del territorio, zonas, POIs y Ruta Viva compartible.">
     <title>Maqueta Viva 3D - Torrevieja</title>
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/maqueta-viva.css?v=0.3.1-ui-polish">
+    <link rel="stylesheet" href="./css/maqueta-viva.css?v=0.4-premium-map-ui">
     <script>
         (function applyMaquetaPresetFallback() {
             // Fallback minimo para arrancar el motor si el JSON no ha cargado todavia.
@@ -55,8 +55,19 @@
         </div>
     </section>
 
-    <button id="toggle-technical-controls" class="maqueta-floating-action" type="button" aria-expanded="false">Controles tecnicos</button>
-    <button id="toggle-clean-mode" class="maqueta-floating-action secondary" type="button">Modo presentacion</button>
+    <div id="maqueta-toolbox" class="maqueta-toolbox" aria-label="Herramientas tecnicas">
+        <button id="maqueta-toolbox-toggle" class="maqueta-toolbox-toggle" type="button" aria-expanded="false">Herramientas</button>
+        <div id="maqueta-toolbox-panel" class="maqueta-toolbox-panel" aria-label="Panel de herramientas">
+            <button id="toggle-technical-controls" class="maqueta-floating-action" type="button" aria-expanded="false">Controles tecnicos</button>
+            <button id="toggle-clean-mode" class="maqueta-floating-action secondary" type="button">Modo presentacion</button>
+            <button type="button" id="premium-export-obj">Exportar maqueta OBJ</button>
+        </div>
+    </div>
+
+    <section id="maqueta-guided-hint" class="maqueta-guided-hint" aria-label="Guia rapida">
+        <span>1. Elige zona · 2. Explora la maqueta · 3. Activa contenidos</span>
+        <button type="button" id="maqueta-guided-hint-close" aria-label="Cerrar guia">x</button>
+    </section>
 
     <div id="technical-mode-label" role="status">Modo tecnico activo</div>
     <section id="maqueta-status-panel" aria-label="Estado actual de Maqueta Viva">
@@ -69,40 +80,30 @@
         <span><strong>Calibracion</strong><em id="status-calibration">Aproximada</em></span>
         <span><strong>Ruta</strong><em id="status-route">0/5</em></span>
     </section>
-    <main id="maqueta-product-layer" aria-label="Maqueta Viva 3D premium layer">
+    <main id="maqueta-product-layer" class="maqueta-app-shell" aria-label="Maqueta Viva 3D premium layer">
         <section id="zone-proof-marker" aria-label="Marcador narrativo de zona">
             <strong id="zone-proof-title">Zona activa: Centro urbano</strong>
             <span id="zone-proof-copy">Marcador narrativo de zona</span>
         </section>
-        <section id="maqueta-brand-panel" aria-label="Presentacion Maqueta Viva 3D">
-            <p class="maqueta-eyebrow">Modulo externo premium</p>
-            <h1>Maqueta Viva 3D - Torrevieja</h1>
-            <p class="maqueta-claim">La ciudad se levanta ante ti.</p>
-            <p class="maqueta-subclaim">Explora, activa y comparte una maqueta viva generada desde datos reales del territorio.</p>
-            <p class="maqueta-microcopy">Un prototipo externo premium para turismo, inmobiliaria, eventos y city branding.</p>
+        <section id="maqueta-brand-panel" class="maqueta-hero-card" aria-label="Presentacion Maqueta Viva 3D">
+            <p class="maqueta-eyebrow">Experiencia premium</p>
+            <h1>Maqueta Viva 3D<br>Torrevieja</h1>
+            <p class="maqueta-subclaim">Explora la ciudad como nunca antes. Turismo, patrimonio y eventos en una maqueta interactiva.</p>
             <div class="maqueta-actions" aria-label="Acciones comerciales">
-                <button type="button" data-maqueta-cta="create-destination">Crear una Maqueta Viva para mi destino</button>
-                <button type="button" data-maqueta-cta="request-demo">Solicitar demo</button>
-                <button type="button" id="premium-export-obj">Exportar maqueta OBJ</button>
-            </div>
-            <div class="maqueta-instructions">
-                <span>Arrastra para girar</span>
-                <span>Usa zoom para acercarte</span>
-                <span>Cambia LNG/LAT para otra zona</span>
-                <span>Explora. Despierta. Levanta.</span>
+                <button type="button" id="hero-create-route">Crear mi Ruta Viva</button>
+                <button type="button" data-maqueta-cta="explore-maqueta">Explorar la maqueta</button>
+                <button type="button" data-maqueta-cta="watch-demo">Ver demo</button>
             </div>
         </section>
 
-        <aside id="maqueta-command-panel" aria-label="Panel de producto">
-            <section class="maqueta-panel-block compact">
-                <div class="maqueta-block-head"><h2>Modo de experiencia</h2></div>
-                <select id="sector-select" aria-label="Seleccionar sector"></select>
-                <p id="sector-microcopy"></p>
-                <ul id="sector-benefits"></ul>
-                <button type="button" id="sector-cta" data-maqueta-cta="sector-cta"></button>
-            </section>
+        <aside id="maqueta-command-panel" class="maqueta-context-panel" aria-label="Panel de producto">
             <section class="maqueta-panel-block">
-                <div class="maqueta-block-head"><h2>Zonas para levantar</h2><span>Aproximadas v0.2</span></div>
+                <div class="maqueta-block-head"><h2>Zonas</h2></div>
+                <p class="maqueta-context-label">Zona activa</p>
+                <strong id="context-zone-name" class="maqueta-context-value">Centro urbano</strong>
+                <p class="maqueta-context-label">Aproximacion</p>
+                <span id="context-zone-calibration" class="maqueta-context-pill">Aproximada v0.2</span>
+                <button type="button" id="show-zones-drawer" class="maqueta-wide-action">Ver todas las zonas</button>
                 <div class="maqueta-zoom-controls" aria-label="Control de zoom por zona">
                     <button type="button" id="zoom-minus">Zoom -</button>
                     <button type="button" id="zoom-plus">Zoom +</button>
@@ -110,14 +111,35 @@
                 </div>
                 <div id="zones-list" class="maqueta-scroll-list"></div>
             </section>
+            <section class="maqueta-panel-block">
+                <div class="maqueta-block-head"><h2>Ruta Viva</h2><span id="route-counter-side">0/5 lugares</span></div>
+                <p>Crea una ruta y descubre contenidos en cada parada.</p>
+                <button type="button" id="create-route-side" class="maqueta-wide-action">Crear mi Ruta Viva +</button>
+            </section>
+            <section class="maqueta-panel-block compact">
+                <div class="maqueta-block-head"><h2>Modo de experiencia</h2></div>
+                <select id="sector-select" aria-label="Seleccionar sector"></select>
+                <p id="sector-microcopy"></p>
+                <ul id="sector-benefits"></ul>
+                <button type="button" id="sector-cta" data-maqueta-cta="sector-cta"></button>
+            </section>
         </aside>
 
-        <section id="maqueta-bottom-panel" aria-label="POIs y Ruta Viva">
-            <div class="maqueta-panel-block pois-block">
+        <section id="maqueta-bottom-panel" class="maqueta-bottom-dock" aria-label="Contenidos de la maqueta">
+            <div class="maqueta-dock-tabs" role="tablist" aria-label="Capas premium">
+                <button type="button" class="active" data-dock-tab="pois">POIs narrativos</button>
+                <button type="button" data-dock-tab="sound">Mapa sonoro</button>
+                <button type="button" data-dock-tab="story">Escuchar historia</button>
+                <button type="button" data-dock-tab="video">Video / Directo</button>
+                <button type="button" data-dock-tab="sponsors">Espacios destacados</button>
+                <button type="button" data-dock-tab="downloads">Descargas</button>
+                <button type="button" id="maqueta-dock-toggle" aria-expanded="true">Minimizar</button>
+            </div>
+            <div class="maqueta-panel-block pois-block" data-dock-panel="pois">
                 <div class="maqueta-block-head"><h2>POIs narrativos</h2><span>No geolocalizacion 3D exacta</span></div>
                 <div id="poi-list" class="maqueta-poi-list"></div>
             </div>
-            <div class="maqueta-panel-block route-block">
+            <div class="maqueta-panel-block route-block" data-dock-panel="pois">
                 <div class="maqueta-block-head"><h2>Ruta Viva</h2><span id="route-counter">0/5</span></div>
                 <p id="route-empty">Anade hasta 5 lugares para crear una salida compartible.</p>
                 <ol id="route-list"></ol>
@@ -127,26 +149,26 @@
                     <button type="button" id="clear-route">Limpiar ruta</button>
                 </div>
             </div>
-            <div class="maqueta-panel-block premium-block">
+            <div class="maqueta-panel-block premium-block" data-dock-panel="sound" hidden>
                 <div class="maqueta-block-head"><h2>Mapa sonoro</h2><span>Audio preparado</span></div>
                 <p id="soundscape-copy">Selecciona una zona para ver su paisaje sonoro previsto.</p>
                 <button type="button" id="soundscape-enable">Activar mapa sonoro</button>
             </div>
-            <div class="maqueta-panel-block premium-block">
+            <div class="maqueta-panel-block premium-block" data-dock-panel="video" hidden>
                 <div class="maqueta-block-head"><h2>Video / Directo</h2><span>Placeholder frontend</span></div>
                 <p id="immersive-media-copy">Preparado para video 360, drone, streaming o camara en directo.</p>
                 <button type="button" id="immersive-media-open">Ver experiencia inmersiva</button>
             </div>
-            <div class="maqueta-panel-block premium-block">
+            <div class="maqueta-panel-block premium-block" data-dock-panel="story" hidden>
                 <div class="maqueta-block-head"><h2>Escuchar historia</h2><span>Podcast preparado</span></div>
                 <p id="podcast-copy">Selecciona una zona para ver su relato narrado previsto.</p>
                 <button type="button" id="podcast-open">Reproducir relato</button>
             </div>
-            <div class="maqueta-panel-block premium-block">
+            <div class="maqueta-panel-block premium-block" data-dock-panel="sponsors" hidden>
                 <div class="maqueta-block-head"><h2>Espacios destacados</h2><span>Demo sponsors</span></div>
                 <div id="sponsored-list"></div>
             </div>
-            <div class="maqueta-panel-block premium-block">
+            <div class="maqueta-panel-block premium-block" data-dock-panel="downloads" hidden>
                 <div class="maqueta-block-head"><h2>Descargas</h2><span>Frontend</span></div>
                 <div class="maqueta-route-actions">
                     <button type="button" id="download-zone-story">Descargar ficha de zona</button>
@@ -256,6 +278,6 @@
 
     <script src="lib/FileSaver.js"></script>
     <script src="./dist/bundle.js?v=0.3-premium-layer"></script>
-    <script src="./js/maqueta-viva-product.js?v=0.3.1-ui-polish"></script>
+    <script src="./js/maqueta-viva-product.js?v=0.4-premium-map-ui"></script>
 </body>
 </html>

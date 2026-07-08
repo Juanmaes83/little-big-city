@@ -47,12 +47,19 @@ async function main() {
         interactionDebugCompact: !!document.querySelector('#maqueta-interaction-debug') && getComputedStyle(document.querySelector('#maqueta-interaction-debug pre')).display === 'none',
         analyticsCompact: !!document.querySelector('#maqueta-analytics-debug') && getComputedStyle(document.querySelector('#maqueta-analytics-debug pre')).display === 'none',
         styleListHidden: getComputedStyle(document.querySelector('#style-list')).display === 'none',
+        topbarCompact: !!document.querySelector('#maqueta-zone-jump-bar') && document.querySelector('#maqueta-zone-jump-bar').getBoundingClientRect().height <= 72,
+        noZoneChipLinks: document.querySelectorAll('#maqueta-zone-jump-bar a[data-zone-id]').length === 0,
+        zoneSwitcherCentered: !!document.querySelector('#maqueta-zone-switcher'),
         commandAccordion: !!document.querySelector('#maqueta-command-panel .maqueta-block-toggle'),
-        bottomAccordion: document.querySelectorAll('#maqueta-bottom-panel .maqueta-block-toggle').length >= 2,
-        collapsedPremiumBlocks: document.querySelectorAll('#maqueta-bottom-panel .maqueta-panel-block.is-collapsed').length
+        bottomDockTabs: document.querySelectorAll('[data-dock-tab]').length >= 6,
+        activeDockPanels: document.querySelectorAll('[data-dock-panel]:not([hidden])').length,
+        toolboxClosed: !!document.querySelector('#maqueta-toolbox') && !document.querySelector('#maqueta-toolbox').classList.contains('is-open'),
+        statusStrip: !!document.querySelector('#maqueta-status-panel') && getComputedStyle(document.querySelector('#maqueta-status-panel')).flexWrap === 'nowrap',
+        poiCarousel: !!document.querySelector('.maqueta-poi-list') && getComputedStyle(document.querySelector('.maqueta-poi-list')).display === 'flex'
     }));
 
-    await page.locator('#maqueta-zone-jump-bar [data-zone-id="plaza-iglesia"]').click();
+    await page.locator('#maqueta-zone-switcher').click();
+    await page.locator('#maqueta-zone-dropdown [data-zone-id="plaza-iglesia"]').click();
     await page.waitForURL(/zone=plaza-iglesia/, { timeout: 10000 });
     await page.waitForFunction(() => document.body.classList.contains('maqueta-loaded'), null, { timeout: 12000 }).catch(() => {});
 
@@ -66,7 +73,7 @@ async function main() {
     await browser.close();
     const result = { ok: true, before, after, errors };
     console.log(JSON.stringify(result, null, 2));
-    if (!before.engineDebugCompact || !before.interactionDebugCompact || !before.analyticsCompact || !before.styleListHidden || !before.commandAccordion || !before.bottomAccordion || after.statusZone !== 'Plaza de la Iglesia / Plaza de la Constitucion' || !after.analyticsVisible) {
+    if (!before.engineDebugCompact || !before.interactionDebugCompact || !before.analyticsCompact || !before.styleListHidden || !before.topbarCompact || !before.noZoneChipLinks || !before.zoneSwitcherCentered || !before.commandAccordion || !before.bottomDockTabs || before.activeDockPanels !== 2 || !before.toolboxClosed || !before.statusStrip || !before.poiCarousel || after.statusZone !== 'Plaza de la Iglesia / Plaza de la Constitucion' || !after.analyticsVisible) {
         process.exitCode = 1;
     }
 }

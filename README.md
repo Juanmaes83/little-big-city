@@ -109,6 +109,23 @@ http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=centro-la-mata&zoom=16&sector
 http://127.0.0.1:8137/maqueta-viva-torrevieja?zone=salinas&zoom=15&style=planet&sector=turismo
 ```
 
+## Que anade v0.4 - Premium Map-First UI
+
+La v0.4 reorganiza la experiencia para que la maqueta 3D sea el centro visual y los controles no compitan con el mapa.
+
+- Topbar compacta con marca, selector central de zona y acciones secundarias.
+- Se elimina la barra permanente de chips de zona; las zonas pasan a dropdown y panel contextual.
+- Hero card izquierda compacta con CTA de Ruta Viva, exploracion y demo.
+- Panel derecho contextual por acordeones: Zonas, Ruta Viva y Modo de experiencia.
+- Status strip unificado en una sola capsula.
+- Bottom dock por pestanas: POIs narrativos, Mapa sonoro, Escuchar historia, Video/Directo, Espacios destacados y Descargas.
+- POIs en carrusel horizontal compacto.
+- Herramientas tecnicas, debug, analytics y calibracion quedan detras de un toolbox secundario.
+- El mini mapa tecnico heredado queda oculto por defecto para no invadir la experiencia.
+- `npm run qa:maqueta-ui` valida topbar, dropdown, tabs, toolbox, status strip, carrusel POI y cambio real de zona.
+
+Limitacion honesta v0.4: algunos errores heredados del motor/datos vectoriales pueden activar el fallback de datos 3D en zonas concretas. El rediseño no cambia el motor Little Big City ni la dependencia de Nextzen; solo reduce el ruido visual y evita que los paneles tecnicos rompan la experiencia.
+
 
 ## Nota v0.2.2 - prueba visual de zonas
 
