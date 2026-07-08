@@ -80,6 +80,16 @@
             <section id="maqueta-toolbox-analytics" class="maqueta-toolbox-section">
                 <h2>Analytics</h2>
             </section>
+            <section id="maqueta-toolbox-orientation" class="maqueta-toolbox-section">
+                <h2>Orientacion</h2>
+                <button type="button" id="maqueta-orientation-toggle">Orientacion activa</button>
+                <p>Pins narrativos, ruta visual y leyenda compacta sobre la maqueta.</p>
+            </section>
+            <section id="maqueta-toolbox-gesture" class="maqueta-toolbox-section">
+                <h2>Gesture Ready</h2>
+                <button type="button" id="maqueta-gesture-ready" disabled>Control gestual proximamente</button>
+                <p>Preparado para conectar webcam/gestos con privacidad visible, fallback a raton y metricas.</p>
+            </section>
             <section id="maqueta-toolbox-legal" class="maqueta-toolbox-section">
                 <h2>Legal / Creditos tecnicos</h2>
                 <p>Built with ClayGL.</p>
@@ -106,6 +116,18 @@
         <span><strong>Ruta</strong><em id="status-route">0/5</em></span>
     </section>
     <main id="maqueta-product-layer" class="maqueta-app-shell" aria-label="Maqueta Viva 3D premium layer">
+        <section id="maqueta-orientation-layer" aria-label="Orientacion visual de Maqueta Viva">
+            <svg id="maqueta-route-lines" aria-hidden="true"></svg>
+            <div id="maqueta-marker-list"></div>
+            <button id="maqueta-orientation-legend-toggle" type="button" aria-expanded="true">Leyenda</button>
+            <div id="maqueta-orientation-legend" aria-label="Leyenda de orientacion">
+                <span><i class="public"></i>Publico</span>
+                <span><i class="sponsored"></i>Destacado</span>
+                <span><i class="route"></i>Ruta</span>
+                <span><i class="audio"></i>Audio</span>
+                <span><i class="video"></i>Video</span>
+            </div>
+        </section>
         <section id="zone-proof-marker" aria-label="Marcador narrativo de zona">
             <strong id="zone-proof-title">Zona activa: Centro urbano</strong>
             <span id="zone-proof-copy">Marcador narrativo de zona</span>

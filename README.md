@@ -126,6 +126,32 @@ La v0.4 reorganiza la experiencia para que la maqueta 3D sea el centro visual y 
 
 Limitacion honesta v0.4: algunos errores heredados del motor/datos vectoriales pueden activar el fallback de datos 3D en zonas concretas. El rediseño no cambia el motor Little Big City ni la dependencia de Nextzen; solo reduce el ruido visual y evita que los paneles tecnicos rompan la experiencia.
 
+## Maqueta Viva v0.3.1 - Visual POI, Media Activation & Gesture-Ready Layer
+
+La v0.3.1 convierte los modulos frontend en una experiencia territorial mas viva sin tocar el motor 3D ni implementar webcam.
+
+- POIs con thumbnails locales SVG en `asset/maqueta-viva/placeholders/`.
+- Cada POI declara `thumbnail`, `imageAlt`, `visualStatus`, `accessType` y `screenPosition`.
+- Las zonas declaran `heroImage`, `gallery`, `visualTheme` y `screenPosition`.
+- Capa `maqueta-orientation-layer` con "Tu estas aqui", zona activa, pins de POIs, banderitas de Ruta Viva y linea punteada narrativa.
+- Toggle de Orientacion dentro de Herramientas.
+- Leyenda compacta y colapsable.
+- Mapa sonoro con estado activo/inactivo y fallback honesto cuando `audioUrl` es `null`.
+- Historia/Podcast abre transcript en modal compacto cuando no hay audio real.
+- Video/Directo abre modal placeholder preparado para video 360, drone o camara en directo.
+- Sponsors frontend filtrados por zona activa con CTA demo.
+- Descargas frontend reales en JSON: ficha de zona, Ruta Viva y briefing de marca.
+- Analytics reforzado en `window.MAQUETA_ANALYTICS_EVENTS` y `localStorage.maqueta_viva_analytics_events`.
+- Arquitectura `MaquetaVivaInputController` con `setInputMode(mode)` y `handleNavigationIntent(intent, payload)` preparada para gestos futuros.
+
+Limitaciones honestas v0.3.1:
+
+- Los thumbnails son placeholders locales propios, no fotografias reales.
+- Los pins usan posiciones narrativas de pantalla, no geolocalizacion 3D exacta.
+- No hay webcam real, permisos de camara ni conexion con Gesture Lab en esta fase.
+- No hay audio real ni video real si `audioUrl`/`url` siguen en `null`.
+- La capa visual ayuda a orientacion y venta, pero no sustituye una calibracion GIS/3D precisa.
+
 ## Maqueta Viva v0.4 - Gesture Navigation Layer (roadmap)
 
 La siguiente capa natural no debe mezclarse dentro del motor 3D. Debe entrar como una capa de interaccion opcional, preparada para conectar con Gesture Lab, Batuta y futuros modulos de camara.

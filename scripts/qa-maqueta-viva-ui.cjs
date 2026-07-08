@@ -70,6 +70,13 @@ async function main() {
         commandAccordion: !!document.querySelector('#maqueta-command-panel .maqueta-block-toggle'),
         bottomDockTabs: document.querySelectorAll('[data-dock-tab]').length >= 6,
         activeDockPanels: document.querySelectorAll('[data-dock-panel]:not([hidden])').length,
+        poiThumbs: document.querySelectorAll('.maqueta-poi-thumb img[src*="asset/maqueta-viva/placeholders"]').length,
+        orientationLayer: !!document.querySelector('#maqueta-orientation-layer') && getComputedStyle(document.querySelector('#maqueta-orientation-layer')).display !== 'none',
+        markerCount: document.querySelectorAll('.maqueta-map-marker').length,
+        youMarker: !!document.querySelector('.maqueta-map-marker.marker-you'),
+        orientationLegend: !!document.querySelector('#maqueta-orientation-legend'),
+        orientationToolbox: !!document.querySelector('#maqueta-toolbox-orientation'),
+        gestureReadyToolbox: !!document.querySelector('#maqueta-toolbox-gesture'),
         toolboxClosed: !!toolbox && !toolbox.classList.contains('is-open'),
         statusStrip: !!document.querySelector('#maqueta-status-panel') && getComputedStyle(document.querySelector('#maqueta-status-panel')).flexWrap === 'nowrap',
         poiCarousel: !!document.querySelector('.maqueta-poi-list') && getComputedStyle(document.querySelector('.maqueta-poi-list')).display === 'flex'
@@ -81,17 +88,29 @@ async function main() {
     await page.waitForURL(/zone=plaza-iglesia/, { timeout: 10000 });
     await page.waitForFunction(() => document.body.classList.contains('maqueta-loaded'), null, { timeout: 12000 }).catch(() => {});
 
+    await page.locator('.maqueta-poi-card [data-add]').first().click();
+    await page.locator('[data-dock-tab="sound"]').click();
+    await page.locator('#soundscape-enable').click();
+    await page.locator('[data-dock-tab="story"]').click();
+    await page.locator('#podcast-open').click();
+    await page.locator('#premium-modal-close').click();
+
     const after = await page.evaluate(() => ({
         href: location.href,
         statusZone: document.querySelector('#status-zone')?.textContent?.trim(),
         analyticsVisible: !!document.querySelector('#maqueta-analytics-debug'),
-        calibrationCollapsed: document.body.classList.contains('maqueta-calibration-collapsed')
+        calibrationCollapsed: document.body.classList.contains('maqueta-calibration-collapsed'),
+        routeMarkers: document.querySelectorAll('.maqueta-map-marker.marker-route').length,
+        routeCount: document.querySelector('#status-route')?.textContent?.trim(),
+        soundActive: document.querySelector('#soundscape-enable')?.dataset.active === '1',
+        analyticsEvents: (window.MAQUETA_ANALYTICS_EVENTS || []).map(event => event.eventName),
+        localStorageEvents: !!localStorage.getItem('maqueta_viva_analytics_events')
     }));
 
     await browser.close();
     const result = { ok: true, before, after, errors };
     console.log(JSON.stringify(result, null, 2));
-    if (!before.calibrationInToolbox || !before.engineDebugInToolbox || !before.interactionDebugInToolbox || !before.analyticsInToolbox || !before.toolboxPanelHidden || !before.legacyMapAlive || !before.creditsHidden || !before.brandCreditVisible || !before.dockCompact || !before.styleListHidden || !before.topbarCompact || !before.noZoneChipLinks || !before.zoneSwitcherCentered || !before.commandAccordion || !before.bottomDockTabs || before.activeDockPanels !== 2 || !before.toolboxClosed || !before.statusStrip || !before.poiCarousel || after.statusZone !== 'Plaza de la Iglesia / Plaza de la Constitucion' || !after.analyticsVisible) {
+    if (!before.calibrationInToolbox || !before.engineDebugInToolbox || !before.interactionDebugInToolbox || !before.analyticsInToolbox || !before.toolboxPanelHidden || !before.legacyMapAlive || !before.creditsHidden || !before.brandCreditVisible || !before.dockCompact || !before.styleListHidden || !before.topbarCompact || !before.noZoneChipLinks || !before.zoneSwitcherCentered || !before.commandAccordion || !before.bottomDockTabs || before.activeDockPanels !== 2 || before.poiThumbs < 6 || !before.orientationLayer || before.markerCount < 2 || !before.youMarker || !before.orientationLegend || !before.orientationToolbox || !before.gestureReadyToolbox || !before.toolboxClosed || !before.statusStrip || !before.poiCarousel || after.statusZone !== 'Plaza de la Iglesia / Plaza de la Constitucion' || !after.analyticsVisible || after.routeMarkers < 1 || after.routeCount !== '1/5' || !after.soundActive || !after.localStorageEvents || !after.analyticsEvents.includes('sound_enabled') || !after.analyticsEvents.includes('podcast_opened')) {
         process.exitCode = 1;
     }
 }

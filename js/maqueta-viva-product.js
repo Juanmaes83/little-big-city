@@ -37,6 +37,8 @@
         route: [],
         sector: 'turismo',
         clean: false,
+        orientationLayer: true,
+        inputMode: 'mouse',
         interactionDebug: {
             lastClickTarget: null,
             lastZoneButtonClicked: null,
@@ -74,6 +76,7 @@
         window.MAQUETA_ANALYTICS_EVENTS.push(event);
         try {
             localStorage.setItem('MAQUETA_ANALYTICS_EVENTS', JSON.stringify(window.MAQUETA_ANALYTICS_EVENTS.slice(-120)));
+            localStorage.setItem('maqueta_viva_analytics_events', JSON.stringify(window.MAQUETA_ANALYTICS_EVENTS.slice(-120)));
         } catch (err) {}
         console.info('[Maqueta Viva Analytics]', eventName, event);
         updateAnalyticsPanel();
@@ -434,6 +437,128 @@
         updateToolboxBadges();
     }
 
+    function setInputMode(mode) {
+        var allowed = ['mouse', 'touch', 'keyboard', 'gesture-ready'];
+        state.inputMode = allowed.indexOf(mode) !== -1 ? mode : 'mouse';
+        document.body.setAttribute('data-input-mode', state.inputMode);
+        trackMaquetaEvent('input_mode_changed', { inputMode: state.inputMode });
+    }
+
+    function handleNavigationIntent(intent, payload) {
+        trackMaquetaEvent('navigation_intent_received', {
+            inputMode: state.inputMode,
+            intent: intent,
+            payload: payload || {},
+            status: 'gesture-ready-placeholder'
+        });
+        if (intent === 'select-zone' && payload && payload.zone) {
+            applyZonePreset(payload.zone, 'navigation-intent', null);
+        }
+    }
+
+    window.MaquetaVivaInputController = {
+        setInputMode: setInputMode,
+        handleNavigationIntent: handleNavigationIntent
+    };
+
+    function markerIcon(type, category) {
+        if (type === 'you') return '●';
+        if (type === 'zone') return '◆';
+        if (type === 'route') return '⚑';
+        var value = String(category || '').toLowerCase();
+        if (value.indexOf('patrimonio') !== -1 || value.indexOf('iglesia') !== -1) return '⌂';
+        if (value.indexOf('naturaleza') !== -1 || value.indexOf('verde') !== -1 || value.indexOf('salinas') !== -1) return '✦';
+        if (value.indexOf('mar') !== -1 || value.indexOf('costa') !== -1) return '≈';
+        if (value.indexOf('retail') !== -1 || value.indexOf('comercio') !== -1) return '▣';
+        return '•';
+    }
+
+    function accessTypeForPoi(poi) {
+        return (poi && poi.accessType) || 'public';
+    }
+
+    function markerPosition(item, fallback) {
+        var pos = item && item.screenPosition;
+        return {
+            x: Math.min(92, Math.max(8, Number(pos && pos.x) || fallback.x)),
+            y: Math.min(78, Math.max(18, Number(pos && pos.y) || fallback.y))
+        };
+    }
+
+    function toggleOrientationLayer(open) {
+        state.orientationLayer = typeof open === 'boolean' ? open : !state.orientationLayer;
+        document.body.classList.toggle('maqueta-orientation-off', !state.orientationLayer);
+        var button = $('maqueta-orientation-toggle');
+        if (button) button.textContent = state.orientationLayer ? 'Orientacion activa' : 'Orientacion oculta';
+        trackMaquetaEvent('orientation_layer_toggled', { enabled: state.orientationLayer });
+        renderOrientationLayer();
+    }
+
+    function setLegendOpen(open) {
+        var legend = $('maqueta-orientation-legend');
+        var button = $('maqueta-orientation-legend-toggle');
+        var isOpen = typeof open === 'boolean' ? open : !(legend && legend.hidden);
+        if (legend) legend.hidden = !isOpen;
+        if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+
+    function renderOrientationLayer() {
+        var list = $('maqueta-marker-list');
+        var lines = $('maqueta-route-lines');
+        if (!list || !state.config) return;
+        var zone = getActiveZone();
+        var pois = (state.config.pois || []).filter(function (poi) {
+            return poi.zone === (zone && zone.id) || state.route.indexOf(poi.id) !== -1;
+        });
+        list.innerHTML = '';
+        function addMarker(kind, item, label, pos, index) {
+            var marker = document.createElement('button');
+            marker.type = 'button';
+            marker.className = 'maqueta-map-marker marker-' + kind + ' access-' + (item && accessTypeForPoi(item));
+            marker.style.left = pos.x + '%';
+            marker.style.top = pos.y + '%';
+            marker.dataset.kind = kind;
+            marker.innerHTML = '<span>' + (index || markerIcon(kind, item && item.category)) + '</span><strong>' + label + '</strong>';
+            marker.addEventListener('click', function () {
+                if (kind === 'you') {
+                    trackMaquetaEvent('you_are_here_clicked', { zone: zone && zone.id });
+                    showToast('Estas explorando ' + ((zone && zone.name) || 'Torrevieja') + '.');
+                } else if (kind === 'zone') {
+                    trackMaquetaEvent('zone_marker_clicked', { zone: zone && zone.id });
+                    showToast('Zona activa: ' + ((zone && zone.name) || 'Torrevieja') + '.');
+                } else if (kind === 'route') {
+                    trackMaquetaEvent('route_marker_clicked', { poi: item && item.id, zone: item && item.zone });
+                    openPoiDetail(item);
+                } else {
+                    trackMaquetaEvent('poi_marker_clicked', { poi: item && item.id, zone: item && item.zone });
+                    openPoiDetail(item);
+                }
+            });
+            list.appendChild(marker);
+        }
+        addMarker('you', null, 'Tu estas aqui', { x: 48, y: 58 });
+        if (zone) addMarker('zone', zone, zone.name, markerPosition(zone, { x: 52, y: 44 }));
+        pois.slice(0, 6).forEach(function (poi, idx) {
+            var routeIndex = state.route.indexOf(poi.id);
+            addMarker(routeIndex !== -1 ? 'route' : 'poi', poi, poi.title, markerPosition(poi, { x: 38 + (idx * 8), y: 36 + ((idx % 3) * 7) }), routeIndex !== -1 ? String(routeIndex + 1) : null);
+        });
+        if (lines) {
+            lines.setAttribute('viewBox', '0 0 100 100');
+            lines.setAttribute('preserveAspectRatio', 'none');
+            var routePois = state.route.map(getPoiById).filter(Boolean);
+            if (routePois.length > 1) {
+                var points = routePois.map(function (poi) {
+                    var pos = markerPosition(poi, { x: 50, y: 50 });
+                    return pos.x + ',' + pos.y;
+                }).join(' ');
+                lines.innerHTML = '<polyline points="' + points + '" vector-effect="non-scaling-stroke"></polyline>';
+            } else {
+                lines.innerHTML = '';
+            }
+        }
+        document.body.classList.toggle('maqueta-orientation-off', !state.orientationLayer);
+    }
+
     function findByZone(collection, zoneId) {
         if (!state.config || !state.config[collection]) return null;
         return state.config[collection].find(function (item) { return item.zone === zoneId; }) || null;
@@ -661,6 +786,7 @@
         if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat;
         syncLocationInputs(zone);
         renderPremiumLayer();
+        renderOrientationLayer();
     }
 
     function setTechnicalControls(open) {
@@ -818,15 +944,24 @@
             var isInActiveZone = poi.zone === activeZoneId;
             var card = document.createElement('article');
             card.className = 'maqueta-poi-card' + (isRecommended ? ' recommended' : '') + (isInActiveZone ? ' active-zone' : '');
-            card.innerHTML = '<div><strong>' + poi.title + '</strong><em>' + poi.category + '</em></div>'
+            card.innerHTML = '<div class="maqueta-poi-copy"><div><strong>' + poi.title + '</strong><em>' + poi.category + '</em></div>'
                 + (isRecommended ? '<span class="maqueta-recommendation-badge">Recomendado para ' + sectorLabel + '</span>' : '')
                 + (isInActiveZone ? '<span class="maqueta-zone-badge">En esta zona</span>' : '')
                 + '<p>' + poi.description + '</p>'
-                + '<small>' + poi.visitorValue + '</small>'
+                + '<small>' + poi.visitorValue + '</small></div>'
+                + '<button type="button" class="maqueta-poi-thumb" data-detail="' + poi.id + '" aria-label="Ver detalle de ' + poi.title + '">'
+                + '<img src="' + (poi.thumbnail || './asset/maqueta-viva/placeholders/centro-urbano.svg') + '" alt="' + (poi.imageAlt || poi.title) + '">'
+                + '<span>' + (poi.visualStatus === 'placeholder-local' ? 'Demo visual' : 'Visual') + '</span></button>'
                 + '<div class="maqueta-card-actions">'
-                + '<button type="button" data-add="' + poi.id + '">Anadir a Ruta Viva</button>'
+                + '<button type="button" data-add="' + poi.id + '">Anadir</button>'
                 + '<button type="button" data-zone="' + poi.zone + '">Ver zona</button>'
                 + '</div>';
+            card.addEventListener('mouseenter', function () {
+                trackMaquetaEvent('poi_card_viewed', { poi: poi.id, zone: poi.zone });
+            }, { once: true });
+            card.querySelector('[data-detail]').addEventListener('click', function () {
+                openPoiDetail(poi);
+            });
             card.querySelector('[data-add]').addEventListener('click', function () {
                 addPoiToRoute(poi.id);
             });
@@ -841,6 +976,15 @@
             });
             wrap.appendChild(card);
         });
+        renderOrientationLayer();
+    }
+
+    function openPoiDetail(poi) {
+        if (!poi) return;
+        var zone = findZone(poi.zone);
+        var title = poi.title;
+        var copy = poi.description + ' ' + (poi.visitorValue || '') + ' Zona: ' + ((zone && zone.name) || poi.zone) + '. Acceso: ' + accessTypeForPoi(poi) + '.';
+        openPremiumModal(title, copy, 'poi_detail_opened', { poi: poi.id, zone: poi.zone });
     }
 
     function addPoiToRoute(id) {
@@ -854,6 +998,7 @@
         }
         state.route.push(id);
         trackMaquetaEvent('poi_added_to_route', { poi: id, total: state.route.length });
+        trackMaquetaEvent('route_marker_added', { poi: id, order: state.route.length });
         avatarReact('poi_added', { poi: id, total: state.route.length });
         renderRoute();
         showToast('Punto anadido a Ruta Viva.');
@@ -901,6 +1046,8 @@
                 ? 'Tu Ruta Viva de Torrevieja esta lista.'
                 : 'Anade lugares para crear una salida compartible.';
         }
+        renderOrientationLayer();
+        trackMaquetaEvent('route_visual_updated', { total: state.route.length });
         updateStatus();
     }
 
@@ -1000,6 +1147,8 @@
 
     function renderActiveDockContent(tabId) {
         setActiveDockTab(tabId);
+        renderPremiumLayer();
+        renderOrientationLayer();
     }
 
     function toggleDock(open) {
@@ -1090,7 +1239,7 @@
         var mediaCopy = $('immersive-media-copy');
         var podcastCopy = $('podcast-copy');
         var sponsoredList = $('sponsored-list');
-        if (soundCopy) soundCopy.textContent = sound ? sound.fallbackText : 'Audio preparado para integracion en esta zona.';
+        if (soundCopy) soundCopy.textContent = sound ? 'Paisaje sonoro: ' + sound.label + '. ' + sound.fallbackText : 'Audio preparado para integracion en esta zona.';
         if (mediaCopy) mediaCopy.textContent = media ? media.description + ' Estado: ' + media.status + '.' : 'Preparado para video 360, drone, streaming o camara en directo.';
         if (podcastCopy) podcastCopy.textContent = story ? story.title + ' ' + story.duration + '. Podcast preparado para locucion.' : 'Podcast preparado para locucion.';
         if (sponsoredList) {
@@ -1099,6 +1248,9 @@
                 var card = document.createElement('article');
                 card.className = 'maqueta-sponsored-card';
                 card.innerHTML = '<strong>' + sponsor.name + '</strong><span>' + sponsor.category + '</span><p>' + sponsor.description + '</p><button type="button">' + sponsor.ctaLabel + '</button>';
+                card.addEventListener('click', function () {
+                    trackMaquetaEvent('sponsor_opened', { sponsor: sponsor.id, zone: sponsor.zone });
+                }, { once: true });
                 card.querySelector('button').addEventListener('click', function () {
                     trackMaquetaEvent('sponsor_cta_clicked', { sponsor: sponsor.id, status: sponsor.sponsorStatus });
                     avatarReact('sponsor_opened', { sponsor: sponsor.id });
@@ -1202,6 +1354,15 @@
         if (topbarTools) topbarTools.addEventListener('click', function () { toggleToolbox(); });
         var toolbox = $('maqueta-toolbox-toggle');
         if (toolbox) toolbox.addEventListener('click', function () { toggleToolbox(); });
+        var orientationToggle = $('maqueta-orientation-toggle');
+        if (orientationToggle) orientationToggle.addEventListener('click', function () { toggleOrientationLayer(); });
+        var legendToggle = $('maqueta-orientation-legend-toggle');
+        if (legendToggle) legendToggle.addEventListener('click', function () { setLegendOpen(); });
+        var gestureReady = $('maqueta-gesture-ready');
+        if (gestureReady) gestureReady.addEventListener('click', function () {
+            setInputMode('gesture-ready');
+            showToast('Control gestual preparado como arquitectura futura. No se activa camara todavia.');
+        });
         var zoneSwitcher = $('maqueta-zone-switcher');
         if (zoneSwitcher) zoneSwitcher.addEventListener('click', function (ev) {
             ev.preventDefault();
@@ -1256,10 +1417,17 @@
             soundBtn.addEventListener('click', function () {
                 var zone = getActiveZone();
                 var sound = zone && findByZone('soundscapes', zone.id);
-                trackMaquetaEvent('sound_enabled', { zone: zone && zone.id });
-                trackMaquetaEvent('soundscape_selected', { zone: zone && zone.id });
-                avatarReact('sound_enabled', { zone: zone && zone.id });
-                showToast(sound ? sound.fallbackText : 'Audio preparado para integracion.');
+                var active = soundBtn.dataset.active !== '1';
+                soundBtn.dataset.active = active ? '1' : '0';
+                soundBtn.textContent = active ? 'Mapa sonoro activo' : 'Activar mapa sonoro';
+                trackMaquetaEvent(active ? 'sound_enabled' : 'sound_disabled', { zone: zone && zone.id });
+                if (active) {
+                    trackMaquetaEvent('soundscape_selected', { zone: zone && zone.id });
+                    avatarReact('sound_enabled', { zone: zone && zone.id });
+                    showToast(sound ? sound.fallbackText : 'Audio preparado para integracion.');
+                } else {
+                    showToast('Mapa sonoro desactivado.');
+                }
             });
         }
         var mediaBtn = $('immersive-media-open');
@@ -1386,8 +1554,10 @@
         setActiveDockTab('pois');
         syncToolboxPanels();
         window.setInterval(syncToolboxPanels, 1200);
+        setInputMode('mouse');
         updateStatus();
         updateAnalyticsPanel();
+        trackMaquetaEvent('maqueta_loaded', { version: 'v0.3.1-visual-poi-media-gesture-ready' });
         window.setTimeout(hideLoading, 3200);
         window.setTimeout(function () {
             if (!document.body.classList.contains('show-technical-controls')) {

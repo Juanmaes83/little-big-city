@@ -27,7 +27,16 @@
       "sector": "Turismo / Smart City",
       "type": "Centro urbano",
       "calibrationStatus": "approximate",
-      "zoom": 16
+      "zoom": 16,
+      "heroImage": "./asset/maqueta-viva/placeholders/centro-urbano.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/centro-urbano.svg"
+      ],
+      "visualTheme": "urban-premium",
+      "screenPosition": {
+        "x": 52,
+        "y": 48
+      }
     },
     {
       "id": "puerto",
@@ -39,7 +48,16 @@
       "sector": "Turismo / Eventos",
       "type": "Puerto / Marina",
       "calibrationStatus": "approximate",
-      "zoom": 16
+      "zoom": 16,
+      "heroImage": "./asset/maqueta-viva/placeholders/puerto-marina.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/puerto-marina.svg"
+      ],
+      "visualTheme": "marina",
+      "screenPosition": {
+        "x": 46,
+        "y": 58
+      }
     },
     {
       "id": "frente-maritimo",
@@ -51,7 +69,16 @@
       "sector": "Hotel / Turismo",
       "type": "Frente maritimo",
       "calibrationStatus": "approximate",
-      "zoom": 16
+      "zoom": 16,
+      "heroImage": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/frente-maritimo.svg"
+      ],
+      "visualTheme": "coastal",
+      "screenPosition": {
+        "x": 58,
+        "y": 56
+      }
     },
     {
       "id": "parque-naciones",
@@ -63,7 +90,16 @@
       "sector": "Eventos / Patrimonio",
       "type": "Verde urbano",
       "calibrationStatus": "approximate",
-      "zoom": 16
+      "zoom": 16,
+      "heroImage": "./asset/maqueta-viva/placeholders/parque-naciones.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/parque-naciones.svg"
+      ],
+      "visualTheme": "green-city",
+      "screenPosition": {
+        "x": 54,
+        "y": 42
+      }
     },
     {
       "id": "salinas",
@@ -75,7 +111,16 @@
       "sector": "Turismo / Patrimonio",
       "type": "Naturaleza / Salinas",
       "calibrationStatus": "approximate",
-      "zoom": 15
+      "zoom": 15,
+      "heroImage": "./asset/maqueta-viva/placeholders/salinas.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/salinas.svg"
+      ],
+      "visualTheme": "natural-salt",
+      "screenPosition": {
+        "x": 48,
+        "y": 46
+      }
     },
     {
       "id": "zona-comercial",
@@ -87,7 +132,16 @@
       "sector": "Retail / Inmobiliaria",
       "type": "Retail / Servicios",
       "calibrationStatus": "approximate",
-      "zoom": 16
+      "zoom": 16,
+      "heroImage": "./asset/maqueta-viva/placeholders/zona-comercial.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/zona-comercial.svg"
+      ],
+      "visualTheme": "retail",
+      "screenPosition": {
+        "x": 55,
+        "y": 50
+      }
     },
     {
       "id": "torre-del-moro",
@@ -99,7 +153,16 @@
       "sector": "Patrimonio / Turismo",
       "type": "Patrimonio historico",
       "calibrationStatus": "manual-review",
-      "zoom": 17
+      "zoom": 17,
+      "heroImage": "./asset/maqueta-viva/placeholders/torre-del-moro.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/torre-del-moro.svg"
+      ],
+      "visualTheme": "heritage-viewpoint",
+      "screenPosition": {
+        "x": 42,
+        "y": 40
+      }
     },
     {
       "id": "plaza-iglesia",
@@ -111,7 +174,16 @@
       "zoom": 17,
       "sector": "Turismo / Patrimonio / Smart City",
       "type": "Centro historico / Patrimonio urbano",
-      "calibrationStatus": "manual-review"
+      "calibrationStatus": "manual-review",
+      "heroImage": "./asset/maqueta-viva/placeholders/plaza-iglesia.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/plaza-iglesia.svg"
+      ],
+      "visualTheme": "civic-heritage",
+      "screenPosition": {
+        "x": 50,
+        "y": 44
+      }
     },
     {
       "id": "centro-la-mata",
@@ -123,7 +195,16 @@
       "zoom": 16,
       "sector": "Turismo / Naturaleza / Patrimonio",
       "type": "Pedania / Costa / Patrimonio local",
-      "calibrationStatus": "manual-review"
+      "calibrationStatus": "manual-review",
+      "heroImage": "./asset/maqueta-viva/placeholders/centro-la-mata.svg",
+      "gallery": [
+        "./asset/maqueta-viva/placeholders/centro-la-mata.svg"
+      ],
+      "visualTheme": "coastal-town",
+      "screenPosition": {
+        "x": 56,
+        "y": 48
+      }
     }
   ],
   "pois": [
@@ -133,7 +214,15 @@
       "category": "Mar",
       "zone": "puerto",
       "description": "Puerta azul de la ciudad, con actividad nautica, paseo y restauracion.",
-      "visitorValue": "Perfecto para iniciar una ruta con energia mediterranea."
+      "visitorValue": "Perfecto para iniciar una ruta con energia mediterranea.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/puerto-marina.svg",
+      "imageAlt": "Placeholder editorial de Puerto / Marina",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 42,
+        "y": 58
+      },
+      "accessType": "public"
     },
     {
       "id": "paseo-maritimo",
@@ -141,7 +230,15 @@
       "category": "Frente costero",
       "zone": "frente-maritimo",
       "description": "Eje de paseo, mirada al mar y memoria turistica del destino.",
-      "visitorValue": "Ideal para hoteles, turismo familiar y experiencias de atardecer."
+      "visitorValue": "Ideal para hoteles, turismo familiar y experiencias de atardecer.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+      "imageAlt": "Placeholder editorial de Paseo maritimo",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 62,
+        "y": 56
+      },
+      "accessType": "public"
     },
     {
       "id": "centro-urbano",
@@ -149,7 +246,15 @@
       "category": "Ciudad",
       "zone": "centro",
       "description": "Red de calles, servicios y vida cotidiana que sostiene la experiencia del visitante.",
-      "visitorValue": "Ayuda a entender recorridos, accesos, comercio y servicios."
+      "visitorValue": "Ayuda a entender recorridos, accesos, comercio y servicios.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/centro-urbano.svg",
+      "imageAlt": "Placeholder editorial de Centro urbano",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 48,
+        "y": 48
+      },
+      "accessType": "public"
     },
     {
       "id": "parque-naciones",
@@ -157,7 +262,15 @@
       "category": "Verde urbano",
       "zone": "parque-naciones",
       "description": "Pulmon urbano para descanso, familias y activaciones culturales.",
-      "visitorValue": "Aporta una parada amable dentro de la ruta viva."
+      "visitorValue": "Aporta una parada amable dentro de la ruta viva.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/parque-naciones.svg",
+      "imageAlt": "Placeholder editorial de Parque de las Naciones",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 56,
+        "y": 40
+      },
+      "accessType": "public"
     },
     {
       "id": "salinas",
@@ -165,7 +278,15 @@
       "category": "Naturaleza",
       "zone": "salinas",
       "description": "Paisaje iconico de sal, color y biodiversidad vinculado a la identidad local.",
-      "visitorValue": "Convierte la maqueta en relato de territorio, no solo de calles."
+      "visitorValue": "Convierte la maqueta en relato de territorio, no solo de calles.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/salinas.svg",
+      "imageAlt": "Placeholder editorial de Salinas",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 50,
+        "y": 42
+      },
+      "accessType": "public"
     },
     {
       "id": "zona-comercial",
@@ -173,7 +294,15 @@
       "category": "Retail",
       "zone": "zona-comercial",
       "description": "Area para leer flujos, escaparates, servicios y oportunidades de conversion.",
-      "visitorValue": "Util para marcas, locales, retail territorial e inmobiliaria."
+      "visitorValue": "Util para marcas, locales, retail territorial e inmobiliaria.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/zona-comercial.svg",
+      "imageAlt": "Placeholder editorial de Zona comercial",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 58,
+        "y": 50
+      },
+      "accessType": "sponsored"
     },
     {
       "id": "frente-costero",
@@ -181,7 +310,15 @@
       "category": "Costa",
       "zone": "frente-maritimo",
       "description": "La linea de mar como escenario de marca, estancia y recuerdo.",
-      "visitorValue": "Da una salida emocional y compartible a la experiencia."
+      "visitorValue": "Da una salida emocional y compartible a la experiencia.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+      "imageAlt": "Placeholder editorial de Frente costero",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 64,
+        "y": 54
+      },
+      "accessType": "public"
     },
     {
       "id": "torre-del-moro",
@@ -189,7 +326,15 @@
       "category": "Patrimonio",
       "zone": "torre-del-moro",
       "description": "Torre vigia historica del entorno de Cabo Cervera, icono patrimonial para rutas culturales y turisticos.",
-      "visitorValue": "Sirve como prueba clara de desplazamiento real fuera del centro y como punto de relato historico."
+      "visitorValue": "Sirve como prueba clara de desplazamiento real fuera del centro y como punto de relato historico.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/torre-del-moro.svg",
+      "imageAlt": "Placeholder editorial de Torre del Moro",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 38,
+        "y": 38
+      },
+      "accessType": "public"
     },
     {
       "id": "plaza-iglesia",
@@ -197,7 +342,15 @@
       "category": "Patrimonio urbano",
       "zone": "plaza-iglesia",
       "description": "Nodo civico y patrimonial del centro urbano, vinculado a la iglesia, la plaza y el recorrido historico.",
-      "visitorValue": "Ideal para iniciar una ruta patrimonial, urbana y comercial por el centro de Torrevieja."
+      "visitorValue": "Ideal para iniciar una ruta patrimonial, urbana y comercial por el centro de Torrevieja.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/plaza-iglesia.svg",
+      "imageAlt": "Placeholder editorial de Plaza de la Iglesia / Plaza de la Constitucion",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 50,
+        "y": 42
+      },
+      "accessType": "public"
     },
     {
       "id": "centro-la-mata",
@@ -205,7 +358,15 @@
       "category": "Costa / Patrimonio local",
       "zone": "centro-la-mata",
       "description": "Centro de la pedania costera de La Mata, cercano al embarcadero, playa y vida local.",
-      "visitorValue": "Conecta playa, historia local, paseo maritimo y acceso al entorno natural de La Mata."
+      "visitorValue": "Conecta playa, historia local, paseo maritimo y acceso al entorno natural de La Mata.",
+      "thumbnail": "./asset/maqueta-viva/placeholders/centro-la-mata.svg",
+      "imageAlt": "Placeholder editorial de Centro de La Mata / Plaza del Embarcadero",
+      "visualStatus": "placeholder-local",
+      "screenPosition": {
+        "x": 58,
+        "y": 46
+      },
+      "accessType": "public"
     }
   ],
   "sectors": [
@@ -355,7 +516,15 @@
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: actividad urbana, escaparates y flujo comercial suave.",
       "mood": "retail-suave"
-    }
+    },
+        {
+            "zone": "parque-naciones",
+            "label": "Parque urbano familiar",
+            "description": "Aves, pasos suaves, agua, familias y respiro verde.",
+            "audioUrl": null,
+            "fallbackText": "Audio preparado para integracion: aves, pasos suaves, agua, familias y respiro verde.",
+            "mood": "verde-familiar"
+        }
   ],
   "immersiveMedia": [
     {
@@ -458,7 +627,43 @@
       "description": "Relato nautico y turistico del puerto.",
       "audioUrl": null,
       "transcript": "El puerto es una puerta azul: llegada, paseo, amarres, restaurantes y energia mediterranea."
-    }
+    },
+        {
+            "id": "centro-story",
+            "zone": "centro",
+            "title": "El pulso urbano de Torrevieja",
+            "duration": "2 min",
+            "description": "Relato narrativo preparado para locucion sobre ciudad, comercio y vida local.",
+            "audioUrl": null,
+            "transcript": "El centro urbano concentra el pulso cotidiano de Torrevieja: servicios, comercio, plazas y recorridos que ayudan al visitante a entender la ciudad antes de caminarla."
+        },
+        {
+            "id": "frente-maritimo-story",
+            "zone": "frente-maritimo",
+            "title": "El paseo junto al Mediterraneo",
+            "duration": "2 min",
+            "description": "Relato narrativo preparado para locucion sobre costa, paseo y memoria turistica.",
+            "audioUrl": null,
+            "transcript": "El frente maritimo convierte la ciudad en una secuencia de paseo, brisa, terrazas y recuerdo. Es una capa emocional para hoteles, turismo y experiencias de atardecer."
+        },
+        {
+            "id": "parque-naciones-story",
+            "zone": "parque-naciones",
+            "title": "El respiro verde de la ciudad",
+            "duration": "2 min",
+            "description": "Relato narrativo preparado para locucion sobre familia, descanso y activaciones culturales.",
+            "audioUrl": null,
+            "transcript": "El Parque de las Naciones funciona como pausa verde y punto amable dentro del recorrido urbano: un lugar para familias, descanso y activaciones culturales."
+        },
+        {
+            "id": "zona-comercial-story",
+            "zone": "zona-comercial",
+            "title": "El flujo comercial y los escaparates",
+            "duration": "2 min",
+            "description": "Relato narrativo preparado para locucion sobre flujos, compras y conversion territorial.",
+            "audioUrl": null,
+            "transcript": "La zona comercial permite leer flujos, escaparates y oportunidades de conversion. Es el puente entre territorio, visita y accion comercial."
+        }
   ],
   "sponsoredPlaces": [
     {
