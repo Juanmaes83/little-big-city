@@ -1,6 +1,6 @@
 # Little Big City / Maqueta Viva 3D
 
-Este repositorio conserva la demo original de **Little Big City** y añade una capa productizada premium:
+Este repositorio conserva la demo original de **Little Big City** y aÃƒÂ±ade una capa productizada premium:
 
 **Maqueta Viva 3D - Torrevieja Prototype v0.2**
 
@@ -71,6 +71,15 @@ $env:NODE_OPTIONS="--openssl-legacy-provider"
 - Panel de capas diferenciando motor real, capa de producto y capas futuras.
 - Fallback visual mejorado si fallan datos 3D.
 - Eventos simulados con `trackMaquetaEvent()` y prefijo `[Maqueta Viva Analytics]`.
+
+
+## Nota v0.2.2 - prueba visual de zonas
+
+Las zonas de Maqueta Viva 3D usan coordenadas aproximadas dentro del entorno de Torrevieja. La maqueta depende del motor heredado Little Big City y de los datos vectoriales disponibles en cada coordenada, por lo que algunas zonas urbanas cercanas pueden generar geometrÃ­as parecidas.
+
+La version v0.2.2 anade una prueba visual de zona activa para que el cambio sea verificable: URL con `zone`, `lng`, `lat`, `style`, `sector`, `route` y `refresh`; estado visible reforzado; marcador narrativo sobre la maqueta; loading contextual; sincronizacion garantizada de inputs LNG/LAT; y badges `En esta zona` en POIs vinculados a la zona activa.
+
+Esta capa no afirma geolocalizacion 3D exacta. En v0.3 se debe implementar una capa real de POIs/pins georreferenciados sobre la maqueta, con posicionamiento visual ligado a coordenadas y ruta 3D verificable.
 
 ## Zonas disponibles
 

@@ -24,52 +24,58 @@
       "lng": -0.6822,
       "lat": 37.9787,
       "style": "tile",
-      "sector": "Turismo / Smart City"
+      "sector": "Turismo / Smart City",
+      "type": "Centro urbano"
     },
     {
       "id": "puerto",
       "name": "Puerto / Marina",
       "description": "Zona de llegada, paseo y actividad nautica; buena para turismo, eventos y restauracion.",
-      "lng": -0.6835,
-      "lat": 37.9695,
+      "lng": -0.6868,
+      "lat": 37.9691,
       "style": "tile",
-      "sector": "Turismo / Eventos"
+      "sector": "Turismo / Eventos",
+      "type": "Puerto / Marina"
     },
     {
       "id": "frente-maritimo",
       "name": "Frente maritimo",
       "description": "Lectura costera para rutas de paseo, hoteles, comercio y experiencia mediterranea.",
-      "lng": -0.6797,
-      "lat": 37.9748,
+      "lng": -0.6747,
+      "lat": 37.9731,
       "style": "planet",
-      "sector": "Hotel / Turismo"
+      "sector": "Hotel / Turismo",
+      "type": "Frente maritimo"
     },
     {
       "id": "parque-naciones",
       "name": "Parque de las Naciones",
       "description": "Nodo verde urbano para familias, recorridos culturales y activaciones de ciudad.",
-      "lng": -0.6879,
-      "lat": 37.9814,
+      "lng": -0.6902,
+      "lat": 37.9823,
       "style": "tile",
-      "sector": "Eventos / Patrimonio"
+      "sector": "Eventos / Patrimonio",
+      "type": "Verde urbano"
     },
     {
       "id": "salinas",
       "name": "Salinas / entorno natural",
       "description": "Entorno natural y marca visual del destino; coordenadas aproximadas para fase prototipo.",
-      "lng": -0.715,
-      "lat": 38.005,
+      "lng": -0.7208,
+      "lat": 38.0124,
       "style": "planet",
-      "sector": "Turismo / Patrimonio"
+      "sector": "Turismo / Patrimonio",
+      "type": "Naturaleza / Salinas"
     },
     {
       "id": "zona-comercial",
       "name": "Zona comercial",
       "description": "Area util para visualizar flujos, escaparates, servicios y oportunidades retail.",
-      "lng": -0.6755,
-      "lat": 37.9798,
+      "lng": -0.6994,
+      "lat": 37.9861,
       "style": "tile",
-      "sector": "Retail / Inmobiliaria"
+      "sector": "Retail / Inmobiliaria",
+      "type": "Retail / Servicios"
     }
   ],
   "pois": [
@@ -136,49 +142,77 @@
       "label": "Turismo",
       "microcopy": "Convierte el destino en una ruta memorable.",
       "cta": "Crear mi ruta turistica",
-      "benefits": ["Rutas visuales", "Recuerdo compartible", "Decision de visita"]
+      "benefits": [
+        "Rutas visuales",
+        "Recuerdo compartible",
+        "Decision de visita"
+      ]
     },
     {
       "id": "inmobiliaria",
       "label": "Inmobiliaria",
       "microcopy": "Explora el entorno antes de visitar la propiedad.",
       "cta": "Solicitar dossier de zona",
-      "benefits": ["Entorno comprensible", "Servicios cercanos", "Valor de ubicacion"]
+      "benefits": [
+        "Entorno comprensible",
+        "Servicios cercanos",
+        "Valor de ubicacion"
+      ]
     },
     {
       "id": "eventos",
       "label": "Eventos",
       "microcopy": "Convierte el recinto en una experiencia navegable.",
       "cta": "Disenar activacion para mi evento",
-      "benefits": ["Orientacion", "Patrocinios", "Recorridos activables"]
+      "benefits": [
+        "Orientacion",
+        "Patrocinios",
+        "Recorridos activables"
+      ]
     },
     {
       "id": "retail",
       "label": "Retail",
       "microcopy": "Visualiza zonas comerciales, flujos y puntos de interes.",
       "cta": "Crear experiencia retail",
-      "benefits": ["Flujos", "Locales destacados", "Conversion territorial"]
+      "benefits": [
+        "Flujos",
+        "Locales destacados",
+        "Conversion territorial"
+      ]
     },
     {
       "id": "hotel",
       "label": "Hotel",
       "microcopy": "Ofrece al huesped una guia viva del entorno.",
       "cta": "Crear concierge territorial",
-      "benefits": ["Concierge visual", "Rutas cercanas", "Mejor bienvenida"]
+      "benefits": [
+        "Concierge visual",
+        "Rutas cercanas",
+        "Mejor bienvenida"
+      ]
     },
     {
       "id": "patrimonio",
       "label": "Patrimonio",
       "microcopy": "Haz visible la historia del territorio.",
       "cta": "Activar capa patrimonial",
-      "benefits": ["Relato cultural", "Capas historicas", "Educacion inmersiva"]
+      "benefits": [
+        "Relato cultural",
+        "Capas historicas",
+        "Educacion inmersiva"
+      ]
     },
     {
       "id": "smart-city",
       "label": "Smart City",
       "microcopy": "Comunica territorio, movilidad y servicios de forma visual.",
       "cta": "Ver aplicacion institucional",
-      "benefits": ["Movilidad", "Servicios", "Comunicacion publica"]
+      "benefits": [
+        "Movilidad",
+        "Servicios",
+        "Comunicacion publica"
+      ]
     }
   ],
   "ecosystemLinks": {

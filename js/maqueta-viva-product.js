@@ -73,6 +73,20 @@
         return SECTOR_RECOMMENDATIONS[state.sector] || [];
     }
 
+    function getZoneType(zone) {
+        return (zone && (zone.type || zone.sector)) || 'Zona narrativa';
+    }
+
+    function getCurrentUrlState() {
+        var params = getParams();
+        return {
+            zone: params.get('zone') || (state.config && state.config.defaultView && state.config.defaultView.zone) || 'centro',
+            lng: params.get('lng'),
+            lat: params.get('lat'),
+            style: params.get('style')
+        };
+    }
+
     function makeExperienceUrl(zone, sector, clean, route) {
         var params = new URLSearchParams(window.location.search);
         params.set('lng', zone.lng);
@@ -90,6 +104,7 @@
         } else {
             params.delete('view');
         }
+        params.set('refresh', String(Date.now()));
         return './maqueta-viva-torrevieja.html?' + params.toString();
     }
 
@@ -147,10 +162,13 @@
     }
 
     function syncLocationInputs(zone) {
+        var params = getParams();
         var lng = $('lng');
         var lat = $('lat');
-        if (lng && zone) lng.value = zone.lng;
-        if (lat && zone) lat.value = zone.lat;
+        var finalLng = params.get('lng') || (zone && zone.lng);
+        var finalLat = params.get('lat') || (zone && zone.lat);
+        if (lng && finalLng !== undefined && finalLng !== null) lng.value = finalLng;
+        if (lat && finalLat !== undefined && finalLat !== null) lat.value = finalLat;
     }
 
     function updateStatus() {
@@ -158,15 +176,24 @@
         var sector = findSector(state.sector);
         var params = getParams();
         var zoneLabel = $('status-zone');
+        var typeLabel = $('status-type');
         var sectorLabel = $('status-sector');
         var coordsLabel = $('status-coords');
         var viewLabel = $('status-view');
         var routeLabel = $('status-route');
+        var markerTitle = $('zone-proof-title');
+        var markerCopy = $('zone-proof-copy');
+        var lng = params.get('lng') || (zone && zone.lng) || '-';
+        var lat = params.get('lat') || (zone && zone.lat) || '-';
+        var style = params.get('style') || (zone && zone.style) || 'tile';
         if (zoneLabel) zoneLabel.textContent = zone ? zone.name : 'Sin zona';
+        if (typeLabel) typeLabel.textContent = getZoneType(zone);
         if (sectorLabel) sectorLabel.textContent = sector ? sector.label : state.sector;
-        if (coordsLabel) coordsLabel.textContent = (params.get('lng') || (zone && zone.lng) || '-') + ' / ' + (params.get('lat') || (zone && zone.lat) || '-');
-        if (viewLabel) viewLabel.textContent = params.get('style') || (zone && zone.style) || 'tile';
+        if (coordsLabel) coordsLabel.textContent = lng + ' / ' + lat;
+        if (viewLabel) viewLabel.textContent = style;
         if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
+        if (markerTitle) markerTitle.textContent = 'Zona activa: ' + (zone ? zone.name : 'Sin zona');
+        if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + lng + ' / ' + lat;
         syncLocationInputs(zone);
     }
 
@@ -191,13 +218,32 @@
         updateStatus();
     }
 
+    function showZoneLoading(zone) {
+        var title = $('maqueta-loading-title');
+        var copy = $('maqueta-loading-copy');
+        if (title) title.textContent = 'Levantando ' + zone.name + '...';
+        if (copy) copy.textContent = 'Generando maqueta desde coordenadas aproximadas del territorio.';
+        document.body.classList.remove('maqueta-loaded');
+        showToast('Levantando ' + zone.name + '...');
+    }
+
     function navigateToZone(zone, source) {
         if (!zone) return;
-        showToast('Cargando ' + zone.name + '...');
+        var previous = getCurrentUrlState();
+        var finalUrl = makeExperienceUrl(zone, state.sector, state.clean, state.route);
+        console.info('[Maqueta Viva Zone]', {
+            previousZone: previous.zone,
+            nextZone: zone.id,
+            lng: zone.lng,
+            lat: zone.lat,
+            style: zone.style || 'tile',
+            finalUrl: finalUrl
+        });
+        showZoneLoading(zone);
         trackMaquetaEvent('zone_selected', { zone: zone.id, source: source || 'zone-list' });
         window.setTimeout(function () {
-            window.location.href = makeExperienceUrl(zone, state.sector, state.clean, state.route);
-        }, 160);
+            window.location.href = finalUrl;
+        }, 220);
     }
 
     function renderZones(config) {
@@ -213,7 +259,7 @@
             button.setAttribute('aria-pressed', activeZone && zone.id === activeZone.id ? 'true' : 'false');
             button.innerHTML = '<strong>' + zone.name + '</strong>'
                 + '<span>' + zone.description + '</span>'
-                + '<small>' + zone.sector + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + '</small>';
+                + '<small>' + getZoneType(zone) + ' - ' + zone.style + ' - ' + zone.lng + ' / ' + zone.lat + '</small>';
             button.addEventListener('click', function () {
                 navigateToZone(zone, 'zone-list');
             });
@@ -228,6 +274,8 @@
         var recommendedIds = getRecommendedIds();
         var sector = findSector(state.sector);
         var sectorLabel = sector ? sector.label : state.sector;
+        var activeZone = getActiveZone();
+        var activeZoneId = activeZone && activeZone.id;
         var pois = config.pois.slice().sort(function (a, b) {
             var aIndex = recommendedIds.indexOf(a.id);
             var bIndex = recommendedIds.indexOf(b.id);
@@ -239,10 +287,12 @@
         wrap.innerHTML = '';
         pois.forEach(function (poi) {
             var isRecommended = recommendedIds.indexOf(poi.id) !== -1;
+            var isInActiveZone = poi.zone === activeZoneId;
             var card = document.createElement('article');
-            card.className = 'maqueta-poi-card' + (isRecommended ? ' recommended' : '');
+            card.className = 'maqueta-poi-card' + (isRecommended ? ' recommended' : '') + (isInActiveZone ? ' active-zone' : '');
             card.innerHTML = '<div><strong>' + poi.title + '</strong><em>' + poi.category + '</em></div>'
                 + (isRecommended ? '<span class="maqueta-recommendation-badge">Recomendado para ' + sectorLabel + '</span>' : '')
+                + (isInActiveZone ? '<span class="maqueta-zone-badge">En esta zona</span>' : '')
                 + '<p>' + poi.description + '</p>'
                 + '<small>' + poi.visitorValue + '</small>'
                 + '<div class="maqueta-card-actions">'
