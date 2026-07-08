@@ -60,11 +60,32 @@
     </section>
 
     <div id="maqueta-toolbox" class="maqueta-toolbox" aria-label="Herramientas tecnicas">
-        <button id="maqueta-toolbox-toggle" class="maqueta-toolbox-toggle" type="button" aria-expanded="false">Herramientas</button>
+        <button id="maqueta-toolbox-toggle" class="maqueta-toolbox-toggle" type="button" aria-expanded="false">
+            <span>Herramientas</span>
+            <small id="maqueta-toolbox-badges"></small>
+        </button>
         <div id="maqueta-toolbox-panel" class="maqueta-toolbox-panel" aria-label="Panel de herramientas">
-            <button id="toggle-technical-controls" class="maqueta-floating-action" type="button" aria-expanded="false">Controles tecnicos</button>
-            <button id="toggle-clean-mode" class="maqueta-floating-action secondary" type="button">Modo presentacion</button>
-            <button type="button" id="premium-export-obj">Exportar maqueta OBJ</button>
+            <section class="maqueta-toolbox-section">
+                <h2>Controles tecnicos</h2>
+                <button id="toggle-technical-controls" class="maqueta-floating-action" type="button" aria-expanded="false">Controles tecnicos</button>
+                <button id="toggle-clean-mode" class="maqueta-floating-action secondary" type="button">Modo presentacion</button>
+                <button type="button" id="premium-export-obj">Exportar maqueta OBJ</button>
+            </section>
+            <section id="maqueta-toolbox-calibration" class="maqueta-toolbox-section">
+                <h2>Calibracion</h2>
+            </section>
+            <section id="maqueta-toolbox-debug" class="maqueta-toolbox-section">
+                <h2>Debug</h2>
+            </section>
+            <section id="maqueta-toolbox-analytics" class="maqueta-toolbox-section">
+                <h2>Analytics</h2>
+            </section>
+            <section id="maqueta-toolbox-legal" class="maqueta-toolbox-section">
+                <h2>Legal / Creditos tecnicos</h2>
+                <p>Built with ClayGL.</p>
+                <p>Vector/map data attribution: Nextzen / OpenStreetMap contributors where applicable.</p>
+                <p>Demo tecnica original basada en Little Big City.</p>
+            </section>
         </div>
     </div>
 
@@ -279,6 +300,7 @@
         Built on top of <a href="https://github.com/pissang/claygl" target="_blank" rel="noopener">ClayGL</a> by <a href="https://twitter.com/pissang1" target="_blank" rel="noopener">@pissang</a>
         <div class="data-source">Vector tile data is from <a target="_blank" rel="noopener" href="https://developers.nextzen.org/about.html">nextzen</a>.</div>
     </div>
+    <div id="maqueta-brand-credit">© Maqueta Viva 3D · Juanma Espinosa &amp; Rubik SOTA · 629554870</div>
 
     <script src="lib/FileSaver.js"></script>
     <script src="./dist/bundle.js?v=0.3-premium-layer"></script>

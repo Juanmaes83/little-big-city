@@ -238,6 +238,7 @@
         if (style) style.textContent = coords.style;
         if (statusEl) statusEl.textContent = status;
         if (output) output.value = JSON.stringify(preset, null, 2);
+        syncToolboxPanels();
     }
 
     function renderCalibrationPanel(config) {
@@ -379,6 +380,7 @@
         bindDebugChip(panel);
         var output = $('maqueta-analytics-output');
         if (output) output.textContent = JSON.stringify((window.MAQUETA_ANALYTICS_EVENTS || []).slice(-25), null, 2);
+        syncToolboxPanels();
     }
 
     function bindDebugChip(panel) {
@@ -397,6 +399,39 @@
             bindDebugChip(panel);
             panel.classList.toggle('is-expanded');
         }, true);
+    }
+
+    function updateToolboxBadges() {
+        var badges = $('maqueta-toolbox-badges');
+        if (!badges) return;
+        var active = [];
+        if (getParam('calibrate') === '1') active.push('Calibracion');
+        if (getParam('debug') === '1') active.push('Debug');
+        if (getParam('analytics') === '1') active.push('Analytics');
+        badges.textContent = active.length ? active.join(' · ') + ' activo' : '';
+    }
+
+    function syncToolboxPanels() {
+        var calibrationSlot = $('maqueta-toolbox-calibration');
+        var debugSlot = $('maqueta-toolbox-debug');
+        var analyticsSlot = $('maqueta-toolbox-analytics');
+        var calibrationPanel = $('maqueta-calibration-panel');
+        var engineDebug = $('maqueta-engine-debug');
+        var clickDebug = $('maqueta-interaction-debug');
+        var analyticsDebug = $('maqueta-analytics-debug');
+        if (calibrationSlot && calibrationPanel && calibrationPanel.parentNode !== calibrationSlot) {
+            calibrationSlot.appendChild(calibrationPanel);
+        }
+        if (debugSlot && engineDebug && engineDebug.parentNode !== debugSlot) {
+            debugSlot.appendChild(engineDebug);
+        }
+        if (debugSlot && clickDebug && clickDebug.parentNode !== debugSlot) {
+            debugSlot.appendChild(clickDebug);
+        }
+        if (analyticsSlot && analyticsDebug && analyticsDebug.parentNode !== analyticsSlot) {
+            analyticsSlot.appendChild(analyticsDebug);
+        }
+        updateToolboxBadges();
     }
 
     function findByZone(collection, zoneId) {
@@ -645,6 +680,11 @@
         var btn = $('toggle-clean-mode');
         if (btn) {
             btn.textContent = clean ? 'Salir de presentacion' : 'Modo presentacion';
+        }
+        if (clean) {
+            toggleDock(false);
+            toggleToolbox(false);
+            setTechnicalControls(false);
         }
         updateStatus();
     }
@@ -993,6 +1033,7 @@
         if (toolbox) toolbox.classList.toggle('is-open', isOpen);
         document.body.classList.toggle('maqueta-toolbox-open', isOpen);
         if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        syncToolboxPanels();
         trackMaquetaEvent('toolbox_opened', { open: isOpen });
     }
 
@@ -1343,6 +1384,8 @@
         installPanelAccordions();
         initEvents(config);
         setActiveDockTab('pois');
+        syncToolboxPanels();
+        window.setInterval(syncToolboxPanels, 1200);
         updateStatus();
         updateAnalyticsPanel();
         window.setTimeout(hideLoading, 3200);

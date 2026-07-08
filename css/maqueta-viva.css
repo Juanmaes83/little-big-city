@@ -1171,6 +1171,284 @@
     opacity: 0.92;
 }
 
+/* v0.4.3 Premium UX polish: keep normal mode free of technical overlays */
+.maqueta-viva-shell #credits {
+    display: none !important;
+}
+
+#maqueta-brand-credit {
+    position: fixed;
+    right: 34px;
+    bottom: 10px;
+    z-index: 1740;
+    color: rgba(255, 247, 234, 0.66);
+    font: 800 11px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    text-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.maqueta-toolbox {
+    right: 364px;
+    bottom: 28px;
+}
+
+.maqueta-toolbox-toggle {
+    display: grid;
+    gap: 2px;
+    min-width: 144px;
+    min-height: 42px;
+    align-content: center;
+}
+
+.maqueta-toolbox-toggle small {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    color: #f3d5a1;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.maqueta-toolbox-panel {
+    width: 330px;
+    max-height: min(68vh, 620px);
+    overflow: auto;
+}
+
+.maqueta-toolbox-section {
+    padding: 10px;
+    border: 1px solid rgba(248, 239, 225, 0.1);
+    border-radius: 14px;
+    background: rgba(248, 239, 225, 0.045);
+}
+
+.maqueta-toolbox-section + .maqueta-toolbox-section {
+    margin-top: 8px;
+}
+
+.maqueta-toolbox-section h2 {
+    margin: 0 0 8px;
+    color: #f3d5a1;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.maqueta-toolbox-section p {
+    margin: 6px 0 0;
+    color: rgba(248, 239, 225, 0.68);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.maqueta-toolbox-panel #maqueta-calibration-panel,
+.maqueta-toolbox-panel #maqueta-engine-debug,
+.maqueta-toolbox-panel #maqueta-interaction-debug,
+.maqueta-toolbox-panel #maqueta-analytics-debug {
+    position: static !important;
+    width: auto !important;
+    max-height: 260px !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.maqueta-toolbox-panel #maqueta-calibration-panel {
+    display: block !important;
+}
+
+.maqueta-toolbox-panel #maqueta-engine-debug pre,
+.maqueta-toolbox-panel #maqueta-interaction-debug pre,
+.maqueta-toolbox-panel #maqueta-analytics-debug pre {
+    display: block;
+    max-height: 180px;
+    overflow: auto;
+}
+
+.maqueta-toolbox-panel .maqueta-calibration-head {
+    grid-template-columns: 1fr;
+}
+
+.maqueta-toolbox-panel .maqueta-calibration-readout {
+    grid-template-columns: 1fr 1fr;
+}
+
+.maqueta-toolbox-panel #calibration-output {
+    min-height: 96px;
+}
+
+#maqueta-status-panel {
+    left: 96px !important;
+    bottom: 198px !important;
+    max-width: min(700px, calc(100vw - 560px)) !important;
+}
+
+#maqueta-status-panel span {
+    min-width: 92px;
+    padding: 7px 10px;
+}
+
+#zone-proof-marker {
+    bottom: 236px !important;
+    min-width: min(350px, calc(100vw - 820px)) !important;
+    padding: 8px 12px !important;
+    opacity: 0.78;
+    animation: maquetaMarkerFade 5.6s ease forwards;
+}
+
+@keyframes maquetaMarkerFade {
+    0%, 55% { opacity: 0.82; }
+    100% { opacity: 0.28; }
+}
+
+#maqueta-bottom-panel.maqueta-bottom-dock {
+    max-height: 168px !important;
+    padding: 8px !important;
+}
+
+#maqueta-bottom-panel.is-expanded {
+    max-height: 32vh !important;
+}
+
+.maqueta-dock-tabs {
+    padding-bottom: 7px;
+}
+
+.maqueta-dock-tabs button {
+    min-height: 31px;
+    padding: 0 11px;
+    font-size: 11px;
+}
+
+#maqueta-bottom-panel .maqueta-panel-block {
+    max-height: 100px !important;
+    margin-top: 8px !important;
+    padding: 9px !important;
+}
+
+#maqueta-bottom-panel .route-block {
+    width: 238px !important;
+}
+
+#maqueta-bottom-panel .pois-block {
+    width: calc(100% - 256px) !important;
+}
+
+.maqueta-poi-list {
+    max-height: 90px !important;
+}
+
+.maqueta-poi-card {
+    flex-basis: 226px !important;
+    min-height: 76px !important;
+    padding: 8px !important;
+}
+
+.maqueta-poi-card p {
+    -webkit-line-clamp: 1;
+    margin-top: 5px;
+}
+
+.maqueta-poi-card small {
+    display: none;
+}
+
+.maqueta-recommendation-badge,
+.maqueta-zone-badge {
+    margin-top: 5px;
+    padding: 3px 6px;
+    font-size: 9px;
+}
+
+.maqueta-card-actions {
+    gap: 5px;
+    margin-top: 6px;
+}
+
+.maqueta-card-actions button {
+    min-height: 25px;
+    padding: 0 8px;
+    font-size: 10px;
+}
+
+.maqueta-viva-shell #map {
+    position: fixed !important;
+    left: -9999px !important;
+    top: 0 !important;
+    width: 420px !important;
+    height: 300px !important;
+    display: block !important;
+    visibility: hidden;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.show-technical-controls.maqueta-viva-shell #map {
+    left: 36px !important;
+    top: auto !important;
+    bottom: 218px !important;
+    visibility: visible;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.maqueta-clean-view #maqueta-brand-panel,
+.maqueta-clean-view #maqueta-command-panel,
+.maqueta-clean-view #maqueta-bottom-panel,
+.maqueta-clean-view #maqueta-status-panel,
+.maqueta-clean-view #zone-proof-marker,
+.maqueta-clean-view #maqueta-guided-hint,
+.maqueta-clean-view #maqueta-data-warning {
+    display: none !important;
+}
+
+.maqueta-clean-view #maqueta-zone-jump-bar {
+    display: flex !important;
+    opacity: 0.9;
+}
+
+.maqueta-clean-view .maqueta-toolbox {
+    display: block !important;
+    right: 24px;
+    bottom: 24px;
+}
+
+@media (max-width: 1180px) {
+    #maqueta-status-panel {
+        bottom: 182px !important;
+        max-width: calc(100vw - 64px) !important;
+    }
+
+    .maqueta-toolbox {
+        right: 32px;
+        bottom: 188px;
+    }
+}
+
+@media (max-width: 760px) {
+    #maqueta-bottom-panel.maqueta-bottom-dock {
+        max-height: 170px !important;
+    }
+
+    .maqueta-toolbox {
+        right: 12px;
+        bottom: 188px;
+    }
+
+    #maqueta-brand-credit {
+        left: 12px;
+        right: 12px;
+        bottom: 4px;
+        text-align: center;
+    }
+}
+
 @media (max-width: 760px) {
     #maqueta-status-panel {
         left: 12px;

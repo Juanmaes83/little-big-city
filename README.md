@@ -126,6 +126,31 @@ La v0.4 reorganiza la experiencia para que la maqueta 3D sea el centro visual y 
 
 Limitacion honesta v0.4: algunos errores heredados del motor/datos vectoriales pueden activar el fallback de datos 3D en zonas concretas. El rediseño no cambia el motor Little Big City ni la dependencia de Nextzen; solo reduce el ruido visual y evita que los paneles tecnicos rompan la experiencia.
 
+## Maqueta Viva v0.4 - Gesture Navigation Layer (roadmap)
+
+La siguiente capa natural no debe mezclarse dentro del motor 3D. Debe entrar como una capa de interaccion opcional, preparada para conectar con Gesture Lab, Batuta y futuros modulos de camara.
+
+Objetivo:
+
+- activar navegacion por webcam solo con permiso explicito;
+- mostrar privacidad visible antes de encender camara;
+- mantener fallback completo con raton, teclado y tactil;
+- mover la maqueta con gestos simples: dirigir, acercar, alejar y seleccionar zona;
+- mostrar estado de tracking, confianza, FPS y latencia;
+- bloquear gestos ambiguos con mensajes claros;
+- no cargar librerias de vision artificial en la experiencia base;
+- permitir que la capa de gestos viva como modulo externo si pesa demasiado.
+
+Estados recomendados:
+
+- `sin camara`: experiencia normal con controles manuales;
+- `camara disponible`: CTA para activar Gesture Navigation;
+- `tracking activo`: gestos reconocidos y HUD de confianza visible;
+- `tracking perdido`: aviso amarillo y fallback inmediato;
+- `modo presentacion`: sin paneles tecnicos ni debug.
+
+Esta capa queda registrada como roadmap. No esta implementada en v0.4.
+
 
 ## Nota v0.2.2 - prueba visual de zonas
 
