@@ -61,8 +61,26 @@ searchItems.forEach(item => {
     const val = arr[1] || true;
     urlOpts[key] = val;
 });
-urlOpts.lng = urlOpts.lng || DEFAULT_LNG;
-urlOpts.lat = urlOpts.lat || DEFAULT_LAT;
+urlOpts.lng = +(urlOpts.lng || DEFAULT_LNG);
+urlOpts.lat = +(urlOpts.lat || DEFAULT_LAT);
+
+const MAQUETA_DEBUG = urlOpts.debug === '1';
+const MAQUETA_ZONE = urlOpts.zone || 'original';
+const MAQUETA_REFRESH = urlOpts.refresh || null;
+const maquetaDebugState = {
+    zone: MAQUETA_ZONE,
+    urlLng: urlOpts.lng,
+    urlLat: urlOpts.lat,
+    style: urlOpts.style || 'planet',
+    refresh: MAQUETA_REFRESH,
+    engineLng: urlOpts.lng,
+    engineLat: urlOpts.lat,
+    center: null,
+    tiles: [],
+    lastFetch: null,
+    lastRebuild: null,
+    features: {buildings: 0, roads: 0, water: 0}
+};
 
 function makeUrl() {
     const diffConfig = {};
@@ -77,7 +95,7 @@ function makeUrl() {
     for (let key in urlOpts) {
         urlItems.push(key + '=' + urlOpts[key]);
     }
-    return './?' + urlItems.join('&');
+    return location.pathname + '?' + urlItems.join('&');
 }
 
 const IS_TILE_STYLE = urlOpts.style === 'tile';
@@ -126,6 +144,39 @@ const actions = {
     }
 };
 
+function logMaqueta(prefix, payload) {
+    console.info(prefix, payload);
+}
+
+function ensureMaquetaDebugPanel() {
+    if (!MAQUETA_DEBUG || document.getElementById('maqueta-engine-debug')) {
+        return;
+    }
+    const panel = document.createElement('section');
+    panel.id = 'maqueta-engine-debug';
+    panel.setAttribute('aria-label', 'Maqueta Viva Engine Debug');
+    panel.innerHTML = '<strong>Maqueta Viva Debug</strong><pre id="maqueta-engine-debug-output"></pre>';
+    document.body.appendChild(panel);
+}
+
+function updateMaquetaDebugPanel() {
+    if (!MAQUETA_DEBUG) {
+        return;
+    }
+    ensureMaquetaDebugPanel();
+    const output = document.getElementById('maqueta-engine-debug-output');
+    if (output) {
+        output.textContent = JSON.stringify(maquetaDebugState, null, 2);
+    }
+}
+
+function featureCounts(features) {
+    return {
+        buildings: features && features.buildings ? features.buildings.length : 0,
+        roads: features && features.roads ? features.roads.length : 0,
+        water: features && features.water ? features.water.length : 0
+    };
+}
 const mvtUrlTpl = `https://tile.nextzen.org/tilezen/vector/v1/${TILE_SIZE}/all/{z}/{x}/{y}.mvt?api_key=EWFsMD1DSEysLDWd2hj2cw`;
 
 const mainLayer = new maptalks.TileLayer('base', {
@@ -142,6 +193,18 @@ const map = new maptalks.Map('map-main', {
 });
 map.setMinZoom(16);
 map.setMaxZoom(16);
+maquetaDebugState.center = map.getCenter().toJSON ? map.getCenter().toJSON() : map.getCenter();
+logMaqueta('[Maqueta Viva Engine]', {
+    event: 'init',
+    zone: MAQUETA_ZONE,
+    urlLng: urlOpts.lng,
+    urlLat: urlOpts.lat,
+    appliedCenter: maquetaDebugState.center,
+    style: urlOpts.style || 'planet',
+    refresh: MAQUETA_REFRESH,
+    pathname: location.pathname
+});
+updateMaquetaDebugPanel();
 
 const faces = [
     'pz', 'px', 'nz',
@@ -473,6 +536,22 @@ const app = application.create('#viewport', {
                 elementsNodes[key].removeAll();
             }
 
+            const rebuildCenter = map.getCenter();
+            maquetaDebugState.engineLng = rebuildCenter.x;
+            maquetaDebugState.engineLat = rebuildCenter.y;
+            maquetaDebugState.center = rebuildCenter.toJSON ? rebuildCenter.toJSON() : {x: rebuildCenter.x, y: rebuildCenter.y};
+            maquetaDebugState.lastRebuild = new Date().toISOString();
+            maquetaDebugState.features = {buildings: 0, roads: 0, water: 0};
+            logMaqueta('[Maqueta Viva Engine]', {
+                event: 'updateElements',
+                zone: MAQUETA_ZONE,
+                urlLng: urlOpts.lng,
+                urlLat: urlOpts.lat,
+                center: maquetaDebugState.center,
+                refresh: MAQUETA_REFRESH
+            });
+            updateMaquetaDebugPanel();
+
             for (let key in this._buildingAnimators) {
                 this._buildingAnimators[key].stop();
             }
@@ -573,6 +652,14 @@ const app = application.create('#viewport', {
                 });
             }
             let loading = Math.min(tiles.length, 6);
+            maquetaDebugState.tiles = tiles.slice(0, 6).map(tile => ({z: tile.z, x: tile.x, y: tile.y}));
+            logMaqueta('[Maqueta Viva Tiles]', {
+                zone: MAQUETA_ZONE,
+                center: maquetaDebugState.center,
+                tileCount: tiles.length,
+                usedTiles: maquetaDebugState.tiles
+            });
+            updateMaquetaDebugPanel();
             tiles.forEach((tile, idx) => {
                 const fetchId = this._id;
                 if (idx >= 6) {
@@ -601,9 +688,26 @@ const app = application.create('#viewport', {
                     .replace('{x}', tile.x)
                     .replace('{y}', tile.y)
                     .replace('{s}', subdomains[idx % 3]);
+                maquetaDebugState.lastFetch = url;
+                logMaqueta('[Maqueta Viva Fetch]', {
+                    event: 'prepare',
+                    zone: MAQUETA_ZONE,
+                    tile: {z: tile.z, x: tile.x, y: tile.y},
+                    url: url
+                });
+                updateMaquetaDebugPanel();
 
                 if (mvtCache.get(url)) {
                     const features = mvtCache.get(url);
+                    const counts = featureCounts(features);
+                    maquetaDebugState.features = counts;
+                    logMaqueta('[Maqueta Viva Geometry]', {
+                        event: 'cache-hit',
+                        zone: MAQUETA_ZONE,
+                        tile: {z: tile.z, x: tile.x, y: tile.y},
+                        features: counts
+                    });
+                    updateMaquetaDebugPanel();
                     for (let key in features) {
                         createElementMesh(
                             vectorElements.find(config => config.type === key),
@@ -626,6 +730,13 @@ const app = application.create('#viewport', {
                         const pbf = new Protobuf(new Uint8Array(buffer));
                         const vTile = new VectorTile(pbf);
                         if (!vTile.layers.buildings) {
+                            logMaqueta('[Maqueta Viva Geometry]', {
+                                event: 'no-buildings-layer',
+                                zone: MAQUETA_ZONE,
+                                tile: {z: tile.z, x: tile.x, y: tile.y},
+                                layers: Object.keys(vTile.layers || {})
+                            });
+                            updateMaquetaDebugPanel();
                             return;
                         }
 
@@ -665,6 +776,15 @@ const app = application.create('#viewport', {
                         }
 
                         mvtCache.set(url, features);
+                        const counts = featureCounts(features);
+                        maquetaDebugState.features = counts;
+                        logMaqueta('[Maqueta Viva Geometry]', {
+                            event: 'features-built',
+                            zone: MAQUETA_ZONE,
+                            tile: {z: tile.z, x: tile.x, y: tile.y},
+                            features: counts
+                        });
+                        updateMaquetaDebugPanel();
                         for (let key in features) {
                             const {boundingRect} = createElementMesh(
                                 vectorElements.find(config => config.type === key),
@@ -824,7 +944,16 @@ function updateAll() {
 }
 
 function updateUrlState() {
-    history.pushState('', '', makeUrl());
+    const nextUrl = makeUrl();
+    logMaqueta('[Maqueta Viva Zone]', {
+        event: 'history-update',
+        zone: urlOpts.zone || MAQUETA_ZONE,
+        lng: urlOpts.lng,
+        lat: urlOpts.lat,
+        style: urlOpts.style || 'planet',
+        finalUrl: nextUrl
+    });
+    history.pushState('', '', nextUrl);
 }
 
 let timeout;

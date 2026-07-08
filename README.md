@@ -1,6 +1,6 @@
 # Little Big City / Maqueta Viva 3D
 
-Este repositorio conserva la demo original de **Little Big City** y aÃƒÂ±ade una capa productizada premium:
+Este repositorio conserva la demo original de **Little Big City** y aÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â±ade una capa productizada premium:
 
 **Maqueta Viva 3D - Torrevieja Prototype v0.2**
 
@@ -75,7 +75,7 @@ $env:NODE_OPTIONS="--openssl-legacy-provider"
 
 ## Nota v0.2.2 - prueba visual de zonas
 
-Las zonas de Maqueta Viva 3D usan coordenadas aproximadas dentro del entorno de Torrevieja. La maqueta depende del motor heredado Little Big City y de los datos vectoriales disponibles en cada coordenada, por lo que algunas zonas urbanas cercanas pueden generar geometrÃ­as parecidas.
+Las zonas de Maqueta Viva 3D usan coordenadas aproximadas dentro del entorno de Torrevieja. La maqueta depende del motor heredado Little Big City y de los datos vectoriales disponibles en cada coordenada, por lo que algunas zonas urbanas cercanas pueden generar geometrÃƒÆ’Ã‚Â­as parecidas.
 
 La version v0.2.2 anade una prueba visual de zona activa para que el cambio sea verificable: URL con `zone`, `lng`, `lat`, `style`, `sector`, `route` y `refresh`; estado visible reforzado; marcador narrativo sobre la maqueta; loading contextual; sincronizacion garantizada de inputs LNG/LAT; y badges `En esta zona` en POIs vinculados a la zona activa.
 
@@ -190,6 +190,82 @@ Settings > Pages > Deploy from branch > gh-pages / root
 
 No se debe hacer push directo a `gh-pages` desde una fase de prototipo sin revision.
 
+
+## Nota v0.2.3 - reconstruccion real por zona y debug de motor
+
+Diagnostico: la capa premium cambiaba estado, URL y textos, pero el motor heredado no dejaba una prueba visible suficiente de que estaba reconstruyendo la escena desde las nuevas coordenadas. La causa raiz detectada fue doble: el motor original leia `location.search`, pero su `makeUrl()` reconstruia URLs como `./?...`, lo que podia sacar la experiencia premium de `maqueta-viva-torrevieja.html` y llevarla a la raiz `/`; ademas no existian logs ni panel de debug para verificar `map.getCenter()`, tiles, fetches de Nextzen y reconstruccion de geometria.
+
+Correccion v0.2.3:
+
+- `src/main.js` conserva ahora `location.pathname` al actualizar URL interna.
+- `src/main.js` convierte `lng/lat` de URL a numeros antes de inicializar `maptalks.Map`.
+- Se anaden logs con prefijos `[Maqueta Viva Engine]`, `[Maqueta Viva Tiles]`, `[Maqueta Viva Fetch]`, `[Maqueta Viva Geometry]` y `[Maqueta Viva Zone]`.
+- El bundle compilado expone un panel de debug solo si la URL incluye `debug=1`.
+- El debug muestra zona, lng/lat de URL, lng/lat aplicados al motor, center real, tile IDs, ultimo fetch, ultima reconstruccion y conteo de features cuando el tile lo permite.
+
+Uso de debug:
+
+```text
+maqueta-viva-torrevieja.html?zone=puerto&sector=turismo&debug=1
+maqueta-viva-torrevieja.html?zone=salinas&sector=patrimonio&debug=1
+maqueta-viva-torrevieja.html?zone=zona-comercial&sector=retail&debug=1
+```
+
+Limitacion honesta: si dos zonas cercanas producen tiles o geometria visualmente similares, el panel debug permite demostrar si el motor cambio center/tile/fetch aunque la maqueta sea parecida. La solucion definitiva v0.3 sigue siendo una capa de POIs/pins georreferenciados reales sobre la maqueta.
+
+Evidencia QA de tiles Nextzen z16 con cabecera de navegador:
+
+| Zona | Tile z/x/y | Capas detectadas |
+| --- | --- | --- |
+| Centro urbano | 16/32643/25284 | buildings 797, roads 94, water 6 |
+| Puerto / Marina | 16/32642/25286 | buildings 1, roads 2, water 2 |
+| Frente maritimo | 16/32645/25285 | buildings 0, roads 0, water 2 |
+| Salinas / entorno natural | 16/32636/25276 | buildings 0, roads 0, water 1 |
+| Zona comercial | 16/32640/25282 | buildings 7, roads 11, water 9 |
+
+Conclusion tecnica: los tiles/fetches cambian entre zonas. Cuando una zona natural o costera parece pobre, la causa es la disponibilidad de geometria en los datos vectoriales a ese tile/zoom, no que el motor siga leyendo siempre el centro.
+
+## Roadmap Premium posterior a v0.2.3
+
+1. Mapas sonoros:
+   - sonido por zona;
+   - paisajes sonoros;
+   - epocas historicas;
+   - narraciones sonoras por lugar;
+   - audio activado por usuario, no autoplay.
+
+2. Avatar narrativo reactivo:
+   - personaje guia;
+   - movimiento de ojos;
+   - labios sincronizados;
+   - manos, senalar y saludar;
+   - reaccion a webcam/gestos;
+   - conexion futura con modulos de webcam/gesture.
+
+3. Espacios patrocinados:
+   - empresas cerca de enclaves;
+   - POIs patrocinados;
+   - rutas comerciales;
+   - hoteles, restaurantes y comercios;
+   - WhatsApp, reservas y leads;
+   - modelo de monetizacion.
+
+4. Videos y streaming:
+   - videos inmersivos;
+   - video 360;
+   - drone;
+   - camaras en directo;
+   - playas, lagunas y parajes naturales;
+   - contenido estacional.
+
+5. Branding avanzado:
+   - configuracion por cliente;
+   - paleta;
+   - logo;
+   - avatar;
+   - tono narrativo;
+   - campanas;
+   - salida compartible/viral.
 ## Riesgos tecnicos
 
 - Stack antiguo: webpack 4, ClayGL antiguo y dependencias legacy.

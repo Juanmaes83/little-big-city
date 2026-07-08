@@ -916,3 +916,41 @@
         padding: 10px 12px;
     }
 }
+/* v0.2.3 Engine debug overlay */
+#maqueta-engine-debug {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 2600;
+    width: min(420px, calc(100vw - 32px));
+    max-height: 46vh;
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid rgba(120, 210, 255, 0.4);
+    border-radius: 14px;
+    background: rgba(3, 10, 18, 0.88);
+    color: #dff6ff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(12px);
+    font-family: Consolas, 'Courier New', monospace;
+    pointer-events: auto;
+    overscroll-behavior: contain;
+}
+
+#maqueta-engine-debug strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #f3d5a1;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#maqueta-engine-debug pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 11px;
+    line-height: 1.36;
+}
