@@ -277,10 +277,10 @@
     top: 116px;
     right: 22px;
     width: 332px;
-    max-height: calc(100vh - 320px);
+    max-height: calc(100vh - 250px);
     border-radius: 20px;
     padding: 14px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 .maqueta-panel-block {
@@ -300,6 +300,23 @@
     gap: 12px;
     align-items: baseline;
     margin-bottom: 10px;
+}
+
+.maqueta-block-toggle {
+    margin-left: auto;
+    border: 1px solid rgba(248, 239, 225, 0.14);
+    border-radius: 999px;
+    background: rgba(248, 239, 225, 0.08);
+    color: #f3d5a1;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    padding: 7px 9px;
+    cursor: pointer;
+}
+
+.maqueta-panel-block.is-collapsed > :not(.maqueta-block-head) {
+    display: none !important;
 }
 
 .maqueta-block-head h2,
@@ -509,6 +526,8 @@
     gap: 12px;
     padding: 12px;
     border-radius: 22px;
+    max-height: 44vh;
+    overflow: auto;
 }
 
 .maqueta-poi-list {
@@ -794,6 +813,15 @@
     right: 24px;
     top: 112px;
     z-index: 1400;
+    display: none;
+}
+
+.show-technical-controls.maqueta-viva-shell nav {
+    display: block;
+    right: 372px;
+    top: 96px;
+    transform: scale(0.78);
+    transform-origin: top right;
 }
 
 .maqueta-viva-shell nav li {
@@ -1096,10 +1124,10 @@
     left: 16px;
     bottom: 16px;
     z-index: 2600;
-    width: min(420px, calc(100vw - 32px));
-    max-height: 46vh;
+    width: min(260px, calc(100vw - 32px));
+    max-height: 48px;
     overflow: auto;
-    padding: 12px;
+    padding: 10px 12px;
     border: 1px solid rgba(120, 210, 255, 0.4);
     border-radius: 14px;
     background: rgba(3, 10, 18, 0.88);
@@ -1107,13 +1135,19 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(12px);
     font-family: Consolas, 'Courier New', monospace;
-    pointer-events: none;
+    cursor: pointer;
+    pointer-events: auto;
     overscroll-behavior: contain;
+}
+
+#maqueta-engine-debug.is-expanded {
+    width: min(420px, calc(100vw - 32px));
+    max-height: 46vh;
 }
 
 #maqueta-engine-debug strong {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     color: #f3d5a1;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 12px;
@@ -1122,11 +1156,17 @@
 }
 
 #maqueta-engine-debug pre {
+    display: none;
     margin: 0;
+    margin-top: 8px;
     white-space: pre-wrap;
     word-break: break-word;
     font-size: 11px;
     line-height: 1.36;
+}
+
+#maqueta-engine-debug.is-expanded pre {
+    display: block;
 }
 /* v0.2.4 Zone preset calibration workflow */
 #maqueta-calibration-panel {
@@ -1317,8 +1357,8 @@
     right: 16px;
     bottom: 16px;
     z-index: 2601;
-    width: min(420px, calc(100vw - 32px));
-    max-height: 38vh;
+    width: min(260px, calc(100vw - 32px));
+    max-height: 48px;
     overflow: auto;
     padding: 12px;
     border: 1px solid rgba(243, 213, 161, 0.42);
@@ -1328,17 +1368,23 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(12px);
     font-family: Consolas, 'Courier New', monospace;
-    pointer-events: none;
+    cursor: pointer;
+    pointer-events: auto;
     overscroll-behavior: contain;
+}
+
+#maqueta-interaction-debug.is-expanded {
+    width: min(420px, calc(100vw - 32px));
+    max-height: 38vh;
 }
 
 #maqueta-analytics-debug {
     position: fixed;
     left: 16px;
-    bottom: 16px;
+    bottom: 70px;
     z-index: 2601;
-    width: min(420px, calc(100vw - 32px));
-    max-height: 38vh;
+    width: min(260px, calc(100vw - 32px));
+    max-height: 48px;
     overflow: auto;
     padding: 12px;
     border: 1px solid rgba(243, 182, 163, 0.42);
@@ -1348,12 +1394,18 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(12px);
     font-family: Consolas, 'Courier New', monospace;
-    pointer-events: none;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#maqueta-analytics-debug.is-expanded {
+    width: min(420px, calc(100vw - 32px));
+    max-height: 38vh;
 }
 
 #maqueta-analytics-debug strong {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     color: #f3b6a3;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 12px;
@@ -1362,16 +1414,22 @@
 }
 
 #maqueta-analytics-debug pre {
+    display: none;
     margin: 0;
+    margin-top: 8px;
     white-space: pre-wrap;
     word-break: break-word;
     font-size: 11px;
     line-height: 1.36;
 }
 
+#maqueta-analytics-debug.is-expanded pre {
+    display: block;
+}
+
 #maqueta-interaction-debug strong {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     color: #f3d5a1;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 12px;
@@ -1380,9 +1438,15 @@
 }
 
 #maqueta-interaction-debug pre {
+    display: none;
     margin: 0;
+    margin-top: 8px;
     white-space: pre-wrap;
     word-break: break-word;
     font-size: 11px;
     line-height: 1.36;
+}
+
+#maqueta-interaction-debug.is-expanded pre {
+    display: block;
 }

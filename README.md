@@ -47,6 +47,7 @@ http://127.0.0.1:8137/maqueta-viva-torrevieja?sector=eventos&view=clean
 ```bash
 npm install --no-audit --no-fund
 npm run build
+npm run qa:maqueta-ui
 npx serve -l 8137 .
 ```
 
@@ -55,6 +56,8 @@ En las pruebas, `npm run build` funciono con Node moderno sin necesitar:
 ```powershell
 $env:NODE_OPTIONS="--openssl-legacy-provider"
 ```
+
+`npm run qa:maqueta-ui` ejecuta una auditoria UI local de Maqueta Viva con Playwright. No anade dependencias: primero intenta cargar Playwright desde el proyecto y, si no existe, usa el runtime local de Codex para evitar el fallo de resolucion ESM observado en el REPL.
 
 Nota tecnica: las rutas internas de Maqueta Viva usan la forma extensionless `maqueta-viva-torrevieja`. En `npx serve`, navegar con `.html` puede redirigir y contaminar el flujo de presets.
 

@@ -340,12 +340,14 @@
         panel.setAttribute('aria-label', 'Maqueta Viva Interaction Debug');
         panel.innerHTML = '<strong>Maqueta Viva Click Debug</strong><pre id="maqueta-interaction-debug-output"></pre>';
         document.body.appendChild(panel);
+        bindDebugChip(panel);
         return panel;
     }
 
     function updateInteractionDebugPanel() {
         var panel = ensureInteractionDebugPanel();
         if (!panel) return;
+        bindDebugChip(panel);
         var output = $('maqueta-interaction-debug-output');
         if (output) output.textContent = JSON.stringify(state.interactionDebug, null, 2);
     }
@@ -370,9 +372,29 @@
             panel.id = 'maqueta-analytics-debug';
             panel.innerHTML = '<strong>Maqueta Analytics</strong><pre id="maqueta-analytics-output"></pre>';
             document.body.appendChild(panel);
+            bindDebugChip(panel);
         }
+        bindDebugChip(panel);
         var output = $('maqueta-analytics-output');
         if (output) output.textContent = JSON.stringify((window.MAQUETA_ANALYTICS_EVENTS || []).slice(-25), null, 2);
+    }
+
+    function bindDebugChip(panel) {
+        if (!panel || panel.dataset.debugChipBound === '1') return;
+        panel.dataset.debugChipBound = '1';
+        panel.title = 'Click para abrir/cerrar diagnostico tecnico';
+        panel.addEventListener('click', function () {
+            panel.classList.toggle('is-expanded');
+        });
+    }
+
+    function bindDebugChipDelegation() {
+        document.addEventListener('click', function (ev) {
+            var panel = ev.target && ev.target.closest ? ev.target.closest('#maqueta-engine-debug, #maqueta-interaction-debug, #maqueta-analytics-debug') : null;
+            if (!panel || panel.dataset.debugChipBound === '1') return;
+            bindDebugChip(panel);
+            panel.classList.toggle('is-expanded');
+        }, true);
     }
 
     function findByZone(collection, zoneId) {
@@ -921,6 +943,37 @@
         });
     }
 
+    function installPanelAccordions() {
+        [
+            { selector: '#maqueta-command-panel .maqueta-panel-block', openUntil: 1 },
+            { selector: '#maqueta-bottom-panel .maqueta-panel-block', openUntil: 2 }
+        ].forEach(function (group) {
+            Array.prototype.slice.call(document.querySelectorAll(group.selector)).forEach(function (block, index) {
+                var head = block.querySelector('.maqueta-block-head');
+                if (!head || block.dataset.accordionBound === '1') return;
+                block.dataset.accordionBound = '1';
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'maqueta-block-toggle';
+                button.textContent = 'Abrir';
+                button.setAttribute('aria-expanded', 'false');
+                head.appendChild(button);
+                var shouldCollapse = index >= group.openUntil;
+                block.classList.toggle('is-collapsed', shouldCollapse);
+                button.textContent = shouldCollapse ? 'Abrir' : 'Cerrar';
+                button.setAttribute('aria-expanded', shouldCollapse ? 'false' : 'true');
+                button.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    var nextCollapsed = !block.classList.contains('is-collapsed');
+                    block.classList.toggle('is-collapsed', nextCollapsed);
+                    button.textContent = nextCollapsed ? 'Abrir' : 'Cerrar';
+                    button.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+                });
+            });
+        });
+    }
+
     function renderPremiumLayer() {
         var zone = getActiveZone();
         if (!zone) return;
@@ -1184,6 +1237,8 @@
         renderCalibrationPanel(config);
         renderZoneJumpBar(config);
         bindZoneDelegation();
+        bindDebugChipDelegation();
+        installPanelAccordions();
         initEvents(config);
         updateStatus();
         updateAnalyticsPanel();
