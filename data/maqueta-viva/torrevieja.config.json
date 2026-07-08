@@ -1,0 +1,188 @@
+{
+  "city": "Torrevieja",
+  "experienceName": "Maqueta Viva 3D - Torrevieja",
+  "claim": "La ciudad se levanta ante ti.",
+  "subclaim": "Explora, activa y comparte una maqueta viva generada desde datos reales del territorio.",
+  "defaultView": {
+    "lng": -0.6822,
+    "lat": 37.9787,
+    "style": "tile",
+    "zone": "centro",
+    "sector": "turismo"
+  },
+  "brand": {
+    "primary": "#07131d",
+    "sand": "#f3d5a1",
+    "coral": "#f3b6a3",
+    "salt": "#fff7ea"
+  },
+  "zones": [
+    {
+      "id": "centro",
+      "name": "Centro urbano",
+      "description": "La maqueta arranca en el tejido urbano principal, ideal para entender servicios, movilidad y vida local.",
+      "lng": -0.6822,
+      "lat": 37.9787,
+      "style": "tile",
+      "sector": "Turismo / Smart City"
+    },
+    {
+      "id": "puerto",
+      "name": "Puerto / Marina",
+      "description": "Zona de llegada, paseo y actividad nautica; buena para turismo, eventos y restauracion.",
+      "lng": -0.6835,
+      "lat": 37.9695,
+      "style": "tile",
+      "sector": "Turismo / Eventos"
+    },
+    {
+      "id": "frente-maritimo",
+      "name": "Frente maritimo",
+      "description": "Lectura costera para rutas de paseo, hoteles, comercio y experiencia mediterranea.",
+      "lng": -0.6797,
+      "lat": 37.9748,
+      "style": "planet",
+      "sector": "Hotel / Turismo"
+    },
+    {
+      "id": "parque-naciones",
+      "name": "Parque de las Naciones",
+      "description": "Nodo verde urbano para familias, recorridos culturales y activaciones de ciudad.",
+      "lng": -0.6879,
+      "lat": 37.9814,
+      "style": "tile",
+      "sector": "Eventos / Patrimonio"
+    },
+    {
+      "id": "salinas",
+      "name": "Salinas / entorno natural",
+      "description": "Entorno natural y marca visual del destino; coordenadas aproximadas para fase prototipo.",
+      "lng": -0.715,
+      "lat": 38.005,
+      "style": "planet",
+      "sector": "Turismo / Patrimonio"
+    },
+    {
+      "id": "zona-comercial",
+      "name": "Zona comercial",
+      "description": "Area util para visualizar flujos, escaparates, servicios y oportunidades retail.",
+      "lng": -0.6755,
+      "lat": 37.9798,
+      "style": "tile",
+      "sector": "Retail / Inmobiliaria"
+    }
+  ],
+  "pois": [
+    {
+      "id": "puerto-marina",
+      "title": "Puerto / Marina",
+      "category": "Mar",
+      "zone": "puerto",
+      "description": "Puerta azul de la ciudad, con actividad nautica, paseo y restauracion.",
+      "visitorValue": "Perfecto para iniciar una ruta con energia mediterranea."
+    },
+    {
+      "id": "paseo-maritimo",
+      "title": "Paseo maritimo",
+      "category": "Frente costero",
+      "zone": "frente-maritimo",
+      "description": "Eje de paseo, mirada al mar y memoria turistica del destino.",
+      "visitorValue": "Ideal para hoteles, turismo familiar y experiencias de atardecer."
+    },
+    {
+      "id": "centro-urbano",
+      "title": "Centro urbano",
+      "category": "Ciudad",
+      "zone": "centro",
+      "description": "Red de calles, servicios y vida cotidiana que sostiene la experiencia del visitante.",
+      "visitorValue": "Ayuda a entender recorridos, accesos, comercio y servicios."
+    },
+    {
+      "id": "parque-naciones",
+      "title": "Parque de las Naciones",
+      "category": "Verde urbano",
+      "zone": "parque-naciones",
+      "description": "Pulmon urbano para descanso, familias y activaciones culturales.",
+      "visitorValue": "Aporta una parada amable dentro de la ruta viva."
+    },
+    {
+      "id": "salinas",
+      "title": "Salinas",
+      "category": "Naturaleza",
+      "zone": "salinas",
+      "description": "Paisaje iconico de sal, color y biodiversidad vinculado a la identidad local.",
+      "visitorValue": "Convierte la maqueta en relato de territorio, no solo de calles."
+    },
+    {
+      "id": "zona-comercial",
+      "title": "Zona comercial",
+      "category": "Retail",
+      "zone": "zona-comercial",
+      "description": "Area para leer flujos, escaparates, servicios y oportunidades de conversion.",
+      "visitorValue": "Util para marcas, locales, retail territorial e inmobiliaria."
+    },
+    {
+      "id": "frente-costero",
+      "title": "Frente costero",
+      "category": "Costa",
+      "zone": "frente-maritimo",
+      "description": "La linea de mar como escenario de marca, estancia y recuerdo.",
+      "visitorValue": "Da una salida emocional y compartible a la experiencia."
+    }
+  ],
+  "sectors": [
+    {
+      "id": "turismo",
+      "label": "Turismo",
+      "microcopy": "Convierte el destino en una ruta memorable.",
+      "cta": "Crear mi ruta turistica",
+      "benefits": ["Rutas visuales", "Recuerdo compartible", "Decision de visita"]
+    },
+    {
+      "id": "inmobiliaria",
+      "label": "Inmobiliaria",
+      "microcopy": "Explora el entorno antes de visitar la propiedad.",
+      "cta": "Solicitar dossier de zona",
+      "benefits": ["Entorno comprensible", "Servicios cercanos", "Valor de ubicacion"]
+    },
+    {
+      "id": "eventos",
+      "label": "Eventos",
+      "microcopy": "Convierte el recinto en una experiencia navegable.",
+      "cta": "Disenar activacion para mi evento",
+      "benefits": ["Orientacion", "Patrocinios", "Recorridos activables"]
+    },
+    {
+      "id": "retail",
+      "label": "Retail",
+      "microcopy": "Visualiza zonas comerciales, flujos y puntos de interes.",
+      "cta": "Crear experiencia retail",
+      "benefits": ["Flujos", "Locales destacados", "Conversion territorial"]
+    },
+    {
+      "id": "hotel",
+      "label": "Hotel",
+      "microcopy": "Ofrece al huesped una guia viva del entorno.",
+      "cta": "Crear concierge territorial",
+      "benefits": ["Concierge visual", "Rutas cercanas", "Mejor bienvenida"]
+    },
+    {
+      "id": "patrimonio",
+      "label": "Patrimonio",
+      "microcopy": "Haz visible la historia del territorio.",
+      "cta": "Activar capa patrimonial",
+      "benefits": ["Relato cultural", "Capas historicas", "Educacion inmersiva"]
+    },
+    {
+      "id": "smart-city",
+      "label": "Smart City",
+      "microcopy": "Comunica territorio, movilidad y servicios de forma visual.",
+      "cta": "Ver aplicacion institucional",
+      "benefits": ["Movilidad", "Servicios", "Comunicacion publica"]
+    }
+  ],
+  "ecosystemLinks": {
+    "livingMap": "https://juanmaes83.github.io/map-gesture-controls/demo/living-map.html",
+    "batuta": "https://juanmaes83.github.io/map-gesture-controls/demo/batuta-torrevieja.html"
+  }
+}

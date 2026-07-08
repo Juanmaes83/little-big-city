@@ -4,70 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="Maqueta Viva 3D Torrevieja: prototipo premium de ciudad 3D con datos reales de territorio, edificios, agua y carreteras.">
+    <meta name="description" content="Maqueta Viva 3D Torrevieja: experiencia premium de ciudad 3D con datos reales del territorio, zonas, POIs y Ruta Viva compartible.">
     <title>Maqueta Viva 3D - Torrevieja</title>
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/maqueta-viva.css">
     <script>
-        (function applyTorreviejaPreset() {
+        (function applyMaquetaPreset() {
+            var zones = {
+                centro: { lng: '-0.6822', lat: '37.9787', style: 'tile' },
+                puerto: { lng: '-0.6835', lat: '37.9695', style: 'tile' },
+                'frente-maritimo': { lng: '-0.6797', lat: '37.9748', style: 'planet' },
+                'parque-naciones': { lng: '-0.6879', lat: '37.9814', style: 'tile' },
+                salinas: { lng: '-0.715', lat: '38.005', style: 'planet' },
+                'zona-comercial': { lng: '-0.6755', lat: '37.9798', style: 'tile' }
+            };
             var params = new URLSearchParams(window.location.search);
+            var zoneId = params.get('zone') || 'centro';
+            var zone = zones[zoneId] || zones.centro;
             var changed = false;
-            if (!params.has('lng')) { params.set('lng', '-0.6822'); changed = true; }
-            if (!params.has('lat')) { params.set('lat', '37.9787'); changed = true; }
-            if (!params.has('style')) { params.set('style', 'tile'); changed = true; }
+            if (!params.has('lng')) { params.set('lng', zone.lng); changed = true; }
+            if (!params.has('lat')) { params.set('lat', zone.lat); changed = true; }
+            if (!params.has('style')) { params.set('style', zone.style); changed = true; }
+            if (!params.has('zone')) { params.set('zone', zoneId); changed = true; }
+            if (!params.has('sector')) { params.set('sector', 'turismo'); changed = true; }
             if (changed) {
                 window.history.replaceState(null, '', window.location.pathname + '?' + params.toString() + window.location.hash);
             }
             window.MAQUETA_VIVA_PRESET = {
                 name: 'Torrevieja',
+                zone: params.get('zone'),
                 lng: params.get('lng'),
                 lat: params.get('lat'),
-                style: params.get('style')
+                style: params.get('style'),
+                sector: params.get('sector')
             };
         })();
-        paceOptions = {
-            ajax: true,
-            document: true
-        };
-        window.addEventListener('error', function () {
-            document.documentElement.classList.add('maqueta-runtime-warning');
-        });
-        window.addEventListener('unhandledrejection', function () {
-            document.documentElement.classList.add('maqueta-runtime-warning');
-        });
+        paceOptions = { ajax: true, document: true };
+        window.addEventListener('error', function () { document.documentElement.classList.add('maqueta-runtime-warning'); });
+        window.addEventListener('unhandledrejection', function () { document.documentElement.classList.add('maqueta-runtime-warning'); });
     </script>
     <script src="lib/pace.min.js"></script>
 </head>
 <body class="maqueta-viva-shell">
     <div id="viewport"></div>
 
-    <section id="maqueta-brand-panel" aria-label="Presentacion Maqueta Viva 3D">
-        <p class="maqueta-eyebrow">Modulo externo premium</p>
-        <h1>Maqueta Viva 3D - Torrevieja</h1>
-        <p class="maqueta-claim">La ciudad se levanta ante ti.</p>
-        <p class="maqueta-subclaim">Explora el destino como una maqueta viva generada desde datos reales del territorio.</p>
-        <div class="maqueta-actions" aria-label="Modos de visualizacion">
-            <a href="./maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=tile">Modo tile</a>
-            <a href="./maqueta-viva-torrevieja.html?lng=-0.6822&lat=37.9787&style=planet">Modo planet</a>
-            <a href="./index.html">Demo tecnica original</a>
-        </div>
-        <div class="maqueta-instructions">
-            <span>Arrastra para girar</span>
-            <span>Usa zoom para acercarte</span>
-            <span>Cambia LNG/LAT para otra zona</span>
-            <span>Exporta OBJ desde el panel derecho</span>
+    <section id="maqueta-loading" aria-live="polite">
+        <div>
+            <span>Maqueta Viva 3D</span>
+            <h1>Levantando la ciudad...</h1>
+            <p>Generando maqueta desde datos reales del territorio.</p>
         </div>
     </section>
 
-    <aside id="maqueta-commerce-panel" aria-label="Valor comercial">
-        <strong>Producto adaptable</strong>
-        <p>Este modulo puede convertirse en maqueta viva para turismo, inmobiliaria, eventos, hoteles y smart cities.</p>
-        <small>Base: Little Big City + ClayGL + datos vectoriales Nextzen.</small>
-    </aside>
+    <button id="toggle-technical-controls" class="maqueta-floating-action" type="button" aria-expanded="false">Controles tecnicos</button>
+    <button id="toggle-clean-mode" class="maqueta-floating-action secondary" type="button">Modo presentacion</button>
+
+    <main id="maqueta-product-layer" aria-label="Maqueta Viva 3D premium layer">
+        <section id="maqueta-brand-panel" aria-label="Presentacion Maqueta Viva 3D">
+            <p class="maqueta-eyebrow">Modulo externo premium</p>
+            <h1>Maqueta Viva 3D - Torrevieja</h1>
+            <p class="maqueta-claim">La ciudad se levanta ante ti.</p>
+            <p class="maqueta-subclaim">Explora, activa y comparte una maqueta viva generada desde datos reales del territorio.</p>
+            <p class="maqueta-microcopy">Un prototipo externo premium para turismo, inmobiliaria, eventos y city branding.</p>
+            <div class="maqueta-actions" aria-label="Acciones comerciales">
+                <button type="button" data-maqueta-cta="create-destination">Crear una Maqueta Viva para mi destino</button>
+                <button type="button" data-maqueta-cta="request-demo">Solicitar demo</button>
+                <button type="button" id="premium-export-obj">Exportar maqueta OBJ</button>
+            </div>
+            <div class="maqueta-instructions">
+                <span>Arrastra para girar</span>
+                <span>Usa zoom para acercarte</span>
+                <span>Cambia LNG/LAT para otra zona</span>
+                <span>Explora. Despierta. Levanta.</span>
+            </div>
+        </section>
+
+        <aside id="maqueta-command-panel" aria-label="Panel de producto">
+            <section class="maqueta-panel-block compact">
+                <div class="maqueta-block-head"><h2>Modo de experiencia</h2></div>
+                <select id="sector-select" aria-label="Seleccionar sector"></select>
+                <p id="sector-microcopy"></p>
+                <ul id="sector-benefits"></ul>
+                <button type="button" id="sector-cta" data-maqueta-cta="sector-cta"></button>
+            </section>
+            <section class="maqueta-panel-block">
+                <div class="maqueta-block-head"><h2>Zonas para levantar</h2><span>Aproximadas v0.2</span></div>
+                <div id="zones-list" class="maqueta-scroll-list"></div>
+            </section>
+        </aside>
+
+        <section id="maqueta-bottom-panel" aria-label="POIs y Ruta Viva">
+            <div class="maqueta-panel-block pois-block">
+                <div class="maqueta-block-head"><h2>POIs narrativos</h2><span>No geolocalizacion 3D exacta</span></div>
+                <div id="poi-list" class="maqueta-poi-list"></div>
+            </div>
+            <div class="maqueta-panel-block route-block">
+                <div class="maqueta-block-head"><h2>Ruta Viva</h2><span id="route-counter">0/5</span></div>
+                <p id="route-empty">Anade hasta 5 lugares para crear una salida compartible.</p>
+                <ol id="route-list"></ol>
+                <p id="route-ready-message">Anade lugares para crear una salida compartible.</p>
+                <div class="maqueta-route-actions">
+                    <button type="button" id="create-route">Crear mi Ruta Viva</button>
+                    <button type="button" id="clear-route">Limpiar ruta</button>
+                </div>
+            </div>
+        </section>
+
+        <aside id="maqueta-ecosystem-panel" aria-label="Ecosistema de experiencias">
+            <h2>Ecosistema de experiencias</h2>
+            <p>Explora. Despierta. Levanta.</p>
+            <a href="https://juanmaes83.github.io/map-gesture-controls/demo/living-map.html" target="_blank" rel="noopener" data-ecosystem="living-map"><strong>Living Map</strong><span>Explora el territorio en mapa interactivo.</span></a>
+            <a href="https://juanmaes83.github.io/map-gesture-controls/demo/batuta-torrevieja.html" target="_blank" rel="noopener" data-ecosystem="batuta"><strong>Batuta</strong><span>Despierta la ciudad con gestos.</span></a>
+            <a href="./maqueta-viva-torrevieja.html" data-ecosystem="maqueta-viva"><strong>Maqueta Viva 3D</strong><span>Levanta la ciudad en 3D.</span></a>
+        </aside>
+
+        <aside id="maqueta-layers-panel" aria-label="Capas de la maqueta">
+            <h2>Capas de la maqueta</h2>
+            <ul id="layers-list"></ul>
+        </aside>
+    </main>
+
+    <section id="share-panel" aria-label="Mi Ruta Viva">
+        <div class="share-card">
+            <button type="button" id="share-close" aria-label="Cerrar">x</button>
+            <p class="maqueta-eyebrow">Mi Ruta Viva</p>
+            <h2>Torrevieja levantada en 3D</h2>
+            <p>Tu Ruta Viva de Torrevieja esta lista.</p>
+            <ol id="share-route-list"></ol>
+            <p class="share-claim">La ciudad se levanta ante ti.</p>
+            <div class="maqueta-route-actions">
+                <button type="button" id="copy-summary">Copiar resumen</button>
+                <button type="button" id="copy-link">Copiar enlace</button>
+            </div>
+        </div>
+    </section>
 
     <div id="maqueta-data-warning" role="status">
-        No se pudieron cargar datos 3D de esta zona. Prueba otra ubicacion o revisa conexion.
+        <strong>No se pudieron cargar los datos 3D de esta zona.</strong>
+        <span>Prueba otra ubicacion, vuelve al centro o revisa conexion.</span>
+        <div>
+            <button type="button" data-warning-action="center">Volver a Torrevieja centro</button>
+            <button type="button" data-warning-action="original">Abrir demo tecnica</button>
+            <button type="button" data-warning-action="hide">Cerrar aviso</button>
+        </div>
     </div>
+
+    <div id="maqueta-toast" role="status"></div>
 
     <div id="map">
         <h3>Selecciona una zona para levantar la maqueta</h3>
@@ -84,26 +166,19 @@
 
     <nav id="style-list" aria-label="Estilos de maqueta">
         <ul>
-            <li class="planet" title="Modo planet">
-                <img src="asset/planet.jpg" alt="Modo planet">
-            </li>
-            <li class="tile" title="Modo tile">
-                <img src="asset/isometric.jpg" alt="Modo tile">
-            </li>
+            <li class="planet" title="Modo planet"><img src="asset/planet.jpg" alt="Modo planet"></li>
+            <li class="tile" title="Modo tile"><img src="asset/isometric.jpg" alt="Modo tile"></li>
         </ul>
     </nav>
 
     <div id="credits">
         <a href="https://github.com/pissang/little-big-city" target="_blank" rel="noopener" class="source">Source Code</a>
-        Built on top of
-            <a href="https://github.com/pissang/claygl" target="_blank" rel="noopener">ClayGL</a> by
-            <a href="https://twitter.com/pissang1" target="_blank" rel="noopener">@pissang</a>
-        <div class="data-source">
-            Vector tile data is from <a target="_blank" rel="noopener" href="https://developers.nextzen.org/about.html">nextzen</a>.
-        </div>
+        Built on top of <a href="https://github.com/pissang/claygl" target="_blank" rel="noopener">ClayGL</a> by <a href="https://twitter.com/pissang1" target="_blank" rel="noopener">@pissang</a>
+        <div class="data-source">Vector tile data is from <a target="_blank" rel="noopener" href="https://developers.nextzen.org/about.html">nextzen</a>.</div>
     </div>
 
     <script src="lib/FileSaver.js"></script>
     <script src="./dist/bundle.js"></script>
+    <script src="./js/maqueta-viva-product.js"></script>
 </body>
 </html>
