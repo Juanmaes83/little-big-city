@@ -1806,6 +1806,29 @@
         recordInteractionDebug({ mode: params.get('zone') === 'custom' ? 'manual/custom' : 'preset' });
     }
 
+    function initResponsiveMode() {
+        if (!window.matchMedia) return;
+        var mobileQuery = window.matchMedia('(max-width: 768px), (max-width: 920px) and (max-height: 520px), (pointer: coarse) and (max-width: 1024px)');
+        var sync = function () {
+            var isMobile = !!mobileQuery.matches;
+            document.body.classList.toggle('maqueta-mobile-view', isMobile);
+            document.documentElement.classList.toggle('maqueta-mobile-view', isMobile);
+            if (isMobile && document.body.getAttribute('data-mobile-dock-ready') !== '1') {
+                toggleDock(false);
+                document.body.setAttribute('data-mobile-dock-ready', '1');
+            }
+        };
+        sync();
+        if (mobileQuery.addEventListener) {
+            mobileQuery.addEventListener('change', sync);
+        } else if (mobileQuery.addListener) {
+            mobileQuery.addListener(sync);
+        }
+        window.addEventListener('orientationchange', function () {
+            window.setTimeout(sync, 180);
+        });
+    }
+
     function init(config) {
         state.config = config;
         if (ensureZoneUrlFromConfig(config)) return;
@@ -1825,6 +1848,7 @@
         syncToolboxPanels();
         window.setInterval(syncToolboxPanels, 1200);
         setInputMode('mouse');
+        initResponsiveMode();
         updateStatus();
         updateAnalyticsPanel();
         trackMaquetaEvent('maqueta_loaded', { version: 'v0.3.1-visual-poi-media-gesture-ready' });

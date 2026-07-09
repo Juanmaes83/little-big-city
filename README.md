@@ -126,6 +126,20 @@ La v0.4 reorganiza la experiencia para que la maqueta 3D sea el centro visual y 
 
 Limitacion honesta v0.4: algunos errores heredados del motor/datos vectoriales pueden activar el fallback de datos 3D en zonas concretas. El rediseño no cambia el motor Little Big City ni la dependencia de Nextzen; solo reduce el ruido visual y evita que los paneles tecnicos rompan la experiencia.
 
+## Maqueta Viva v0.4.1 - Mobile Stabilization
+
+La v0.4.1 estabiliza la experiencia mobile-first sin tocar el motor 3D ni `src/main.js`/`dist/bundle.js`.
+
+- Deteccion ligera de modo movil con clase `maqueta-mobile-view`.
+- Dock inferior minimizado por defecto en movil.
+- Header compacto y selector de zonas tactil.
+- Hero, panel contextual, status y dock convertidos en superficies compactas para que la maqueta siga siendo protagonista.
+- Botones tactiles con minimo de 44px.
+- Correcciones de overflow horizontal y viewport `100dvh`/`100svh`.
+- Ajustes especificos para 390x844, 430x932, 768x1024 y landscape compacto.
+
+Limitacion honesta v0.4.1: esta fase corrige usabilidad y composicion responsive. No modifica la carga de datos 3D, Nextzen, Maptalks, ClayGL ni el flujo de generacion de la maqueta.
+
 ## Maqueta Viva v0.3.1 - Visual POI, Media Activation & Gesture-Ready Layer
 
 La v0.3.1 convierte los modulos frontend en una experiencia territorial mas viva sin tocar el motor 3D ni implementar webcam.
