@@ -1806,10 +1806,57 @@
         recordInteractionDebug({ mode: params.get('zone') === 'custom' ? 'manual/custom' : 'preset' });
     }
 
+    // v0.4.2 Mobile Render Fidelity: the 3D engine (dist/bundle.js) sizes its
+    // canvas + camera once at load and only re-syncs on a window 'resize' event
+    // (see src/main.js: window.addEventListener('resize', ...)). The premium layer
+    // applies the mobile layout *after* an async config fetch and never fires a
+    // resize, so on real mobile browsers the visual viewport keeps changing after
+    // first paint (address bar collapse, 100dvh settling, orientation) while the
+    // canvas/camera stay locked to a stale size -> distorted / mismatched render.
+    // Fix: after layout settles, dispatch the synthetic resize the engine already
+    // listens for. This never touches the engine and is a harmless re-render on
+    // desktop (stable layout). Zone/tile selection is viewport-independent and was
+    // verified correct, so this only corrects framing/aspect fidelity.
+    function forceEngineReflow(reason) {
+        if (typeof window.dispatchEvent !== 'function') return;
+        try {
+            window.dispatchEvent(new Event('resize'));
+        } catch (e) {
+            var evt = document.createEvent('Event');
+            evt.initEvent('resize', true, true);
+            window.dispatchEvent(evt);
+        }
+        if (getParam('debug') === '1') {
+            var vp = $('viewport');
+            var canvas = document.querySelector('#viewport canvas');
+            console.info('[Maqueta Viva Reflow]', {
+                reason: reason || 'unknown',
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio,
+                viewport: vp ? { w: vp.clientWidth, h: vp.clientHeight } : null,
+                canvasBacking: canvas ? { w: canvas.width, h: canvas.height } : null,
+                mobile: document.body.classList.contains('maqueta-mobile-view')
+            });
+        }
+    }
+
+    // Reflow across the settle window: next frame, then again once the mobile
+    // browser chrome/viewport typically finishes animating.
+    function scheduleEngineReflow(reason) {
+        var raf = window.requestAnimationFrame || function (cb) { return window.setTimeout(cb, 16); };
+        raf(function () {
+            raf(function () { forceEngineReflow(reason + ':raf'); });
+        });
+        [120, 450, 900].forEach(function (delay) {
+            window.setTimeout(function () { forceEngineReflow(reason + ':' + delay + 'ms'); }, delay);
+        });
+    }
+
     function initResponsiveMode() {
         if (!window.matchMedia) return;
         var mobileQuery = window.matchMedia('(max-width: 768px), (max-width: 920px) and (max-height: 520px), (pointer: coarse) and (max-width: 1024px)');
-        var sync = function () {
+        var sync = function (reflowReason) {
             var isMobile = !!mobileQuery.matches;
             document.body.classList.toggle('maqueta-mobile-view', isMobile);
             document.documentElement.classList.toggle('maqueta-mobile-view', isMobile);
@@ -1817,16 +1864,28 @@
                 toggleDock(false);
                 document.body.setAttribute('data-mobile-dock-ready', '1');
             }
+            // Re-sync the engine canvas/camera to the layout that just applied.
+            scheduleEngineReflow(reflowReason || 'sync');
         };
-        sync();
+        sync('init');
         if (mobileQuery.addEventListener) {
-            mobileQuery.addEventListener('change', sync);
+            mobileQuery.addEventListener('change', function () { sync('mq-change'); });
         } else if (mobileQuery.addListener) {
-            mobileQuery.addListener(sync);
+            mobileQuery.addListener(function () { sync('mq-change'); });
         }
         window.addEventListener('orientationchange', function () {
-            window.setTimeout(sync, 180);
+            window.setTimeout(function () { sync('orientationchange'); }, 180);
         });
+        // Mobile address-bar show/hide changes the visual viewport height without
+        // a classic window resize on some browsers; keep the canvas in sync.
+        if (window.visualViewport && window.visualViewport.addEventListener) {
+            var vvTimer = null;
+            var onVisualViewport = function () {
+                if (vvTimer) window.clearTimeout(vvTimer);
+                vvTimer = window.setTimeout(function () { forceEngineReflow('visualViewport'); }, 160);
+            };
+            window.visualViewport.addEventListener('resize', onVisualViewport);
+        }
     }
 
     function init(config) {
