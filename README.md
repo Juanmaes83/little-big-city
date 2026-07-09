@@ -152,6 +152,116 @@ Limitaciones honestas v0.3.1:
 - No hay audio real ni video real si `audioUrl`/`url` siguen en `null`.
 - La capa visual ayuda a orientacion y venta, pero no sustituye una calibracion GIS/3D precisa.
 
+## Maqueta Viva v0.3.2 - Public Data, Real Media Binding & Immersive Connectors Layer
+
+La v0.3.2 prepara Maqueta Viva 3D para conectarse con datos publicos, medios propios y experiencias inmersivas sin depender de APIs externas para funcionar.
+
+Archivos clave:
+
+```text
+data/maqueta-viva/public-sources.registry.json
+js/maqueta-viva-public-data.js
+docs/public-data-sources.md
+asset/maqueta-viva/media/README.md
+```
+
+Que esta realmente integrado ahora:
+
+- Registro local de fuentes publicas y privadas.
+- Conector frontend `window.MaquetaVivaPublicData`.
+- Fallback local obligatorio para POIs, media, clima/playas y fuentes.
+- Widget compacto "Ahora en la zona" con hora local.
+- Mensajes honestos para clima AEMET y estado de playa sin inventar datos.
+- Boton "Buscar POIs publicos" con fallback local porque Overpass esta desactivado por defecto.
+- Enlaces inmersivos preparados por zona/POI sin cargar peso por defecto.
+- Campos `wikidataId`, `commonsCategory`, `externalLinks`, `mediaAssets` e `immersiveLinks` preparados en POIs.
+- Candidatos de assets locales para imagen, audio, podcast y video.
+- Documentacion de licencias, fuentes, riesgos y atribuciones.
+
+Que queda api-ready:
+
+- OpenStreetMap / Overpass para POIs publicos.
+- Wikidata para datos estructurados.
+- Wikimedia Commons para media abierta.
+- AEMET OpenData para clima si se configura clave de forma segura.
+- datos.gob.es para datasets oficiales tras revision manual.
+- Playas/banderas si aparece fuente oficial fiable.
+
+Que queda placeholder:
+
+- Clima real.
+- Bandera/estado de playa.
+- Audio real.
+- Video real.
+- Podcast real.
+- Splats/360/drone reales.
+
+Como anadir imagenes propias:
+
+1. Subir `.jpg` a `asset/maqueta-viva/media/pois/` o `asset/maqueta-viva/media/zones/`.
+2. Usar los nombres documentados en `asset/maqueta-viva/media/README.md`.
+3. Cambiar `visualStatus` a `local-real` cuando el asset tenga derechos claros.
+
+Como anadir audio, video o podcast:
+
+- Audio: `asset/maqueta-viva/media/audio/[zona]-soundscape.mp3`.
+- Podcast: `asset/maqueta-viva/media/podcast/[zona]-podcast.mp3`.
+- Video: `asset/maqueta-viva/media/video/[zona]-video.mp4`.
+- No hay autoplay. Si falta el archivo, se mantiene placeholder honesto.
+
+Como anadir splats, 360, drone o webs inmersivas:
+
+- Editar `immersiveLinks` en zona o POI.
+- Indicar `type`, `title`, `url`, `license`, `source`, `status` y `openMode`.
+- No cargar assets pesados por defecto.
+
+Licencias y atribuciones:
+
+- OSM/Overpass: ODbL y atribucion OpenStreetMap contributors.
+- Wikidata: CC0.
+- Wikimedia Commons: licencia variable por archivo.
+- AEMET/datos.gob.es/playas: revisar condiciones antes de uso comercial.
+- Assets propios: usar `manual-review` hasta validar derechos.
+
+Riesgo principal:
+
+La capa publica esta preparada, pero no debe activarse masivamente en frontend sin control de cuota, cache, atribucion y fallback.
+
+## Maqueta Viva v0.3.3 - Geo Truth, Markers & Precision/Presentation Layer
+
+La v0.3.3 separa la verdad geografica del relato visual. El motor original Little Big City sigue siendo la fuente de verdad para `lng`, `lat`, `zoom`, `style`, Maptalks, tiles, Nextzen, geometria y `downloadOBJ`. La capa Maqueta Viva vive encima como UI premium, POIs, rutas, pins, media, public data, analytics y futura entrada gestual.
+
+Regla de vistas:
+
+- `style=tile` es la vista A de precision para calibracion, datos publicos, validacion de presets y revision manual.
+- `style=planet` es la vista B de presentacion para storytelling y demos comerciales.
+- En `debug=1` o `calibrate=1`, los presets prefieren `tile` salvo que el usuario haya elegido explicitamente `planet`.
+
+Modelo geo normalizado:
+
+- Zonas: `geoStatus`, `coordinateSource`, `viewMode`, `precisionStyle`, `presentationStyle` y `screenPositionStatus`.
+- POIs: `lng`, `lat`, `geoStatus`, `coordinateSource`, `screenPosition`, `screenPositionStatus` y `positionTruth`.
+- Si un POI hereda coordenadas de su zona, queda como `manual-review` y `zone-preset`, no como exacto.
+- `screenPosition` sigue siendo posicion visual narrativa hasta que exista una proyeccion geo real.
+
+Markers honestos:
+
+- Sin GPS no se muestra "Tu estas aqui"; se muestra "Referencia de exploracion".
+- Si el usuario pulsa "Usar mi ubicacion" y acepta `navigator.geolocation`, entonces se puede mostrar "Tu estas aqui" como ubicacion de sesion.
+- La ubicacion no se pide automaticamente, no se guarda en `localStorage` y no se envia a backend.
+- Cada marker expone `data-position-mode`, `data-geo-status` y `data-coordinate-source`.
+- Los badges indican `aprox.`, `rev.`, `narr.`, `fuente`, `Manual` o `GPS`.
+
+Flechas y rotulos:
+
+- Las flechas solo aparecen si hay un siguiente POI de Ruta Viva o un recomendado claro de la zona.
+- Los rotulos se limitan a zona activa, referencia de exploracion y POIs relevantes. No se intenta mostrar todos los POIs como geolocalizacion exacta.
+
+Public data:
+
+- Los POIs publicos siguen siendo sugerencias. No sustituyen los POIs curados, no mueven la maqueta y no se mezclan automaticamente.
+- El widget publico muestra chips claros: hora local, clima pendiente AEMET y playa pendiente de fuente oficial. No inventa temperatura, bandera ni ocupacion.
+
 ## Maqueta Viva v0.4 - Gesture Navigation Layer (roadmap)
 
 La siguiente capa natural no debe mezclarse dentro del motor 3D. Debe entrar como una capa de interaccion opcional, preparada para conectar con Gesture Lab, Batuta y futuros modulos de camara.

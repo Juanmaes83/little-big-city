@@ -1467,7 +1467,7 @@
 .maqueta-map-marker {
     position: absolute;
     display: inline-grid;
-    grid-template-columns: 24px max-content;
+    grid-template-columns: 24px max-content max-content;
     gap: 6px;
     align-items: center;
     max-width: 190px;
@@ -1509,8 +1509,31 @@
     backdrop-filter: blur(8px);
 }
 
-.maqueta-map-marker.marker-you span {
+.maqueta-map-marker em {
+    padding: 4px 6px;
+    border: 1px solid rgba(243, 213, 161, 0.22);
+    border-radius: 999px;
+    background: rgba(7, 19, 29, 0.48);
+    color: rgba(243, 213, 161, 0.92);
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.maqueta-map-marker.marker-reference span {
     background: #fff7ea;
+}
+
+.maqueta-map-marker.position-screen-narrative {
+    opacity: 0.88;
+}
+
+.maqueta-map-marker.precision-approximate span,
+.maqueta-map-marker.precision-manual-review span {
+    border-style: dashed;
 }
 
 .maqueta-map-marker.marker-zone span {
@@ -1583,7 +1606,8 @@
 }
 
 #maqueta-toolbox-orientation button,
-#maqueta-toolbox-gesture button {
+#maqueta-toolbox-gesture button,
+#maqueta-toolbox-public-data button {
     width: 100%;
     min-height: 34px;
     border: 1px solid rgba(243, 213, 161, 0.24);
@@ -1597,6 +1621,124 @@
 #maqueta-toolbox-gesture button:disabled {
     opacity: 0.72;
     cursor: not-allowed;
+}
+
+#maqueta-public-signals p {
+    margin: 7px 0 0;
+    color: rgba(248, 239, 225, 0.72);
+    font-size: 11px;
+    line-height: 1.32;
+}
+
+.maqueta-context-note {
+    margin: 7px 0 0;
+    color: rgba(248, 239, 225, 0.62);
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.maqueta-view-mode-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin: 10px 0;
+}
+
+.maqueta-view-mode-controls button {
+    min-height: 34px;
+    border: 1px solid rgba(243, 213, 161, 0.2);
+    border-radius: 12px;
+    background: rgba(248, 239, 225, 0.07);
+    color: rgba(255, 247, 234, 0.82);
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.maqueta-view-mode-controls button.active {
+    border-color: rgba(243, 213, 161, 0.64);
+    background: rgba(243, 213, 161, 0.2);
+    color: #fff7ea;
+}
+
+#use-my-location.secondary {
+    margin-top: 2px;
+    background: rgba(248, 239, 225, 0.06);
+    color: rgba(255, 247, 234, 0.88);
+}
+
+.maqueta-signal-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 8px;
+    border: 1px solid rgba(248, 239, 225, 0.12);
+    border-radius: 12px;
+    background: rgba(7, 19, 29, 0.42);
+}
+
+.maqueta-signal-chip strong,
+.maqueta-signal-chip em {
+    font-size: 10px;
+    line-height: 1;
+}
+
+.maqueta-signal-chip em {
+    color: rgba(243, 213, 161, 0.94);
+    font-style: normal;
+    font-weight: 900;
+}
+
+.maqueta-mini-list {
+    display: grid;
+    gap: 7px;
+    margin-top: 8px;
+    max-height: 92px;
+    overflow: auto;
+}
+
+.maqueta-mini-list p {
+    margin: 0;
+    color: rgba(248, 239, 225, 0.72);
+    font-size: 11px;
+}
+
+.maqueta-public-poi-card {
+    padding: 8px;
+    border: 1px solid rgba(248, 239, 225, 0.12);
+    border-radius: 11px;
+    background: rgba(248, 239, 225, 0.055);
+}
+
+.maqueta-public-poi-card strong,
+.maqueta-public-poi-card span {
+    display: block;
+}
+
+.maqueta-public-poi-card span {
+    margin-top: 3px;
+    color: #f3b6a3;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.maqueta-public-poi-card button,
+.maqueta-immersive-link,
+#public-pois-load {
+    min-height: 30px;
+    border: 1px solid rgba(243, 213, 161, 0.28);
+    border-radius: 10px;
+    background: rgba(243, 213, 161, 0.1);
+    color: #fff7ea;
+    font-size: 11px;
+    font-weight: 850;
+    cursor: pointer;
+}
+
+.maqueta-immersive-link {
+    width: 100%;
+    text-align: left;
 }
 
 .show-technical-controls.maqueta-viva-shell #map {

@@ -80,6 +80,11 @@
             <section id="maqueta-toolbox-analytics" class="maqueta-toolbox-section">
                 <h2>Analytics</h2>
             </section>
+            <section id="maqueta-toolbox-public-data" class="maqueta-toolbox-section">
+                <h2>Datos abiertos</h2>
+                <button type="button" id="maqueta-public-sources-open">Ver fuentes y atribuciones</button>
+                <p id="maqueta-public-sources-status">Fuentes publicas preparadas con fallback local.</p>
+            </section>
             <section id="maqueta-toolbox-orientation" class="maqueta-toolbox-section">
                 <h2>Orientacion</h2>
                 <button type="button" id="maqueta-orientation-toggle">Orientacion activa</button>
@@ -150,6 +155,13 @@
                 <strong id="context-zone-name" class="maqueta-context-value">Centro urbano</strong>
                 <p class="maqueta-context-label">Aproximacion</p>
                 <span id="context-zone-calibration" class="maqueta-context-pill">Aproximada v0.2</span>
+                <p id="context-zone-view-mode" class="maqueta-context-note">Vista plana: precision</p>
+                <div class="maqueta-view-mode-controls" aria-label="Cambiar vista">
+                    <button type="button" id="view-mode-tile">Vista precision</button>
+                    <button type="button" id="view-mode-planet">Vista presentacion</button>
+                </div>
+                <button type="button" id="use-my-location" class="maqueta-wide-action secondary">Usar mi ubicacion</button>
+                <p id="location-privacy-note" class="maqueta-context-note">La ubicacion solo se usa en esta sesion para orientar la experiencia.</p>
                 <button type="button" id="show-zones-drawer" class="maqueta-wide-action">Ver todas las zonas</button>
                 <div class="maqueta-zoom-controls" aria-label="Control de zoom por zona">
                     <button type="button" id="zoom-minus">Zoom -</button>
@@ -169,6 +181,13 @@
                 <p id="sector-microcopy"></p>
                 <ul id="sector-benefits"></ul>
                 <button type="button" id="sector-cta" data-maqueta-cta="sector-cta"></button>
+            </section>
+            <section class="maqueta-panel-block compact" id="maqueta-public-signals">
+                <div class="maqueta-block-head"><h2>Ahora en la zona</h2></div>
+                <p id="public-signals-time">Hora local: --:--</p>
+                <p id="public-signals-weather">Clima preparado para integracion AEMET.</p>
+                <p id="public-signals-beach">Estado de playa pendiente de fuente oficial.</p>
+                <button type="button" id="public-signals-refresh" class="maqueta-wide-action">Actualizar senales</button>
             </section>
         </aside>
 
@@ -205,6 +224,7 @@
                 <div class="maqueta-block-head"><h2>Video / Directo</h2><span>Placeholder frontend</span></div>
                 <p id="immersive-media-copy">Preparado para video 360, drone, streaming o camara en directo.</p>
                 <button type="button" id="immersive-media-open">Ver experiencia inmersiva</button>
+                <div id="immersive-links-list" class="maqueta-mini-list"></div>
             </div>
             <div class="maqueta-panel-block premium-block" data-dock-panel="story" hidden>
                 <div class="maqueta-block-head"><h2>Escuchar historia</h2><span>Podcast preparado</span></div>
@@ -213,6 +233,8 @@
             </div>
             <div class="maqueta-panel-block premium-block" data-dock-panel="sponsors" hidden>
                 <div class="maqueta-block-head"><h2>Espacios destacados</h2><span>Demo sponsors</span></div>
+                <button type="button" id="public-pois-load">Buscar POIs publicos</button>
+                <div id="public-pois-list" class="maqueta-mini-list"></div>
                 <div id="sponsored-list"></div>
             </div>
             <div class="maqueta-panel-block premium-block" data-dock-panel="downloads" hidden>
@@ -326,6 +348,7 @@
 
     <script src="lib/FileSaver.js"></script>
     <script src="./dist/bundle.js?v=0.3-premium-layer"></script>
+    <script src="./js/maqueta-viva-public-data.js?v=0.3.2-public-data"></script>
     <script src="./js/maqueta-viva-product.js?v=0.4-premium-map-ui"></script>
 </body>
 </html>

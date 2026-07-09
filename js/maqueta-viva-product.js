@@ -39,6 +39,12 @@
         clean: false,
         orientationLayer: true,
         inputMode: 'mouse',
+        lastRouteHintKey: null,
+        userLocation: {
+            status: 'exploration-reference',
+            lng: null,
+            lat: null
+        },
         interactionDebug: {
             lastClickTarget: null,
             lastZoneButtonClicked: null,
@@ -485,6 +491,61 @@
         };
     }
 
+    function precisionLabel(status, positionMode) {
+        if (positionMode === 'user-geolocation') return 'GPS';
+        if (positionMode === 'manual-reference') return 'Manual';
+        if (status === 'manual-verified') return 'Exacto';
+        if (status === 'manual-review') return 'rev.';
+        if (status === 'approximate') return 'aprox.';
+        if (status === 'public-source') return 'fuente';
+        return positionMode === 'screen-narrative' ? 'narr.' : 'rev.';
+    }
+
+    function getMarkerTruth(item, type) {
+        if (type === 'reference') {
+            if (state.userLocation.status === 'allowed') {
+                return {
+                    label: 'Tu estas aqui',
+                    geoStatus: 'manual-review',
+                    coordinateSource: 'user',
+                    positionMode: 'user-geolocation',
+                    precisionLabel: 'GPS',
+                    isRealUserLocation: true
+                };
+            }
+            if (state.userLocation.status === 'manual') {
+                return {
+                    label: 'Punto seleccionado',
+                    geoStatus: 'manual-review',
+                    coordinateSource: 'user',
+                    positionMode: 'manual-reference',
+                    precisionLabel: 'Manual',
+                    isRealUserLocation: false
+                };
+            }
+            return {
+                label: 'Referencia de exploracion',
+                geoStatus: 'approximate',
+                coordinateSource: 'fallback',
+                positionMode: 'screen-narrative',
+                precisionLabel: 'narr.',
+                isRealUserLocation: false
+            };
+        }
+        var geoStatus = (item && (item.geoStatus || item.calibrationStatus || item.sourceStatus)) || 'unknown';
+        var coordinateSource = (item && item.coordinateSource) || (item && item.lng != null && item.lat != null ? 'manual' : 'fallback');
+        var screenStatus = (item && item.screenPositionStatus) || (item && item.screenPosition ? 'narrative' : 'unknown');
+        var positionMode = screenStatus === 'geo-projected' ? 'geo-projected' : 'screen-narrative';
+        return {
+            label: item && (item.title || item.name),
+            geoStatus: geoStatus,
+            coordinateSource: coordinateSource,
+            positionMode: positionMode,
+            precisionLabel: precisionLabel(geoStatus, positionMode),
+            isRealUserLocation: false
+        };
+    }
+
     function toggleOrientationLayer(open) {
         state.orientationLayer = typeof open === 'boolean' ? open : !state.orientationLayer;
         document.body.classList.toggle('maqueta-orientation-off', !state.orientationLayer);
@@ -511,36 +572,48 @@
             return poi.zone === (zone && zone.id) || state.route.indexOf(poi.id) !== -1;
         });
         list.innerHTML = '';
-        function addMarker(kind, item, label, pos, index) {
+        function trackRouteHintOnce(payload) {
+            var key = [payload.mode || 'route', payload.poi || '', zone && zone.id, state.route.join(',')].join(':');
+            if (state.lastRouteHintKey === key) return;
+            state.lastRouteHintKey = key;
+            trackMaquetaEvent('next_route_hint_shown', payload);
+        }
+        function addMarker(kind, item, label, pos, index, truth) {
+            truth = truth || getMarkerTruth(item, kind === 'reference' ? 'reference' : kind);
             var marker = document.createElement('button');
             marker.type = 'button';
-            marker.className = 'maqueta-map-marker marker-' + kind + ' access-' + (item && accessTypeForPoi(item));
+            marker.className = 'maqueta-map-marker marker-' + kind + ' access-' + (item && accessTypeForPoi(item)) + ' precision-' + truth.geoStatus + ' position-' + truth.positionMode;
             marker.style.left = pos.x + '%';
             marker.style.top = pos.y + '%';
             marker.dataset.kind = kind;
-            marker.innerHTML = '<span>' + (index || markerIcon(kind, item && item.category)) + '</span><strong>' + label + '</strong>';
+            marker.dataset.positionMode = truth.positionMode;
+            marker.dataset.geoStatus = truth.geoStatus;
+            marker.dataset.coordinateSource = truth.coordinateSource;
+            marker.title = label + ' · ' + truth.precisionLabel + ' · ' + truth.positionMode;
+            marker.innerHTML = '<span>' + (index || markerIcon(kind, item && item.category)) + '</span><strong>' + label + '</strong><em>' + truth.precisionLabel + '</em>';
             marker.addEventListener('click', function () {
-                if (kind === 'you') {
-                    trackMaquetaEvent('you_are_here_clicked', { zone: zone && zone.id });
-                    showToast('Estas explorando ' + ((zone && zone.name) || 'Torrevieja') + '.');
+                if (kind === 'reference') {
+                    trackMaquetaEvent(truth.isRealUserLocation ? 'user_location_marker_clicked' : 'exploration_reference_used', { zone: zone && zone.id, positionMode: truth.positionMode });
+                    showToast(truth.isRealUserLocation ? 'Ubicacion de sesion activa.' : 'Referencia narrativa: no es GPS real.');
                 } else if (kind === 'zone') {
-                    trackMaquetaEvent('zone_marker_clicked', { zone: zone && zone.id });
-                    showToast('Zona activa: ' + ((zone && zone.name) || 'Torrevieja') + '.');
+                    trackMaquetaEvent('zone_marker_clicked', { zone: zone && zone.id, geoStatus: truth.geoStatus });
+                    showToast('Zona activa: ' + ((zone && zone.name) || 'Torrevieja') + '. Precision: ' + truth.precisionLabel + '.');
                 } else if (kind === 'route') {
-                    trackMaquetaEvent('route_marker_clicked', { poi: item && item.id, zone: item && item.zone });
+                    trackMaquetaEvent('route_marker_clicked', { poi: item && item.id, zone: item && item.zone, geoStatus: truth.geoStatus });
                     openPoiDetail(item);
                 } else {
-                    trackMaquetaEvent('poi_marker_clicked', { poi: item && item.id, zone: item && item.zone });
+                    trackMaquetaEvent('poi_marker_clicked', { poi: item && item.id, zone: item && item.zone, geoStatus: truth.geoStatus });
                     openPoiDetail(item);
                 }
             });
             list.appendChild(marker);
         }
-        addMarker('you', null, 'Tu estas aqui', { x: 48, y: 58 });
-        if (zone) addMarker('zone', zone, zone.name, markerPosition(zone, { x: 52, y: 44 }));
+        var referenceTruth = getMarkerTruth(null, 'reference');
+        addMarker('reference', null, referenceTruth.label, { x: 48, y: 58 }, null, referenceTruth);
+        if (zone) addMarker('zone', zone, zone.name, markerPosition(zone, { x: 52, y: 44 }), null, getMarkerTruth(zone, 'zone'));
         pois.slice(0, 6).forEach(function (poi, idx) {
             var routeIndex = state.route.indexOf(poi.id);
-            addMarker(routeIndex !== -1 ? 'route' : 'poi', poi, poi.title, markerPosition(poi, { x: 38 + (idx * 8), y: 36 + ((idx % 3) * 7) }), routeIndex !== -1 ? String(routeIndex + 1) : null);
+            addMarker(routeIndex !== -1 ? 'route' : 'poi', poi, poi.title, markerPosition(poi, { x: 38 + (idx * 8), y: 36 + ((idx % 3) * 7) }), routeIndex !== -1 ? String(routeIndex + 1) : null, getMarkerTruth(poi, 'poi'));
         });
         if (lines) {
             lines.setAttribute('viewBox', '0 0 100 100');
@@ -552,6 +625,15 @@
                     return pos.x + ',' + pos.y;
                 }).join(' ');
                 lines.innerHTML = '<polyline points="' + points + '" vector-effect="non-scaling-stroke"></polyline>';
+            } else if (routePois.length === 1) {
+                var routePos = markerPosition(routePois[0], { x: 50, y: 50 });
+                lines.innerHTML = '<line x1="48" y1="58" x2="' + routePos.x + '" y2="' + routePos.y + '" vector-effect="non-scaling-stroke"></line>';
+                trackRouteHintOnce({ poi: routePois[0].id });
+            } else if (pois.length) {
+                var recommended = pois[0];
+                var recommendedPos = markerPosition(recommended, { x: 50, y: 50 });
+                lines.innerHTML = '<line x1="48" y1="58" x2="' + recommendedPos.x + '" y2="' + recommendedPos.y + '" vector-effect="non-scaling-stroke"></line>';
+                trackRouteHintOnce({ poi: recommended.id, mode: 'recommended' });
             } else {
                 lines.innerHTML = '';
             }
@@ -618,12 +700,59 @@
         finalUrl.searchParams.set('zone', zone.id);
         finalUrl.searchParams.set('lng', zone.lng);
         finalUrl.searchParams.set('lat', zone.lat);
-        finalUrl.searchParams.set('style', zone.style || 'tile');
+        var currentStyle = current.get('style');
+        var preferredStyle = (currentStyle === 'planet' || currentStyle === 'tile')
+            ? currentStyle
+            : ((current.has('debug') || current.has('calibrate')) ? (zone.precisionStyle || 'tile') : (zone.style || zone.precisionStyle || 'tile'));
+        finalUrl.searchParams.set('style', preferredStyle);
         finalUrl.searchParams.set('zoom', zone.zoom || 16);
         finalUrl.searchParams.set('sector', state.sector || current.get('sector') || 'turismo');
         finalUrl.searchParams.set('refresh', String(Date.now()));
         cleanIrrelevantConfig(finalUrl.searchParams);
         return finalUrl;
+    }
+
+    function switchViewStyle(style) {
+        var allowed = style === 'planet' ? 'planet' : 'tile';
+        var params = getParams();
+        params.set('style', allowed);
+        params.set('refresh', String(Date.now()));
+        trackMaquetaEvent('view_style_changed', {
+            style: allowed,
+            viewMode: allowed === 'planet' ? 'presentation' : 'precision'
+        });
+        window.location.href = './maqueta-viva-torrevieja?' + params.toString();
+    }
+
+    function requestUserLocation() {
+        trackMaquetaEvent('geolocation_requested', {});
+        if (!navigator.geolocation) {
+            state.userLocation.status = 'denied';
+            trackMaquetaEvent('geolocation_denied', { reason: 'unsupported' });
+            showToast('Geolocalizacion no disponible. Se mantiene referencia de exploracion.');
+            renderOrientationLayer();
+            return;
+        }
+        showToast('Solicitando permiso de ubicacion para esta sesion.');
+        navigator.geolocation.getCurrentPosition(function (position) {
+            state.userLocation.status = 'allowed';
+            state.userLocation.lng = position.coords.longitude;
+            state.userLocation.lat = position.coords.latitude;
+            trackMaquetaEvent('geolocation_allowed', {
+                accuracy: position.coords.accuracy
+            });
+            showToast('Ubicacion de sesion activada. No se guarda en localStorage.');
+            renderOrientationLayer();
+        }, function (err) {
+            state.userLocation.status = 'denied';
+            trackMaquetaEvent('geolocation_denied', { code: err && err.code });
+            showToast('Permiso denegado. Seguimos con referencia de exploracion.');
+            renderOrientationLayer();
+        }, {
+            enableHighAccuracy: false,
+            timeout: 7000,
+            maximumAge: 60000
+        });
     }
 
     function applyZonePreset(zoneId, source, ev) {
@@ -761,6 +890,9 @@
         var routeLabel = $('status-route');
         var contextZoneName = $('context-zone-name');
         var contextZoneCalibration = $('context-zone-calibration');
+        var contextZoneViewMode = $('context-zone-view-mode');
+        var tileButton = $('view-mode-tile');
+        var planetButton = $('view-mode-planet');
         var routeCounterSide = $('route-counter-side');
         var zoneSwitcherLabel = $('maqueta-zone-switcher-label');
         var markerTitle = $('zone-proof-title');
@@ -780,10 +912,13 @@
         if (routeLabel) routeLabel.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS;
         if (contextZoneName) contextZoneName.textContent = zone ? zone.name : 'Sin zona';
         if (contextZoneCalibration) contextZoneCalibration.textContent = calibrationStatus + (calibrationStatus === 'Aproximada' ? ' v0.2' : '');
+        if (contextZoneViewMode) contextZoneViewMode.textContent = style === 'planet' ? 'Vista planet: presentacion visual' : 'Vista plana: precision territorial';
+        if (tileButton) tileButton.classList.toggle('active', style === 'tile');
+        if (planetButton) planetButton.classList.toggle('active', style === 'planet');
         if (routeCounterSide) routeCounterSide.textContent = state.route.length + '/' + MAX_ROUTE_ITEMS + ' lugares';
         if (zoneSwitcherLabel) zoneSwitcherLabel.textContent = zone ? zone.name : 'Selecciona zona';
         if (markerTitle) markerTitle.textContent = 'Zona activa: ' + (zone ? zone.name : 'Sin zona');
-        if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat;
+        if (markerCopy) markerCopy.textContent = 'Marcador narrativo de zona - ' + getZoneType(zone) + ' - ' + calibrationStatus + ' - ' + lng + ' / ' + lat + ' - ' + (style === 'planet' ? 'vista presentacion' : 'vista precision');
         syncLocationInputs(zone);
         renderPremiumLayer();
         renderOrientationLayer();
@@ -1228,6 +1363,121 @@
         });
     }
 
+    function publicDataApi() {
+        return window.MaquetaVivaPublicData || null;
+    }
+
+    function updatePublicSignals() {
+        var zone = getActiveZone();
+        var api = publicDataApi();
+        var time = $('public-signals-time');
+        var weather = $('public-signals-weather');
+        var beach = $('public-signals-beach');
+        trackMaquetaEvent('public_signals_opened', { zone: zone && zone.id });
+        function chip(label, value, status) {
+            return '<span class="maqueta-signal-chip ' + status + '"><strong>' + label + '</strong><em>' + value + '</em></span>';
+        }
+        if (!api) {
+            if (time) time.innerHTML = chip('Hora local', new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }), 'available');
+            if (weather) weather.innerHTML = chip('Clima', 'pendiente AEMET', 'pending');
+            if (beach) beach.innerHTML = chip('Playa', 'fuente oficial pendiente', 'pending');
+            return;
+        }
+        api.getWeatherContext(zone).then(function (context) {
+            if (time) time.innerHTML = chip('Hora local', context.localTime, 'available');
+            if (weather) weather.innerHTML = chip('Clima', 'pendiente AEMET', 'pending');
+            if (beach) beach.innerHTML = chip('Playa', 'fuente oficial pendiente', 'pending');
+            trackMaquetaEvent('weather_loaded', { zone: zone && zone.id, status: context.metadata && context.metadata.status });
+            if (api.getBeachStatus) {
+                api.getBeachStatus(zone).then(function (beachStatus) {
+                    if (beach && beachStatus && beachStatus.message) beach.innerHTML = chip('Playa', 'fuente oficial pendiente', 'pending');
+                }).catch(function () {});
+            }
+        }).catch(function (err) {
+            if (weather) weather.innerHTML = chip('Clima', 'fallback local', 'pending');
+            if (beach) beach.innerHTML = chip('Playa', 'fuente oficial pendiente', 'pending');
+            trackMaquetaEvent('weather_failed', { zone: zone && zone.id, error: err.message });
+        });
+    }
+
+    function renderPublicSources() {
+        var api = publicDataApi();
+        if (!api) {
+            openPremiumModal('Fuentes publicas', 'Conector de datos publicos no disponible. Fallback local activo.', 'public_sources_opened', {});
+            return;
+        }
+        api.getAttribution().then(function (data) {
+            var names = (data.registry.sources || []).map(function (source) {
+                return source.name + ' [' + source.status + ']';
+            }).join(' · ');
+            openPremiumModal('Fuentes publicas y atribuciones', data.text + ' Fuentes: ' + names, 'public_sources_opened', { total: (data.registry.sources || []).length });
+        });
+    }
+
+    function renderPublicPois() {
+        var zone = getActiveZone();
+        var list = $('public-pois-list');
+        var api = publicDataApi();
+        if (!list) return;
+        list.innerHTML = '<p>Buscando con fallback local...</p>';
+        if (!api) {
+            list.innerHTML = '<p>Conector no disponible. Fallback local activo.</p>';
+            return;
+        }
+        api.getPublicPois(zone).then(function (result) {
+            list.innerHTML = '';
+            var pois = result.pois || [];
+            if (!pois.length) {
+                list.innerHTML = '<p>No hay POIs publicos disponibles. Fallback local activo.</p>';
+                return;
+            }
+            pois.slice(0, 6).forEach(function (poi) {
+                var item = document.createElement('article');
+                item.className = 'maqueta-public-poi-card';
+                item.innerHTML = '<strong>' + poi.title + '</strong><span>' + poi.category + '</span><p>' + poi.description + '</p><button type="button">Anadir como sugerencia</button>';
+                item.querySelector('button').addEventListener('click', function () {
+                    trackMaquetaEvent('public_poi_suggestion_clicked', { poi: poi.id, zone: zone && zone.id, sourceStatus: poi.sourceStatus });
+                    showToast('Sugerencia publica guardada como frontend demo. Requiere revision editorial.');
+                });
+                list.appendChild(item);
+            });
+        }).catch(function (err) {
+            list.innerHTML = '<p>POIs publicos no disponibles. Fallback local activo.</p>';
+            trackMaquetaEvent('public_pois_failed', { zone: zone && zone.id, error: err.message });
+        });
+    }
+
+    function renderImmersiveLinks(zone) {
+        var list = $('immersive-links-list');
+        var api = publicDataApi();
+        if (!list) return;
+        list.innerHTML = '';
+        if (!api) return;
+        api.getImmersiveLinks(zone).then(function (result) {
+            var links = result.links || [];
+            if (!links.length) {
+                list.innerHTML = '<p>Experiencias inmersivas preparadas para integracion.</p>';
+                return;
+            }
+            links.slice(0, 4).forEach(function (link) {
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'maqueta-immersive-link';
+                button.textContent = link.title + ' · ' + link.type;
+                button.addEventListener('click', function () {
+                    var eventName = link.type === 'gaussian-splat' ? 'gaussian_splat_requested' : link.type === 'drone-video' ? 'drone_view_requested' : link.type === 'virtual-museum' ? 'virtual_museum_requested' : 'immersive_link_opened';
+                    trackMaquetaEvent(eventName, { id: link.id, type: link.type, status: link.status });
+                    if (link.url) {
+                        window.open(link.url, '_blank', 'noopener');
+                    } else {
+                        showToast('Experiencia inmersiva preparada para integracion. URL pendiente.');
+                    }
+                });
+                list.appendChild(button);
+            });
+        });
+    }
+
     function renderPremiumLayer() {
         var zone = getActiveZone();
         if (!zone) return;
@@ -1239,9 +1489,13 @@
         var mediaCopy = $('immersive-media-copy');
         var podcastCopy = $('podcast-copy');
         var sponsoredList = $('sponsored-list');
+        var sourcesStatus = $('maqueta-public-sources-status');
         if (soundCopy) soundCopy.textContent = sound ? 'Paisaje sonoro: ' + sound.label + '. ' + sound.fallbackText : 'Audio preparado para integracion en esta zona.';
         if (mediaCopy) mediaCopy.textContent = media ? media.description + ' Estado: ' + media.status + '.' : 'Preparado para video 360, drone, streaming o camara en directo.';
         if (podcastCopy) podcastCopy.textContent = story ? story.title + ' ' + story.duration + '. Podcast preparado para locucion.' : 'Podcast preparado para locucion.';
+        if (sourcesStatus) sourcesStatus.textContent = 'Fuentes publicas api-ready. Fallback local activo.';
+        updatePublicSignals();
+        renderImmersiveLinks(zone);
         if (sponsoredList) {
             sponsoredList.innerHTML = '';
             sponsors.forEach(function (sponsor) {
@@ -1363,6 +1617,18 @@
             setInputMode('gesture-ready');
             showToast('Control gestual preparado como arquitectura futura. No se activa camara todavia.');
         });
+        var publicSources = $('maqueta-public-sources-open');
+        if (publicSources) publicSources.addEventListener('click', renderPublicSources);
+        var publicSignals = $('public-signals-refresh');
+        if (publicSignals) publicSignals.addEventListener('click', updatePublicSignals);
+        var publicPois = $('public-pois-load');
+        if (publicPois) publicPois.addEventListener('click', renderPublicPois);
+        var viewTile = $('view-mode-tile');
+        if (viewTile) viewTile.addEventListener('click', function () { switchViewStyle('tile'); });
+        var viewPlanet = $('view-mode-planet');
+        if (viewPlanet) viewPlanet.addEventListener('click', function () { switchViewStyle('planet'); });
+        var userLocation = $('use-my-location');
+        if (userLocation) userLocation.addEventListener('click', requestUserLocation);
         var zoneSwitcher = $('maqueta-zone-switcher');
         if (zoneSwitcher) zoneSwitcher.addEventListener('click', function (ev) {
             ev.preventDefault();
@@ -1422,10 +1688,12 @@
                 soundBtn.textContent = active ? 'Mapa sonoro activo' : 'Activar mapa sonoro';
                 trackMaquetaEvent(active ? 'sound_enabled' : 'sound_disabled', { zone: zone && zone.id });
                 if (active) {
+                    if (sound && sound.audioUrl) trackMaquetaEvent('audio_played', { zone: zone && zone.id, audioUrl: sound.audioUrl });
                     trackMaquetaEvent('soundscape_selected', { zone: zone && zone.id });
                     avatarReact('sound_enabled', { zone: zone && zone.id });
                     showToast(sound ? sound.fallbackText : 'Audio preparado para integracion.');
                 } else {
+                    trackMaquetaEvent('audio_paused', { zone: zone && zone.id });
                     showToast('Mapa sonoro desactivado.');
                 }
             });
@@ -1436,6 +1704,7 @@
                 var zone = getActiveZone();
                 var media = zone && findByZone('immersiveMedia', zone.id);
                 var copy = media && media.url ? media.description : 'Preparado para video 360, drone, streaming o camara en directo.';
+                if (media && media.url) trackMaquetaEvent(media.url.indexOf('http') === 0 ? 'external_immersive_opened' : 'video_played', { zone: zone && zone.id, url: media.url });
                 openPremiumModal(media ? media.title : 'Video / Directo', copy, media && media.type === 'live-stream' ? 'livestream_requested' : 'immersive_video_opened', { zone: zone && zone.id });
                 avatarReact('immersive_video_opened', { zone: zone && zone.id });
             });
@@ -1445,6 +1714,7 @@
             podcastBtn.addEventListener('click', function () {
                 var zone = getActiveZone();
                 var story = zone && findByZone('podcastStories', zone.id);
+                if (story && story.audioUrl) trackMaquetaEvent('podcast_played', { zone: zone && zone.id, audioUrl: story.audioUrl });
                 openPremiumModal(story ? story.title : 'Escuchar historia', story ? story.transcript + ' Podcast preparado para locucion.' : 'Podcast preparado para locucion.', 'podcast_opened', { zone: zone && zone.id });
                 trackMaquetaEvent('story_transcript_opened', { zone: zone && zone.id });
                 avatarReact('podcast_opened', { zone: zone && zone.id });
@@ -1520,7 +1790,7 @@
         params.set('zone', zone.id);
         params.set('lng', zone.lng);
         params.set('lat', zone.lat);
-        params.set('style', zone.style || 'tile');
+        params.set('style', params.get('style') || ((params.has('debug') || params.has('calibrate')) ? (zone.precisionStyle || 'tile') : (zone.style || zone.precisionStyle || 'tile')));
         if (!params.has('sector')) params.set('sector', config.defaultView.sector || 'turismo');
         params.set('refresh', String(Date.now()));
         window.location.replace('./maqueta-viva-torrevieja?' + params.toString());

@@ -8,7 +8,10 @@
     "lat": 37.9787,
     "style": "tile",
     "zone": "centro",
-    "sector": "turismo"
+    "sector": "turismo",
+    "viewMode": "precision",
+    "precisionStyle": "tile",
+    "presentationStyle": "planet"
   },
   "brand": {
     "primary": "#07131d",
@@ -36,7 +39,38 @@
       "screenPosition": {
         "x": 52,
         "y": 48
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "centro-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/centro.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/centro-urbano.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "centro-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Centro urbano",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "puerto",
@@ -57,7 +91,38 @@
       "screenPosition": {
         "x": 46,
         "y": 58
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "puerto-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/puerto.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/puerto-marina.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "puerto-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Puerto / Marina",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "frente-maritimo",
@@ -78,7 +143,39 @@
       "screenPosition": {
         "x": 58,
         "y": 56
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "frente-maritimo-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/frente-maritimo.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "frente-maritimo-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Frente maritimo",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative",
+      "defaultStyleNote": "tile is the precision view; planet remains available as presentation mode."
     },
     {
       "id": "parque-naciones",
@@ -99,7 +196,38 @@
       "screenPosition": {
         "x": 54,
         "y": 42
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "parque-naciones-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/parque-naciones.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/parque-naciones.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "parque-naciones-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Parque de las Naciones",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "salinas",
@@ -120,7 +248,39 @@
       "screenPosition": {
         "x": 48,
         "y": 46
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "salinas-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/salinas.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/salinas.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "salinas-drone-or-360",
+          "type": "drone-video",
+          "title": "Recorrido inmersivo Salinas / entorno natural",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative",
+      "defaultStyleNote": "tile is the precision view; planet remains available as presentation mode."
     },
     {
       "id": "zona-comercial",
@@ -141,7 +301,38 @@
       "screenPosition": {
         "x": 55,
         "y": 50
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "zona-comercial-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/zona-comercial.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/zona-comercial.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "zona-comercial-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Zona comercial",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "approximate",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "torre-del-moro",
@@ -153,7 +344,7 @@
       "sector": "Patrimonio / Turismo",
       "type": "Patrimonio historico",
       "calibrationStatus": "manual-review",
-      "zoom": 17,
+      "zoom": 16,
       "heroImage": "./asset/maqueta-viva/placeholders/torre-del-moro.svg",
       "gallery": [
         "./asset/maqueta-viva/placeholders/torre-del-moro.svg"
@@ -162,7 +353,38 @@
       "screenPosition": {
         "x": 42,
         "y": 40
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "torre-del-moro-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/torre-del-moro.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/torre-del-moro.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "torre-del-moro-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Torre del Moro",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "plaza-iglesia",
@@ -171,7 +393,7 @@
       "lng": -0.6823,
       "lat": 37.9786,
       "style": "tile",
-      "zoom": 17,
+      "zoom": 16,
       "sector": "Turismo / Patrimonio / Smart City",
       "type": "Centro historico / Patrimonio urbano",
       "calibrationStatus": "manual-review",
@@ -183,7 +405,38 @@
       "screenPosition": {
         "x": 50,
         "y": 44
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "plaza-iglesia-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/plaza-iglesia.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/plaza-iglesia.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "plaza-iglesia-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Plaza de la Iglesia / Plaza de la Constitucion",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     },
     {
       "id": "centro-la-mata",
@@ -204,7 +457,38 @@
       "screenPosition": {
         "x": 56,
         "y": 48
-      }
+      },
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "centro-la-mata-zone-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/zones/centro-la-mata.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/centro-la-mata.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "centro-la-mata-drone-or-360",
+          "type": "360-tour",
+          "title": "Recorrido inmersivo Centro de La Mata / Plaza del Embarcadero",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "viewMode": "precision",
+      "precisionStyle": "tile",
+      "presentationStyle": "planet",
+      "screenPositionStatus": "narrative"
     }
   ],
   "pois": [
@@ -222,7 +506,40 @@
         "x": 42,
         "y": 58
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "puerto-marina-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/puerto-marina.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/puerto-marina.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "puerto-marina-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Puerto / Marina",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6868,
+      "lat": 37.9691,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "paseo-maritimo",
@@ -238,7 +555,40 @@
         "x": 62,
         "y": 56
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "paseo-maritimo-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/frente-maritimo.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "paseo-maritimo-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Paseo maritimo",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6747,
+      "lat": 37.9731,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "centro-urbano",
@@ -254,7 +604,40 @@
         "x": 48,
         "y": 48
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "centro-urbano-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/centro-urbano.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/centro-urbano.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "centro-urbano-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Centro urbano",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6822,
+      "lat": 37.9787,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "parque-naciones",
@@ -270,7 +653,40 @@
         "x": 56,
         "y": 40
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "parque-naciones-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/parque-naciones.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/parque-naciones.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "parque-naciones-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Parque de las Naciones",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6902,
+      "lat": 37.9823,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "salinas",
@@ -286,7 +702,40 @@
         "x": 50,
         "y": 42
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "salinas-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/salinas.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/salinas.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "salinas-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Salinas",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.7208,
+      "lat": 38.0124,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "zona-comercial",
@@ -302,7 +751,40 @@
         "x": 58,
         "y": 50
       },
-      "accessType": "sponsored"
+      "accessType": "sponsored",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "zona-comercial-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/zona-comercial.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/zona-comercial.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "zona-comercial-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Zona comercial",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6994,
+      "lat": 37.9861,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "frente-costero",
@@ -318,7 +800,40 @@
         "x": 64,
         "y": 54
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "frente-costero-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/frente-maritimo.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/frente-maritimo.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "frente-costero-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Frente costero",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6747,
+      "lat": 37.9731,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "torre-del-moro",
@@ -334,7 +849,40 @@
         "x": 38,
         "y": 38
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "torre-del-moro-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/torre-del-moro.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/torre-del-moro.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "torre-del-moro-immersive",
+          "type": "gaussian-splat",
+          "title": "Experiencia inmersiva Torre del Moro",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6604,
+      "lat": 37.9897,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "plaza-iglesia",
@@ -350,7 +898,40 @@
         "x": 50,
         "y": 42
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "plaza-iglesia-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/plaza-iglesia.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/plaza-iglesia.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "plaza-iglesia-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Plaza de la Iglesia / Plaza de la Constitucion",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6823,
+      "lat": 37.9786,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     },
     {
       "id": "centro-la-mata",
@@ -366,7 +947,40 @@
         "x": 58,
         "y": 46
       },
-      "accessType": "public"
+      "accessType": "public",
+      "wikidataId": null,
+      "commonsCategory": null,
+      "externalLinks": [],
+      "mediaAssets": [
+        {
+          "id": "centro-la-mata-image-local",
+          "type": "image",
+          "url": "./asset/maqueta-viva/media/pois/centro-la-mata.jpg",
+          "status": "local-real-ready",
+          "fallbackUrl": "./asset/maqueta-viva/placeholders/centro-la-mata.svg",
+          "license": "manual-review",
+          "attribution": "Pendiente si Juanma sube asset real"
+        }
+      ],
+      "immersiveLinks": [
+        {
+          "id": "centro-la-mata-immersive",
+          "type": "external-immersive-web",
+          "title": "Experiencia inmersiva Centro de La Mata / Plaza del Embarcadero",
+          "url": null,
+          "source": "manual",
+          "license": "manual-review",
+          "status": "placeholder",
+          "openMode": "external"
+        }
+      ],
+      "sourceStatus": "curated",
+      "lng": -0.6549,
+      "lat": 38.0263,
+      "geoStatus": "manual-review",
+      "coordinateSource": "zone-preset",
+      "screenPositionStatus": "narrative",
+      "positionTruth": "Real coordinates are stored when available; current overlay position is narrative until a projection layer is implemented."
     }
   ],
   "sectors": [
@@ -459,7 +1073,9 @@
       "description": "Pasos, plaza, comercio y vida mediterranea.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: pasos, plaza, comercio y vida mediterranea.",
-      "mood": "urbano-calido"
+      "mood": "urbano-calido",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/centro-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "puerto",
@@ -467,7 +1083,9 @@
       "description": "Mar, gaviotas, amarres y actividad nautica.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: mar, gaviotas, amarres y actividad nautica.",
-      "mood": "maritimo-activo"
+      "mood": "maritimo-activo",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/puerto-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "frente-maritimo",
@@ -475,7 +1093,9 @@
       "description": "Olas, paseo y terrazas suaves.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: olas, paseo y terrazas suaves.",
-      "mood": "costero-suave"
+      "mood": "costero-suave",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/frente-maritimo-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "salinas",
@@ -483,7 +1103,9 @@
       "description": "Viento, aves, silencio natural y paisaje abierto.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: viento, aves, silencio natural y paisaje abierto.",
-      "mood": "natural-contemplativo"
+      "mood": "natural-contemplativo",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/salinas-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "torre-del-moro",
@@ -491,7 +1113,9 @@
       "description": "Viento, mirador, historia costera y memoria defensiva.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: viento, mirador, historia costera y memoria defensiva.",
-      "mood": "historico-costero"
+      "mood": "historico-costero",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/torre-del-moro-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "plaza-iglesia",
@@ -499,7 +1123,9 @@
       "description": "Campanas suaves, plaza, pasos y vida civica.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: campanas suaves, plaza, pasos y vida civica.",
-      "mood": "civico-patrimonial"
+      "mood": "civico-patrimonial",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/plaza-iglesia-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "centro-la-mata",
@@ -507,7 +1133,9 @@
       "description": "Mar, paseo, embarcadero y ambiente de pedania costera.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: mar, paseo, embarcadero y ambiente de pedania costera.",
-      "mood": "pedania-costera"
+      "mood": "pedania-costera",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/centro-la-mata-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "zone": "zona-comercial",
@@ -515,16 +1143,20 @@
       "description": "Actividad urbana, escaparates y flujo comercial suave.",
       "audioUrl": null,
       "fallbackText": "Audio preparado para integracion: actividad urbana, escaparates y flujo comercial suave.",
-      "mood": "retail-suave"
+      "mood": "retail-suave",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/zona-comercial-soundscape.mp3",
+      "assetStatus": "local-real-ready"
     },
-        {
-            "zone": "parque-naciones",
-            "label": "Parque urbano familiar",
-            "description": "Aves, pasos suaves, agua, familias y respiro verde.",
-            "audioUrl": null,
-            "fallbackText": "Audio preparado para integracion: aves, pasos suaves, agua, familias y respiro verde.",
-            "mood": "verde-familiar"
-        }
+    {
+      "zone": "parque-naciones",
+      "label": "Parque urbano familiar",
+      "description": "Aves, pasos suaves, agua, familias y respiro verde.",
+      "audioUrl": null,
+      "fallbackText": "Audio preparado para integracion: aves, pasos suaves, agua, familias y respiro verde.",
+      "mood": "verde-familiar",
+      "localAudioCandidate": "./asset/maqueta-viva/media/audio/parque-naciones-soundscape.mp3",
+      "assetStatus": "local-real-ready"
+    }
   ],
   "immersiveMedia": [
     {
@@ -534,7 +1166,9 @@
       "title": "Salinas en directo",
       "description": "Preparado para camara en directo futura de naturaleza.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/salinas-video.mp4",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "mata-video-future",
@@ -543,7 +1177,9 @@
       "title": "La Mata: playa, embarcadero y paseo",
       "description": "Preparado para video costero, paseo y embarcadero.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/centro-la-mata-video.mp4",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "torre-drone-future",
@@ -552,7 +1188,9 @@
       "title": "Mirador Torre del Moro",
       "description": "Preparado para pieza drone o mirador inmersivo.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/torre-del-moro-drone.mp4",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "plaza-historica-future",
@@ -561,7 +1199,9 @@
       "title": "Recorrido historico urbano",
       "description": "Preparado para pieza historica o recorrido urbano.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/plaza-iglesia-video.mp4",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "puerto-nautico-future",
@@ -570,7 +1210,9 @@
       "title": "Puerto nautico",
       "description": "Preparado para video nautico y actividad de marina.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/puerto-video.mp4",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "retail-campaign-future",
@@ -579,7 +1221,9 @@
       "title": "Campana retail local",
       "description": "Preparado para video retail, escaparates o campana comercial.",
       "url": null,
-      "status": "placeholder"
+      "status": "placeholder",
+      "localVideoCandidate": "./asset/maqueta-viva/media/video/zona-comercial-video.mp4",
+      "assetStatus": "local-real-ready"
     }
   ],
   "podcastStories": [
@@ -590,7 +1234,9 @@
       "duration": "2 min",
       "description": "Relato breve sobre vida civica, comercio y patrimonio urbano.",
       "audioUrl": null,
-      "transcript": "La plaza funciona como punto de encuentro del centro urbano: iglesia, comercio, pasos cotidianos y memoria compartida."
+      "transcript": "La plaza funciona como punto de encuentro del centro urbano: iglesia, comercio, pasos cotidianos y memoria compartida.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/plaza-iglesia-podcast.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "torre-memoria",
@@ -599,7 +1245,9 @@
       "duration": "2 min",
       "description": "Historia preparada para locucion sobre costa y patrimonio defensivo.",
       "audioUrl": null,
-      "transcript": "La Torre del Moro mira al Mediterraneo como huella defensiva y mirador de la ciudad contemporanea."
+      "transcript": "La Torre del Moro mira al Mediterraneo como huella defensiva y mirador de la ciudad contemporanea.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/torre-del-moro-podcast.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "mata-pedania",
@@ -608,7 +1256,9 @@
       "duration": "2 min",
       "description": "Historia de La Mata como enclave costero y local.",
       "audioUrl": null,
-      "transcript": "La Mata une playa, embarcadero, paseo y vida local en una escala mas cercana y marinera."
+      "transcript": "La Mata une playa, embarcadero, paseo y vida local en una escala mas cercana y marinera.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/centro-la-mata-podcast.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "salinas-identidad",
@@ -617,7 +1267,9 @@
       "duration": "2 min",
       "description": "Relato natural preparado para locucion.",
       "audioUrl": null,
-      "transcript": "Las salinas abren el territorio: viento, aves, color y silencio como identidad natural de Torrevieja."
+      "transcript": "Las salinas abren el territorio: viento, aves, color y silencio como identidad natural de Torrevieja.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/salinas-podcast.mp3",
+      "assetStatus": "local-real-ready"
     },
     {
       "id": "puerto-azul",
@@ -626,44 +1278,54 @@
       "duration": "2 min",
       "description": "Relato nautico y turistico del puerto.",
       "audioUrl": null,
-      "transcript": "El puerto es una puerta azul: llegada, paseo, amarres, restaurantes y energia mediterranea."
+      "transcript": "El puerto es una puerta azul: llegada, paseo, amarres, restaurantes y energia mediterranea.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/puerto-podcast.mp3",
+      "assetStatus": "local-real-ready"
     },
-        {
-            "id": "centro-story",
-            "zone": "centro",
-            "title": "El pulso urbano de Torrevieja",
-            "duration": "2 min",
-            "description": "Relato narrativo preparado para locucion sobre ciudad, comercio y vida local.",
-            "audioUrl": null,
-            "transcript": "El centro urbano concentra el pulso cotidiano de Torrevieja: servicios, comercio, plazas y recorridos que ayudan al visitante a entender la ciudad antes de caminarla."
-        },
-        {
-            "id": "frente-maritimo-story",
-            "zone": "frente-maritimo",
-            "title": "El paseo junto al Mediterraneo",
-            "duration": "2 min",
-            "description": "Relato narrativo preparado para locucion sobre costa, paseo y memoria turistica.",
-            "audioUrl": null,
-            "transcript": "El frente maritimo convierte la ciudad en una secuencia de paseo, brisa, terrazas y recuerdo. Es una capa emocional para hoteles, turismo y experiencias de atardecer."
-        },
-        {
-            "id": "parque-naciones-story",
-            "zone": "parque-naciones",
-            "title": "El respiro verde de la ciudad",
-            "duration": "2 min",
-            "description": "Relato narrativo preparado para locucion sobre familia, descanso y activaciones culturales.",
-            "audioUrl": null,
-            "transcript": "El Parque de las Naciones funciona como pausa verde y punto amable dentro del recorrido urbano: un lugar para familias, descanso y activaciones culturales."
-        },
-        {
-            "id": "zona-comercial-story",
-            "zone": "zona-comercial",
-            "title": "El flujo comercial y los escaparates",
-            "duration": "2 min",
-            "description": "Relato narrativo preparado para locucion sobre flujos, compras y conversion territorial.",
-            "audioUrl": null,
-            "transcript": "La zona comercial permite leer flujos, escaparates y oportunidades de conversion. Es el puente entre territorio, visita y accion comercial."
-        }
+    {
+      "id": "centro-story",
+      "zone": "centro",
+      "title": "El pulso urbano de Torrevieja",
+      "duration": "2 min",
+      "description": "Relato narrativo preparado para locucion sobre ciudad, comercio y vida local.",
+      "audioUrl": null,
+      "transcript": "El centro urbano concentra el pulso cotidiano de Torrevieja: servicios, comercio, plazas y recorridos que ayudan al visitante a entender la ciudad antes de caminarla.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/centro-podcast.mp3",
+      "assetStatus": "local-real-ready"
+    },
+    {
+      "id": "frente-maritimo-story",
+      "zone": "frente-maritimo",
+      "title": "El paseo junto al Mediterraneo",
+      "duration": "2 min",
+      "description": "Relato narrativo preparado para locucion sobre costa, paseo y memoria turistica.",
+      "audioUrl": null,
+      "transcript": "El frente maritimo convierte la ciudad en una secuencia de paseo, brisa, terrazas y recuerdo. Es una capa emocional para hoteles, turismo y experiencias de atardecer.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/frente-maritimo-podcast.mp3",
+      "assetStatus": "local-real-ready"
+    },
+    {
+      "id": "parque-naciones-story",
+      "zone": "parque-naciones",
+      "title": "El respiro verde de la ciudad",
+      "duration": "2 min",
+      "description": "Relato narrativo preparado para locucion sobre familia, descanso y activaciones culturales.",
+      "audioUrl": null,
+      "transcript": "El Parque de las Naciones funciona como pausa verde y punto amable dentro del recorrido urbano: un lugar para familias, descanso y activaciones culturales.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/parque-naciones-podcast.mp3",
+      "assetStatus": "local-real-ready"
+    },
+    {
+      "id": "zona-comercial-story",
+      "zone": "zona-comercial",
+      "title": "El flujo comercial y los escaparates",
+      "duration": "2 min",
+      "description": "Relato narrativo preparado para locucion sobre flujos, compras y conversion territorial.",
+      "audioUrl": null,
+      "transcript": "La zona comercial permite leer flujos, escaparates y oportunidades de conversion. Es el puente entre territorio, visita y accion comercial.",
+      "localAudioCandidate": "./asset/maqueta-viva/media/podcast/zona-comercial-podcast.mp3",
+      "assetStatus": "local-real-ready"
+    }
   ],
   "sponsoredPlaces": [
     {
@@ -748,5 +1410,33 @@
       "zona-comercial",
       "centro-la-mata"
     ]
+  },
+  "publicData": {
+    "enabled": false,
+    "providers": {
+      "osm": {
+        "enabled": false,
+        "radiusMeters": 750
+      },
+      "wikidata": {
+        "enabled": false
+      },
+      "commons": {
+        "enabled": false
+      }
+    },
+    "notes": "Public providers are disabled by default. The app must always work with local fallback."
+  },
+  "publicSignals": {
+    "enabled": true,
+    "weather": {
+      "provider": "aemet-opendata",
+      "status": "api-ready",
+      "requiresKey": true
+    },
+    "beaches": {
+      "provider": "manual/public-api-ready",
+      "status": "manual-review"
+    }
   }
 }
