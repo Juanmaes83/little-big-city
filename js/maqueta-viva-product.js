@@ -220,7 +220,7 @@
         params.set('sector', state.sector || params.get('sector') || 'turismo');
         params.set('calibrate', '1');
         params.set('refresh', String(Date.now()));
-        return new URL('./maqueta-viva-torrevieja?' + params.toString(), window.location.href).toString();
+        return new URL('./maqueta-viva-torrevieja.html?' + params.toString(), window.location.href).toString();
     }
 
     function selectedCalibrationZone() {
@@ -691,7 +691,7 @@
     }
 
     function buildZoneUrl(zone) {
-        var finalUrl = new URL('./maqueta-viva-torrevieja', window.location.href);
+        var finalUrl = new URL('./maqueta-viva-torrevieja.html', window.location.href);
         var current = new URLSearchParams(window.location.search);
         ['route', 'debug', 'calibrate', 'analytics', 'view'].forEach(function (key) {
             if (current.has(key)) finalUrl.searchParams.set(key, current.get(key));
@@ -721,7 +721,7 @@
             style: allowed,
             viewMode: allowed === 'planet' ? 'presentation' : 'precision'
         });
-        window.location.href = './maqueta-viva-torrevieja?' + params.toString();
+        window.location.href = './maqueta-viva-torrevieja.html?' + params.toString();
     }
 
     function requestUserLocation() {
@@ -810,7 +810,7 @@
             finalUrl.searchParams.delete('view');
         }
         cleanIrrelevantConfig(finalUrl.searchParams);
-        return './maqueta-viva-torrevieja?' + finalUrl.searchParams.toString();
+        return './maqueta-viva-torrevieja.html?' + finalUrl.searchParams.toString();
     }
 
     function makeAbsoluteExperienceUrl() {
@@ -1673,7 +1673,7 @@
             params.set('zoom', String(next));
             params.set('refresh', String(Date.now()));
             trackMaquetaEvent('zoom_changed', { zoom: next, reset: !!reset });
-            window.location.href = './maqueta-viva-torrevieja?' + params.toString();
+            window.location.href = './maqueta-viva-torrevieja.html?' + params.toString();
         }
         if (zoomMinus) zoomMinus.addEventListener('click', function () { updateZoom(-1, false); });
         if (zoomPlus) zoomPlus.addEventListener('click', function () { updateZoom(1, false); });
@@ -1793,7 +1793,7 @@
         params.set('style', params.get('style') || ((params.has('debug') || params.has('calibrate')) ? (zone.precisionStyle || 'tile') : (zone.style || zone.precisionStyle || 'tile')));
         if (!params.has('sector')) params.set('sector', config.defaultView.sector || 'turismo');
         params.set('refresh', String(Date.now()));
-        window.location.replace('./maqueta-viva-torrevieja?' + params.toString());
+        window.location.replace('./maqueta-viva-torrevieja.html?' + params.toString());
         return true;
     }
 

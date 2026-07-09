@@ -287,6 +287,28 @@ Estados recomendados:
 
 Esta capa queda registrada como roadmap. No esta implementada en v0.4.
 
+## Integracion Director de Orquesta / Gesture Bridge
+
+Maqueta Viva 3D queda preparada como receptor de intenciones dentro del ecosistema Rubik Sota. Director de Orquesta orquesta, Map Gesture Controls interpreta gestos en Living Map/Batuta y Maqueta Viva representa la ciudad 3D.
+
+La integracion se hara por contrato, no por acoplamiento directo al motor. Los gestos no deben manipular `lng`, `lat`, Maptalks, Nextzen, ClayGL, WebGL, `src/main.js` ni `dist/bundle.js`.
+
+Archivos clave:
+
+```text
+docs/MAQUETA_VIVA_INPUT_CONTRACT.md
+docs/public-data-sources.md
+js/maqueta-viva-input-controller.js
+```
+
+URL publica:
+
+```text
+https://juanmaes83.github.io/little-big-city/maqueta-viva-torrevieja.html
+```
+
+El controlador expone `window.MaquetaVivaInputController` con `dispatchIntent(intent)`, `getAvailableIntents()`, `getState()` y `setInputMode(mode)`. Si una accion de UI no existe, falla con `console.warn` y evento `maqueta:intent_failed`; no rompe la experiencia ni toca el motor.
+
 
 ## Nota v0.2.2 - prueba visual de zonas
 
