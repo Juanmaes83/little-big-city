@@ -62,3 +62,4 @@ typings/
 
 
 dist/bundle.js.map
+qa-output/
