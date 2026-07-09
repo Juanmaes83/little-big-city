@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack --mode development --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "qa:maqueta-ui": "node scripts/qa-maqueta-viva-ui.cjs"
   },
   "dependencies": {
     "@mapbox/vector-tile": "^1.3.1",

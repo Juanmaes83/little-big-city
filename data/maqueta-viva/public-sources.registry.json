@@ -1,0 +1,102 @@
+{
+  "version": "0.3.2",
+  "updatedAt": "2026-07-09",
+  "sources": [
+    {
+      "id": "osm-overpass",
+      "name": "OpenStreetMap Overpass",
+      "type": "public-poi",
+      "status": "api-ready",
+      "endpoint": "https://overpass-api.de/api/interpreter",
+      "license": "ODbL / OpenStreetMap contributors",
+      "requiresKey": false,
+      "allowedUse": "POIs y geometria publica con atribucion.",
+      "risk": "Rate limits, datos comunitarios incompletos y disponibilidad variable.",
+      "fallback": "data/maqueta-viva/torrevieja.config.json"
+    },
+    {
+      "id": "wikidata",
+      "name": "Wikidata",
+      "type": "structured-cultural-data",
+      "status": "api-ready",
+      "endpoint": "https://www.wikidata.org/wiki/Special:EntityData/",
+      "license": "CC0",
+      "requiresKey": false,
+      "allowedUse": "Datos estructurados, identificadores, coordenadas y enlaces verificables.",
+      "risk": "Cobertura desigual y necesidad de validar QIDs antes de mostrarlos como oficiales.",
+      "fallback": "Metadatos curados locales en torrevieja.config.json"
+    },
+    {
+      "id": "wikimedia-commons",
+      "name": "Wikimedia Commons",
+      "type": "open-media",
+      "status": "api-ready",
+      "endpoint": "https://commons.wikimedia.org/w/api.php",
+      "license": "Variable por archivo; requiere attribution/licencia/sourceUrl",
+      "requiresKey": false,
+      "allowedUse": "Imagenes, audio y video con licencia libre verificada.",
+      "risk": "No todo el contenido es usable sin revisar licencia y atribucion.",
+      "fallback": "asset/maqueta-viva/placeholders/"
+    },
+    {
+      "id": "aemet-opendata",
+      "name": "AEMET OpenData",
+      "type": "weather",
+      "status": "api-ready",
+      "endpoint": "https://opendata.aemet.es/",
+      "license": "AEMET OpenData; revisar condiciones y atribucion",
+      "requiresKey": true,
+      "allowedUse": "Tiempo, viento, cielo, avisos y prediccion si se configura clave.",
+      "risk": "Requiere API key; no debe hardcodearse en frontend.",
+      "fallback": "Hora local y estado preparado para integracion."
+    },
+    {
+      "id": "datos-gob-es",
+      "name": "datos.gob.es",
+      "type": "official-datasets-index",
+      "status": "manual-review",
+      "endpoint": "https://datos.gob.es/es/apidata",
+      "license": "Variable por dataset",
+      "requiresKey": false,
+      "allowedUse": "Busqueda de datasets oficiales sobre turismo, cultura, movilidad, medio ambiente y playas.",
+      "risk": "Cada dataset requiere revisar formato, licencia y actualizacion.",
+      "fallback": "Registro local y carga manual curada."
+    },
+    {
+      "id": "beach-status-api-ready",
+      "name": "Estado playas / banderas",
+      "type": "beach-status",
+      "status": "manual-review",
+      "endpoint": null,
+      "license": "Pendiente de fuente oficial",
+      "requiresKey": null,
+      "allowedUse": "Bandera, estado de mar, servicios y condiciones si existe fuente oficial clara.",
+      "risk": "No inventar bandera, ocupacion ni estado de playa.",
+      "fallback": "Estado pendiente de fuente oficial."
+    },
+    {
+      "id": "local-assets",
+      "name": "Assets propios Maqueta Viva",
+      "type": "local-media",
+      "status": "local-fallback",
+      "endpoint": "asset/maqueta-viva/media/",
+      "license": "Propia/manual-review segun asset",
+      "requiresKey": false,
+      "allowedUse": "Imagenes, audio, podcast, video y media inmersiva subidos por Juanma.",
+      "risk": "Cada asset real debe documentar propietario/licencia antes de venderse.",
+      "fallback": "SVG placeholders locales."
+    },
+    {
+      "id": "immersive-links-curated",
+      "name": "Immersive links curated",
+      "type": "immersive-links",
+      "status": "placeholder",
+      "endpoint": null,
+      "license": "Manual-review por enlace",
+      "requiresKey": false,
+      "allowedUse": "Splats, tours 360, drone, museos virtuales y webs inmersivas curadas.",
+      "risk": "No cargar assets pesados por defecto; verificar permisos de iframe/enlace.",
+      "fallback": "Modal placeholder con CTA preparado."
+    }
+  ]
+}

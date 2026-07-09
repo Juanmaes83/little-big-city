@@ -61,23 +61,65 @@ searchItems.forEach(item => {
     const val = arr[1] || true;
     urlOpts[key] = val;
 });
-urlOpts.lng = urlOpts.lng || DEFAULT_LNG;
-urlOpts.lat = urlOpts.lat || DEFAULT_LAT;
+urlOpts.lng = +(urlOpts.lng || DEFAULT_LNG);
+urlOpts.lat = +(urlOpts.lat || DEFAULT_LAT);
+urlOpts.zoom = Math.min(17, Math.max(15, +(urlOpts.zoom || 16)));
+
+const PRESERVED_URL_KEYS = ['debug', 'calibrate', 'view', 'route', 'sector', 'zoom', 'analytics'];
+const preservedUrlOpts = {};
+const initialMaquetaParams = window.MAQUETA_VIVA_INITIAL_PARAMS || {};
+PRESERVED_URL_KEYS.forEach(key => {
+    if (urlOpts[key] !== undefined && urlOpts[key] !== null && urlOpts[key] !== '') {
+        preservedUrlOpts[key] = urlOpts[key];
+    }
+    else if (initialMaquetaParams[key] !== undefined && initialMaquetaParams[key] !== null && initialMaquetaParams[key] !== '') {
+        preservedUrlOpts[key] = initialMaquetaParams[key];
+    }
+});
+
+const MAQUETA_DEBUG = urlOpts.debug === '1';
+const MAQUETA_ZONE = urlOpts.zone || 'original';
+const MAQUETA_REFRESH = urlOpts.refresh || null;
+const maquetaDebugState = {
+    zone: MAQUETA_ZONE,
+    urlLng: urlOpts.lng,
+    urlLat: urlOpts.lat,
+    style: urlOpts.style || 'planet',
+    zoom: urlOpts.zoom,
+    refresh: MAQUETA_REFRESH,
+    engineLng: urlOpts.lng,
+    engineLat: urlOpts.lat,
+    center: null,
+    tiles: [],
+    lastFetch: null,
+    lastRebuild: null,
+    features: {buildings: 0, roads: 0, water: 0}
+};
 
 function makeUrl() {
+    PRESERVED_URL_KEYS.forEach(key => {
+        if (preservedUrlOpts[key] !== undefined && (urlOpts[key] === undefined || urlOpts[key] === null || urlOpts[key] === '')) {
+            urlOpts[key] = preservedUrlOpts[key];
+        }
+    });
     const diffConfig = {};
     for (let key in config) {
         if (config[key] !== DEFAULT_CONFIG[key]) {
             diffConfig[key] = config[key];
         }
     }
-    urlOpts.config = encodeURIComponent(JSON.stringify(diffConfig));
+    if (Object.keys(diffConfig).length) {
+        urlOpts.config = encodeURIComponent(JSON.stringify(diffConfig));
+    }
+    else {
+        delete urlOpts.config;
+    }
 
     const urlItems = [];
     for (let key in urlOpts) {
         urlItems.push(key + '=' + urlOpts[key]);
     }
-    return './?' + urlItems.join('&');
+    return location.pathname + '?' + urlItems.join('&');
 }
 
 const IS_TILE_STYLE = urlOpts.style === 'tile';
@@ -126,6 +168,39 @@ const actions = {
     }
 };
 
+function logMaqueta(prefix, payload) {
+    console.info(prefix, payload);
+}
+
+function ensureMaquetaDebugPanel() {
+    if (!MAQUETA_DEBUG || document.getElementById('maqueta-engine-debug')) {
+        return;
+    }
+    const panel = document.createElement('section');
+    panel.id = 'maqueta-engine-debug';
+    panel.setAttribute('aria-label', 'Maqueta Viva Engine Debug');
+    panel.innerHTML = '<strong>Maqueta Viva Debug</strong><pre id="maqueta-engine-debug-output"></pre>';
+    document.body.appendChild(panel);
+}
+
+function updateMaquetaDebugPanel() {
+    if (!MAQUETA_DEBUG) {
+        return;
+    }
+    ensureMaquetaDebugPanel();
+    const output = document.getElementById('maqueta-engine-debug-output');
+    if (output) {
+        output.textContent = JSON.stringify(maquetaDebugState, null, 2);
+    }
+}
+
+function featureCounts(features) {
+    return {
+        buildings: features && features.buildings ? features.buildings.length : 0,
+        roads: features && features.roads ? features.roads.length : 0,
+        water: features && features.water ? features.water.length : 0
+    };
+}
 const mvtUrlTpl = `https://tile.nextzen.org/tilezen/vector/v1/${TILE_SIZE}/all/{z}/{x}/{y}.mvt?api_key=EWFsMD1DSEysLDWd2hj2cw`;
 
 const mainLayer = new maptalks.TileLayer('base', {
@@ -137,11 +212,24 @@ const map = new maptalks.Map('map-main', {
     // center: [-0.113049, 51.498568],
     // center: [-73.97332, 40.76462],
     center: [urlOpts.lng, urlOpts.lat],
-    zoom: 16,
+    zoom: urlOpts.zoom,
     baseLayer: mainLayer
 });
-map.setMinZoom(16);
-map.setMaxZoom(16);
+map.setMinZoom(15);
+map.setMaxZoom(17);
+maquetaDebugState.center = map.getCenter().toJSON ? map.getCenter().toJSON() : map.getCenter();
+logMaqueta('[Maqueta Viva Engine]', {
+    event: 'init',
+    zone: MAQUETA_ZONE,
+    urlLng: urlOpts.lng,
+    urlLat: urlOpts.lat,
+    appliedCenter: maquetaDebugState.center,
+    style: urlOpts.style || 'planet',
+    zoom: urlOpts.zoom,
+    refresh: MAQUETA_REFRESH,
+    pathname: location.pathname
+});
+updateMaquetaDebugPanel();
 
 const faces = [
     'pz', 'px', 'nz',
@@ -473,6 +561,22 @@ const app = application.create('#viewport', {
                 elementsNodes[key].removeAll();
             }
 
+            const rebuildCenter = map.getCenter();
+            maquetaDebugState.engineLng = rebuildCenter.x;
+            maquetaDebugState.engineLat = rebuildCenter.y;
+            maquetaDebugState.center = rebuildCenter.toJSON ? rebuildCenter.toJSON() : {x: rebuildCenter.x, y: rebuildCenter.y};
+            maquetaDebugState.lastRebuild = new Date().toISOString();
+            maquetaDebugState.features = {buildings: 0, roads: 0, water: 0};
+            logMaqueta('[Maqueta Viva Engine]', {
+                event: 'updateElements',
+                zone: MAQUETA_ZONE,
+                urlLng: urlOpts.lng,
+                urlLat: urlOpts.lat,
+                center: maquetaDebugState.center,
+                refresh: MAQUETA_REFRESH
+            });
+            updateMaquetaDebugPanel();
+
             for (let key in this._buildingAnimators) {
                 this._buildingAnimators[key].stop();
             }
@@ -562,7 +666,30 @@ const app = application.create('#viewport', {
                 return {boundingRect: poly.boundingRect};
             }
 
-            let tiles = mainLayer.getTiles().tileGrids[0].tiles;
+            const tileState = mainLayer.getTiles && mainLayer.getTiles();
+            const tileGrid = tileState && tileState.tileGrids && tileState.tileGrids[0];
+            let tiles = tileGrid && Array.isArray(tileGrid.tiles) ? tileGrid.tiles : [];
+            if (!tiles.length) {
+                this._tileRetryCount = (this._tileRetryCount || 0) + 1;
+                maquetaDebugState.tiles = [];
+                maquetaDebugState.lastFetch = 'waiting-for-maptalks-tiles';
+                logMaqueta('[Maqueta Viva Tiles]', {
+                    event: 'waiting-for-tiles',
+                    zone: MAQUETA_ZONE,
+                    retry: this._tileRetryCount,
+                    center: maquetaDebugState.center
+                });
+                updateMaquetaDebugPanel();
+                if (this._tileRetryCount <= 16) {
+                    window.setTimeout(() => {
+                        if (app && app.methods && app.methods.updateElements) {
+                            app.methods.updateElements(app);
+                        }
+                    }, 160);
+                }
+                return;
+            }
+            this._tileRetryCount = 0;
             const subdomains = ['a', 'b', 'c'];
             if (IS_TILE_STYLE) {
                 const center = map.getCenter();
@@ -573,6 +700,14 @@ const app = application.create('#viewport', {
                 });
             }
             let loading = Math.min(tiles.length, 6);
+            maquetaDebugState.tiles = tiles.slice(0, 6).map(tile => ({z: tile.z, x: tile.x, y: tile.y}));
+            logMaqueta('[Maqueta Viva Tiles]', {
+                zone: MAQUETA_ZONE,
+                center: maquetaDebugState.center,
+                tileCount: tiles.length,
+                usedTiles: maquetaDebugState.tiles
+            });
+            updateMaquetaDebugPanel();
             tiles.forEach((tile, idx) => {
                 const fetchId = this._id;
                 if (idx >= 6) {
@@ -601,12 +736,33 @@ const app = application.create('#viewport', {
                     .replace('{x}', tile.x)
                     .replace('{y}', tile.y)
                     .replace('{s}', subdomains[idx % 3]);
+                maquetaDebugState.lastFetch = url;
+                logMaqueta('[Maqueta Viva Fetch]', {
+                    event: 'prepare',
+                    zone: MAQUETA_ZONE,
+                    tile: {z: tile.z, x: tile.x, y: tile.y},
+                    url: url
+                });
+                updateMaquetaDebugPanel();
 
                 if (mvtCache.get(url)) {
                     const features = mvtCache.get(url);
+                    const counts = featureCounts(features);
+                    maquetaDebugState.features = counts;
+                    logMaqueta('[Maqueta Viva Geometry]', {
+                        event: 'cache-hit',
+                        zone: MAQUETA_ZONE,
+                        tile: {z: tile.z, x: tile.x, y: tile.y},
+                        features: counts
+                    });
+                    updateMaquetaDebugPanel();
                     for (let key in features) {
+                        const elConfig = vectorElements.find(config => config.type === key);
+                        if (!elConfig || !features[key] || !features[key].length) {
+                            continue;
+                        }
                         createElementMesh(
-                            vectorElements.find(config => config.type === key),
+                            elConfig,
                             features[key],
                             tileRect, idx
                         );
@@ -617,7 +773,12 @@ const app = application.create('#viewport', {
 
                 return fetch(url, {
                     mode: 'cors'
-                }).then(response => response.arrayBuffer())
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('MVT request failed with status ' + response.status);
+                    }
+                    return response.arrayBuffer();
+                })
                     .then(buffer => {
                         if (fetchId !== this._id) {
                             return;
@@ -626,7 +787,13 @@ const app = application.create('#viewport', {
                         const pbf = new Protobuf(new Uint8Array(buffer));
                         const vTile = new VectorTile(pbf);
                         if (!vTile.layers.buildings) {
-                            return;
+                            logMaqueta('[Maqueta Viva Geometry]', {
+                                event: 'no-buildings-layer-continue-with-available-layers',
+                                zone: MAQUETA_ZONE,
+                                tile: {z: tile.z, x: tile.x, y: tile.y},
+                                layers: Object.keys(vTile.layers || {})
+                            });
+                            updateMaquetaDebugPanel();
                         }
 
                         const features = {};
@@ -652,10 +819,11 @@ const app = application.create('#viewport', {
                         });
 
                         if (features.water) {
-                            features.water = [unionComplexPolygons(features.water.filter(feature => {
+                            const waterPolygons = features.water.filter(feature => {
                                 const geoType = feature.geometry && feature.geometry.type;
                                 return geoType === 'Polygon' || geoType === 'MultiPolygon';
-                            }))];
+                            });
+                            features.water = waterPolygons.length ? [unionComplexPolygons(waterPolygons)] : [];
                         }
                         if (features.roads) {
                             features.roads = features.roads.filter(feature => {
@@ -663,11 +831,30 @@ const app = application.create('#viewport', {
                                 return geoType === 'LineString' || geoType === 'MultiLineString';
                             });
                         }
+                        Object.keys(features).forEach(key => {
+                            features[key] = features[key].filter(feature => feature && feature.geometry);
+                            if (!features[key].length) {
+                                delete features[key];
+                            }
+                        });
 
                         mvtCache.set(url, features);
+                        const counts = featureCounts(features);
+                        maquetaDebugState.features = counts;
+                        logMaqueta('[Maqueta Viva Geometry]', {
+                            event: 'features-built',
+                            zone: MAQUETA_ZONE,
+                            tile: {z: tile.z, x: tile.x, y: tile.y},
+                            features: counts
+                        });
+                        updateMaquetaDebugPanel();
                         for (let key in features) {
+                            const elConfig = vectorElements.find(config => config.type === key);
+                            if (!elConfig || !features[key] || !features[key].length) {
+                                continue;
+                            }
                             const {boundingRect} = createElementMesh(
-                                vectorElements.find(config => config.type === key),
+                                elConfig,
                                 features[key],
                                 tileRect, idx
                             );
@@ -681,6 +868,21 @@ const app = application.create('#viewport', {
                             }
                         }
 
+                        app.methods.render();
+                    })
+                    .catch(err => {
+                        loading--;
+                        logMaqueta('[Maqueta Viva Fetch]', {
+                            event: 'tile-fetch-failed',
+                            zone: MAQUETA_ZONE,
+                            tile: {z: tile.z, x: tile.x, y: tile.y},
+                            error: err && err.message ? err.message : String(err)
+                        });
+                        maquetaDebugState.lastFetch = 'tile-fetch-failed: ' + url;
+                        updateMaquetaDebugPanel();
+                        if (IS_TILE_STYLE && loading === 0) {
+                            app.methods.updateEarthGround(allBoundingRect);
+                        }
                         app.methods.render();
                     });
             });
@@ -824,7 +1026,19 @@ function updateAll() {
 }
 
 function updateUrlState() {
-    history.pushState('', '', makeUrl());
+    maquetaDebugState.zone = urlOpts.zone || MAQUETA_ZONE;
+    maquetaDebugState.mode = urlOpts.zone === 'custom' ? 'manual/custom' : 'preset';
+    const nextUrl = makeUrl();
+    logMaqueta('[Maqueta Viva Zone]', {
+        event: 'history-update',
+        zone: urlOpts.zone || MAQUETA_ZONE,
+        lng: urlOpts.lng,
+        lat: urlOpts.lat,
+        style: urlOpts.style || 'planet',
+        zoom: urlOpts.zoom,
+        finalUrl: nextUrl
+    });
+    history.pushState('', '', nextUrl);
 }
 
 let timeout;
@@ -839,6 +1053,8 @@ map.on('moving', function () {
     const center = map.getCenter();
     urlOpts.lng = document.querySelector('#lng').value = center.x;
     urlOpts.lat = document.querySelector('#lat').value = center.y;
+    urlOpts.zoom = Math.min(17, Math.max(15, +map.getZoom()));
+    urlOpts.zone = 'custom';
 });
 map.on('zoomend', function () {
     clearTimeout(timeout);
@@ -857,9 +1073,22 @@ Array.prototype.forEach.call(document.querySelectorAll('#style-list li'), li => 
 document.querySelector('#locate').addEventListener('click', () => {
     urlOpts.lng = +document.querySelector('#lng').value;
     urlOpts.lat = +document.querySelector('#lat').value;
+    urlOpts.zone = 'custom';
+    urlOpts.zoom = Math.min(17, Math.max(15, +(urlOpts.zoom || map.getZoom() || 16)));
+    urlOpts.refresh = Date.now();
     map.setCenter({x: urlOpts.lng, y: urlOpts.lat});
     app.methods.updateElements();
     updateUrlState();
+    window.dispatchEvent(new CustomEvent('maqueta:manual-location', {
+        detail: {
+            zone: 'custom',
+            lng: urlOpts.lng,
+            lat: urlOpts.lat,
+            style: urlOpts.style || 'planet',
+            zoom: urlOpts.zoom,
+            href: location.href
+        }
+    }));
 });
 
 document.querySelector('#reset').addEventListener('click', () => {
